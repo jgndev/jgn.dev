@@ -1,0 +1,17 @@
+package lockups
+
+import "github.com/jgndev/jgn.dev/internal/views/icons"
+
+templ Tools() {
+	<div class="">
+		<h2 class="uppercase text-xl">Tools of the Trade:</h2>
+		<div class="flex items-center space-x-4">
+			@icons.Gcp()
+			@icons.Git()
+			@icons.Docker()
+			@icons.Kubernetes()
+			@icons.Terraform()
+			@icons.Neovim()
+		</div>
+	</div>
+}

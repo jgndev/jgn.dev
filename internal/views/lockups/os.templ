@@ -1,0 +1,13 @@
+package lockups
+
+import "github.com/jgndev/jgn.dev/internal/views/icons"
+
+templ Os() {
+	<div class="">
+		<h2 class="uppercase text-xl">Operating Systems:</h2>
+		<div class="flex items-center space-x-4">
+			@icons.Linux()
+			@icons.Macos()
+		</div>
+	</div>
+}

@@ -1,0 +1,13 @@
+package pages
+
+import (
+	"github.com/jgndev/jgn.dev/internal/views/shared"
+	"github.com/jgndev/jgn.dev/internal/views/lockups"
+	"github.com/jgndev/jgn.dev/internal/models"
+)
+
+templ Posts(posts []models.Post) {
+	@shared.Base("Posts") {
+		@lockups.Posts(posts)
+	}
+}

@@ -1,0 +1,161 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* jetbrains-mono-100 - latin */
+@font-face {
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: 'JetBrains Mono';
+    font-style: normal;
+    font-weight: 100;
+    src: url('../font/jetbrains-mono-v18-latin-100.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+/* jetbrains-mono-100italic - latin */
+@font-face {
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: 'JetBrains Mono';
+    font-style: italic;
+    font-weight: 100;
+    src: url('../font/jetbrains-mono-v18-latin-100italic.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+/* jetbrains-mono-regular - latin */
+@font-face {
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: 'JetBrains Mono';
+    font-style: normal;
+    font-weight: 400;
+    src: url('../font/jetbrains-mono-v18-latin-regular.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+/* jetbrains-mono-italic - latin */
+@font-face {
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: 'JetBrains Mono';
+    font-style: italic;
+    font-weight: 400;
+    src: url('../font/jetbrains-mono-v18-latin-italic.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+/* jetbrains-mono-600 - latin */
+@font-face {
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: 'JetBrains Mono';
+    font-style: normal;
+    font-weight: 600;
+    src: url('../font/jetbrains-mono-v18-latin-600.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+/* jetbrains-mono-600italic - latin */
+@font-face {
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: 'JetBrains Mono';
+    font-style: italic;
+    font-weight: 600;
+    src: url('../font/jetbrains-mono-v18-latin-600italic.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+/* jetbrains-mono-800 - latin */
+@font-face {
+    font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: 'JetBrains Mono';
+    font-style: normal;
+    font-weight: 800;
+    src: url('../font/jetbrains-mono-v18-latin-800.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+
+@layer base {
+
+    body {
+        @apply z-0 overscroll-none min-h-screen font-sans bg-zinc-900 text-zinc-300;
+    }
+
+    h1 {
+        @apply my-12 text-zinc-300 font-bold uppercase text-6xl;
+    }
+
+    h2 {
+        @apply my-4 text-zinc-300 font-bold uppercase text-4xl;
+    }
+
+    h3 {
+        @apply my-4 text-zinc-300 font-bold uppercase text-2xl;
+    }
+
+    h4 {
+        @apply my-4 text-zinc-300 font-bold uppercase text-xl;
+    }
+
+    img {
+        @apply max-w-[25vw] m-8 mx-auto;
+    }
+
+    a {
+        @apply text-zinc-100 transition-all delay-100;
+    }
+
+    a:hover {
+        @apply text-white underline underline-offset-8;
+    }
+
+    p {
+        @apply my-2;
+    }
+
+    nav {
+        @apply z-50 mx-auto max-w-screen-lg xl:max-w-screen-xl 2xl:max-w-screen-2xl px-6 lg:px-8 sticky top-0 py-4 xl:px-16 flex items-center justify-between border border-zinc-700/50 bg-zinc-900 rounded-md;
+    }
+
+    footer {
+        @apply z-50 mx-auto max-w-screen-lg xl:max-w-screen-xl 2xl:max-w-screen-2xl px-6 lg:px-8 mb-4 py-4 xl:px-16 flex items-center justify-between border border-zinc-700/50 bg-zinc-900 rounded-md;
+    }
+
+    main {
+        @apply z-40 mx-auto max-w-screen-lg xl:max-w-screen-xl 2xl:max-w-screen-2xl my-4 px-6 lg:px-8 py-4 border border-zinc-700/50 rounded-md;
+    }
+
+    input {
+        @apply outline-none focus:ring-1 focus:border-indigo-500 shadow-sm border border-zinc-500/50 text-sm rounded-md block w-full p-2.5 bg-zinc-800 placeholder-zinc-400 text-white;
+
+    }
+
+    textarea {
+        @apply outline-none focus:ring-1 focus:border-indigo-500 shadow-sm border border-zinc-500/50 text-sm rounded-md block w-full p-2.5 bg-zinc-800 placeholder-zinc-400 text-white;
+    }
+
+    svg {
+        @apply fill-zinc-300;
+    }
+
+    /* #search-overlay { */
+    /*     z-index: 1000; */
+        /*@apply z-50 bg-zinc-900;*/
+    /* } */
+
+    .read-button {
+        @apply transition-all pl-3 pr-1 py-2 flex space-x-4 items-center justify-center lowercase border border-zinc-700/50 text-zinc-200  hover:border-zinc-50 hover:shadow-md hover:no-underline rounded-md disabled:cursor-not-allowed;
+    }
+
+    .read-button:hover {
+        @apply bg-zinc-800 border border-zinc-700/20 no-underline;
+    }
+
+    .black-button {
+        @apply transition-all px-8 py-4 w-full min-w-full md:min-w-[18rem] md:max-w-[18rem] flex space-x-4 text-sm md:text-base items-center justify-center uppercase border border-zinc-700/50 text-zinc-200  hover:border-zinc-50 hover:shadow-md hover:no-underline rounded-md disabled:cursor-not-allowed;
+    }
+
+    .black-button > svg {
+        @apply fill-zinc-200;
+    }
+
+    .black-button:hover > svg {
+        @apply transition-all delay-100 ease-in-out fill-white disabled:fill-zinc-200;
+    }
+
+    .brand-block {
+        @apply mt-2 mb-8 py-2 grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-12 gap-6 place-content-center place-items-center md:place-items-start;
+    }
+
+    .brand-icon-block {
+        @apply w-[100px] h-[100px] flex flex-col items-center justify-center;
+    }
+
+    .contact-span {
+        @apply text-sm md:text-base text-zinc-300;
+    }
+}

@@ -1,0 +1,30 @@
+# Ignore editor directories
+.idea/
+.vscode/
+
+# Ignore environment variable files
+.env
+.env.*
+
+# Ignore Google Cloud ignore files
+.gcloudignore
+
+# Ignore dependency directories
+**/node_modules/
+**/vendor/
+
+# Ignore build outputs and temporary files and directories
+**/dist/
+**/build/
+**/out/
+**/tmp/
+
+# Ignore Terraform configuration and state files
+**/*.tfstate
+**/*.tfvars
+**/*.hcl
+**/*.tfstate.*
+**/.terraform/
+
+# Ignore macOS specific generated directories
+.DS_Store
