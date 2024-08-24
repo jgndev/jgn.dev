@@ -26,7 +26,7 @@ module.exports = {
     theme: {
         extend: {},
         fontFamily: {
-            'sans': ['Bahnschrift', 'DIN Alternate', 'Franklin Gothic Medium', 'Nimbus Sans Narrow', 'sans-serif-condensed', 'sans-serif'],
+            'mono': ['JetBrains Mono', 'monospace'],
         },
     },
     plugins: [],
