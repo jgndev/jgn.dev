@@ -1,72 +1,92 @@
-# main.tf
+terraform {
+  required_providers {
+    google = {
+      source  = "hashicorp/google"
+      version = "~> 4.0"
+    }
+    time = {
+      source  = "hashicorp/time"
+      version = "~> 0.9.1"
+    }
+  }
+}
 
-# terraform {
-#   required_providers {
-#     google = {
-#       source  = "hashicorp/google"
-#       version = "~> 4.0"
-#     }
-#   }
-# }
-#
 provider "google" {
-  region      = var.region
   credentials = base64decode(var.credentials)
-  project     = var.project_id
+  region      = var.region
+}
+
+resource "google_project" "website_project" {
+  name            = "JGN Website"
+  project_id      = var.project_id
+  billing_account = var.billing_account
+}
+
+# Wait for billing to be fully associated
+resource "time_sleep" "wait_30_seconds" {
+  depends_on      = [google_project.website_project]
+  create_duration = "30s"
 }
 
 # Enable necessary APIs
 resource "google_project_service" "services" {
   for_each = toset([
+    "cloudbilling.googleapis.com",
     "storage.googleapis.com",
     "pubsub.googleapis.com",
     "firestore.googleapis.com",
     "run.googleapis.com",
     "cloudbuild.googleapis.com"
   ])
-  project            = var.project_id
-  service            = each.key
-  disable_on_destroy = false
+  project                    = google_project.website_project.project_id
+  service                    = each.key
+  disable_dependent_services = true
+  disable_on_destroy         = false
+
+  depends_on = [time_sleep.wait_30_seconds]
 }
 
 # Create Cloud Storage bucket for posts
 resource "google_storage_bucket" "posts_bucket" {
-  name                        = "${var.project_id}-posts"
+  name                        = "${google_project.website_project.project_id}-posts"
   location                    = var.region
-  project                     = var.project_id
+  project                     = google_project.website_project.project_id
   uniform_bucket_level_access = true
-  depends_on                  = [google_project_service.services]
+
+  depends_on = [google_project_service.services]
 }
 
 # Create Pub/Sub topic
 resource "google_pubsub_topic" "bucket_changes" {
-  name       = "bucket-changes"
-  project    = var.project_id
+  name    = "bucket-changes"
+  project = google_project.website_project.project_id
+
   depends_on = [google_project_service.services]
 }
 
 # Create Firestore database
 resource "google_firestore_database" "database" {
-  project     = var.project_id
+  project     = google_project.website_project.project_id
   name        = "(default)"
   location_id = var.region
   type        = "FIRESTORE_NATIVE"
-  depends_on  = [google_project_service.services]
+
+  depends_on = [google_project_service.services]
 }
 
 # Create Cloud Run service for the website
 resource "google_cloud_run_service" "website" {
   name     = "jgn-website"
   location = var.region
-  project  = var.project_id
+  project  = google_project.website_project.project_id
 
   template {
     spec {
       containers {
-        image = "gcr.io/${var.project_id}/jgn-website:latest"
+        image = "gcr.io/${google_project.website_project.project_id}/jgn-website:latest"
         env {
           name  = "GOOGLE_CLOUD_PROJECT"
-          value = var.project_id
+          value = google_project.website_project.project_id
         }
       }
     }
@@ -84,10 +104,10 @@ resource "google_cloud_run_service" "website" {
 resource "google_cloud_run_domain_mapping" "domain_mapping" {
   location = var.region
   name     = "jgn.dev"
-  project  = var.project_id
+  project  = google_project.website_project.project_id
 
   metadata {
-    namespace = var.project_id
+    namespace = google_project.website_project.project_id
   }
 
   spec {
@@ -101,7 +121,7 @@ resource "google_cloud_run_domain_mapping" "domain_mapping" {
 resource "google_cloud_run_service_iam_member" "all_users" {
   service  = google_cloud_run_service.website.name
   location = google_cloud_run_service.website.location
-  project  = var.project_id
+  project  = google_project.website_project.project_id
   role     = "roles/run.invoker"
   member   = "allUsers"
 
