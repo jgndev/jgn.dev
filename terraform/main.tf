@@ -29,8 +29,6 @@ provider "google" {
   project     = google_project.website_project.project_id
   region      = var.region
   credentials = base64decode(var.credentials)
-
-  depends_on = [google_project_service.cloudbilling]
 }
 
 # Enable other necessary APIs
@@ -126,3 +124,4 @@ resource "google_cloud_run_service_iam_member" "all_users" {
   project    = google_project.website_project.project_id
   depends_on = [google_cloud_run_service.website]
 }
+
