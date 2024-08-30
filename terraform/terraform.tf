@@ -4,7 +4,7 @@ terraform {
   cloud {
     organization = "jgndev"
     workspaces {
-      name = "jgn-dev-08-24-24"
+      name = "jgndev"
     }
   }
   required_providers {
@@ -14,3 +14,4 @@ terraform {
     }
   }
 }
+

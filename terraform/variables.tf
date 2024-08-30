@@ -20,3 +20,9 @@ variable "billing_account" {
   description = "The billing account ID"
   type        = string
 }
+
+variable "credentials" {
+  description = "GCP credentials Base64 encoded"
+  type        = string
+  sensitive   = true
+}
