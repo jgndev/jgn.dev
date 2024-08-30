@@ -1,14 +1,14 @@
 # main.tf
 
-terraform {
-  required_providers {
-    google = {
-      source  = "hashicorp/google"
-      version = "~> 4.0"
-    }
-  }
-}
-
+# terraform {
+#   required_providers {
+#     google = {
+#       source  = "hashicorp/google"
+#       version = "~> 4.0"
+#     }
+#   }
+# }
+#
 provider "google" {
   region      = var.region
   credentials = base64decode(var.credentials)

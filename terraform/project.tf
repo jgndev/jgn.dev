@@ -1,7 +1,7 @@
-provider "google" {
-  region      = var.region
-  credentials = base64decode(var.credentials)
-}
+# provider "google" {
+#   region      = var.region
+#   credentials = base64decode(var.credentials)
+# }
 
 resource "google_project" "website_project" {
   name            = "jgn website"
