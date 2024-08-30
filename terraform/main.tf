@@ -14,15 +14,26 @@ resource "google_project" "website_project" {
   billing_account = var.billing_account
 }
 
+# Enable Cloud Billing API first
+resource "google_project_service" "cloudbilling" {
+  project = google_project.website_project.project_id
+  service = "cloudbilling.googleapis.com"
+
+  disable_on_destroy = false
+  depends_on         = [google_project.website_project]
+}
+
 # Configure the Google Cloud provider for the new project
 provider "google" {
   alias       = "new_project"
   project     = google_project.website_project.project_id
   region      = var.region
   credentials = base64decode(var.credentials)
+
+  depends_on = [google_project_service.cloudbilling]
 }
 
-# Enable necessary APIs
+# Enable other necessary APIs
 resource "google_project_service" "services" {
   provider = google.new_project
   for_each = toset([
@@ -35,8 +46,7 @@ resource "google_project_service" "services" {
   project            = google_project.website_project.project_id
   service            = each.key
   disable_on_destroy = false
-
-  depends_on = [google_project.website_project]
+  depends_on         = [google_project_service.cloudbilling]
 }
 
 # Create Cloud Storage bucket for posts
@@ -46,16 +56,14 @@ resource "google_storage_bucket" "posts_bucket" {
   location                    = var.region
   project                     = google_project.website_project.project_id
   uniform_bucket_level_access = true
-
-  depends_on = [google_project_service.services]
+  depends_on                  = [google_project_service.services]
 }
 
 # Create Pub/Sub topic
 resource "google_pubsub_topic" "bucket_changes" {
-  provider = google.new_project
-  name     = "bucket-changes"
-  project  = google_project.website_project.project_id
-
+  provider   = google.new_project
+  name       = "bucket-changes"
+  project    = google_project.website_project.project_id
   depends_on = [google_project_service.services]
 }
 
@@ -66,8 +74,7 @@ resource "google_firestore_database" "database" {
   name        = "(default)"
   location_id = var.region
   type        = "FIRESTORE_NATIVE"
-
-  depends_on = [google_project_service.services]
+  depends_on  = [google_project_service.services]
 }
 
 # Create Cloud Run service for the website
@@ -76,7 +83,6 @@ resource "google_cloud_run_service" "website" {
   name     = "jgn-website"
   location = var.region
   project  = google_project.website_project.project_id
-
   template {
     spec {
       containers {
@@ -88,12 +94,10 @@ resource "google_cloud_run_service" "website" {
       }
     }
   }
-
   traffic {
     percent         = 100
     latest_revision = true
   }
-
   depends_on = [google_project_service.services]
 }
 
@@ -103,27 +107,22 @@ resource "google_cloud_run_domain_mapping" "domain_mapping" {
   location = var.region
   name     = "jgn.dev"
   project  = google_project.website_project.project_id
-
   metadata {
     namespace = google_project.website_project.project_id
   }
-
   spec {
     route_name = google_cloud_run_service.website.name
   }
-
   depends_on = [google_cloud_run_service.website]
 }
 
 # IAM entry for all users to invoke the function
 resource "google_cloud_run_service_iam_member" "all_users" {
-  provider = google.new_project
-  service  = google_cloud_run_service.website.name
-  location = google_cloud_run_service.website.location
-  role     = "roles/run.invoker"
-  member   = "allUsers"
-  project  = google_project.website_project.project_id
-
+  provider   = google.new_project
+  service    = google_cloud_run_service.website.name
+  location   = google_cloud_run_service.website.location
+  role       = "roles/run.invoker"
+  member     = "allUsers"
+  project    = google_project.website_project.project_id
   depends_on = [google_cloud_run_service.website]
 }
-
