@@ -1,130 +1,165 @@
-terraform {
-  required_providers {
-    google = {
-      source  = "hashicorp/google"
-      version = "~> 4.0"
-    }
-    time = {
-      source  = "hashicorp/time"
-      version = "~> 0.9.1"
-    }
+# Configure the AWS Provider
+provider "aws" {
+  region = var.aws_region
+}
+
+# S3 bucket for storing Markdown files
+resource "aws_s3_bucket" "post_bucket" {
+  bucket = var.bucket_name
+
+  tags = {
+    Name        = "Post Bucket"
+    Environment = var.environment
   }
 }
 
-provider "google" {
-  credentials = base64decode(var.credentials)
-  region      = var.region
+# S3 bucket ACL
+resource "aws_s3_bucket_ownership_controls" "post_bucket" {
+  bucket = aws_s3_bucket.post_bucket.id
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
 }
 
-resource "google_project" "website_project" {
-  name            = "JGN Website"
-  project_id      = var.project_id
-  billing_account = var.billing_account
+resource "aws_s3_bucket_acl" "post_bucket" {
+  depends_on = [aws_s3_bucket_ownership_controls.post_bucket]
+
+  bucket = aws_s3_bucket.post_bucket.id
+  acl    = "private"
 }
 
-# Wait for billing to be fully associated
-resource "time_sleep" "wait_30_seconds" {
-  depends_on      = [google_project.website_project]
-  create_duration = "30s"
+# DynamoDB table for storing parsed posts
+resource "aws_dynamodb_table" "post_table" {
+  name           = var.dynamodb_table_name
+  billing_mode   = "PAY_PER_REQUEST"
+  hash_key       = "id"
+
+  attribute {
+    name = "id"
+    type = "S"
+  }
+
+  attribute {
+    name = "slug"
+    type = "S"
+  }
+
+  global_secondary_index {
+    name               = "SlugIndex"
+    hash_key           = "slug"
+    projection_type    = "ALL"
+  }
+
+  tags = {
+    Name        = "Post Table"
+    Environment = var.environment
+  }
 }
 
-# Enable necessary APIs
-resource "google_project_service" "services" {
-  for_each = toset([
-    "cloudbilling.googleapis.com",
-    "storage.googleapis.com",
-    "pubsub.googleapis.com",
-    "firestore.googleapis.com",
-    "run.googleapis.com",
-    "cloudbuild.googleapis.com"
-  ])
-  project                    = google_project.website_project.project_id
-  service                    = each.key
-  disable_dependent_services = true
-  disable_on_destroy         = false
+# SQS queue for notifications
+resource "aws_sqs_queue" "post_queue" {
+  name                      = var.sqs_queue_name
+  delay_seconds             = 90
+  max_message_size          = 2048
+  message_retention_seconds = 86400
+  receive_wait_time_seconds = 10
 
-  depends_on = [time_sleep.wait_30_seconds]
+  tags = {
+    Name        = "Post Notification Queue"
+    Environment = var.environment
+  }
 }
 
-# Create Cloud Storage bucket for posts
-resource "google_storage_bucket" "posts_bucket" {
-  name                        = "${google_project.website_project.project_id}-posts"
-  location                    = var.region
-  project                     = google_project.website_project.project_id
-  uniform_bucket_level_access = true
+# S3 event notification to SQS
+resource "aws_s3_bucket_notification" "bucket_notification" {
+  bucket = aws_s3_bucket.post_bucket.id
 
-  depends_on = [google_project_service.services]
+  queue {
+    queue_arn     = aws_sqs_queue.post_queue.arn
+    events        = ["s3:ObjectCreated:*", "s3:ObjectRemoved:*"]
+    filter_suffix = ".md"
+  }
 }
 
-# Create Pub/Sub topic
-resource "google_pubsub_topic" "bucket_changes" {
-  name    = "bucket-changes"
-  project = google_project.website_project.project_id
+# IAM role for EC2 instance (or ECS task) to access S3, DynamoDB, and SQS
+resource "aws_iam_role" "app_role" {
+  name = "app_role"
 
-  depends_on = [google_project_service.services]
-}
-
-# Create Firestore database
-resource "google_firestore_database" "database" {
-  project     = google_project.website_project.project_id
-  name        = "(default)"
-  location_id = var.region
-  type        = "FIRESTORE_NATIVE"
-
-  depends_on = [google_project_service.services]
-}
-
-# Create Cloud Run service for the website
-resource "google_cloud_run_service" "website" {
-  name     = "jgn-website"
-  location = var.region
-  project  = google_project.website_project.project_id
-
-  template {
-    spec {
-      containers {
-        image = "gcr.io/${google_project.website_project.project_id}/jgn-website:latest"
-        env {
-          name  = "GOOGLE_CLOUD_PROJECT"
-          value = google_project.website_project.project_id
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ec2.amazonaws.com"  # Change this to ecs-tasks.amazonaws.com if using ECS
         }
       }
-    }
-  }
-
-  traffic {
-    percent         = 100
-    latest_revision = true
-  }
-
-  depends_on = [google_project_service.services]
+    ]
+  })
 }
 
-# Set up custom domain mapping
-resource "google_cloud_run_domain_mapping" "domain_mapping" {
-  location = var.region
-  name     = "jgn.dev"
-  project  = google_project.website_project.project_id
+# IAM policy for app role
+resource "aws_iam_role_policy" "app_policy" {
+  name = "app_policy"
+  role = aws_iam_role.app_role.id
 
-  metadata {
-    namespace = google_project.website_project.project_id
-  }
-
-  spec {
-    route_name = google_cloud_run_service.website.name
-  }
-
-  depends_on = [google_cloud_run_service.website]
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "s3:GetObject",
+          "s3:ListBucket",
+        ]
+        Effect   = "Allow"
+        Resource = [
+          aws_s3_bucket.post_bucket.arn,
+          "${aws_s3_bucket.post_bucket.arn}/*",
+        ]
+      },
+      {
+        Action = [
+          "dynamodb:GetItem",
+          "dynamodb:PutItem",
+          "dynamodb:UpdateItem",
+          "dynamodb:DeleteItem",
+          "dynamodb:Scan",
+          "dynamodb:Query",
+        ]
+        Effect   = "Allow"
+        Resource = aws_dynamodb_table.post_table.arn
+      },
+      {
+        Action = [
+          "sqs:ReceiveMessage",
+          "sqs:DeleteMessage",
+          "sqs:GetQueueAttributes",
+        ]
+        Effect   = "Allow"
+        Resource = aws_sqs_queue.post_queue.arn
+      },
+    ]
+  })
 }
 
-# IAM entry for all users to invoke the function
-resource "google_cloud_run_service_iam_member" "all_users" {
-  service  = google_cloud_run_service.website.name
-  location = google_cloud_run_service.website.location
-  project  = google_project.website_project.project_id
-  role     = "roles/run.invoker"
-  member   = "allUsers"
-
-  depends_on = [google_cloud_run_service.website]
+# Output values
+output "bucket_name" {
+  description = "Name of the S3 bucket"
+  value       = aws_s3_bucket.post_bucket.id
 }
 
+output "dynamodb_table_name" {
+  description = "Name of the DynamoDB table"
+  value       = aws_dynamodb_table.post_table.name
+}
+
+output "sqs_queue_url" {
+  description = "URL of the SQS queue"
+  value       = aws_sqs_queue.post_queue.id
+}
+
+output "iam_role_arn" {
+  description = "ARN of the IAM role for the application"
+  value       = aws_iam_role.app_role.arn
+}

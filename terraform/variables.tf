@@ -1,28 +1,28 @@
-# variables.tf
+variable "aws_region" {
+  description = "The AWS region to deploy resources in"
+  type        = string
+  default     = "us-west-2"  # Change this to your preferred region
+}
 
-variable "project_id" {
-  description = "The ID of the Google Cloud project"
+variable "environment" {
+  description = "The deployment environment (e.g., dev, staging, prod)"
+  type        = string
+  default     = "dev"
+}
+
+variable "bucket_name" {
+  description = "Name of the S3 bucket to store Markdown files"
   type        = string
 }
 
-variable "region" {
-  description = "The region to deploy resources to"
+variable "dynamodb_table_name" {
+  description = "Name of the DynamoDB table to store parsed posts"
   type        = string
-  default     = "us-central1"
+  default     = "Posts"
 }
 
-variable "org_id" {
-  description = "The organization ID"
+variable "sqs_queue_name" {
+  description = "Name of the SQS queue for notifications"
   type        = string
-}
-
-variable "billing_account" {
-  description = "The billing account ID"
-  type        = string
-}
-
-variable "credentials" {
-  description = "GCP credentials Base64 encoded"
-  type        = string
-  sensitive   = true
+  default     = "post-notification-queue"
 }
