@@ -7,8 +7,10 @@ import (
 	"os"
 	"time"
 
-	"cloud.google.com/go/firestore"
-	"cloud.google.com/go/pubsub"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/sqs"
 	"github.com/jgndev/jgn.dev/internal/application"
 	"github.com/jgndev/jgn.dev/internal/models"
 	"github.com/labstack/echo/v4"
@@ -17,28 +19,48 @@ import (
 
 func main() {
 	// Read environment variables on startup
-	project := os.Getenv("GCP_PROJECT_ID")
-	if project == "" {
-		log.Fatal("GCP_PROJECT_ID environment variable not set!")
+	awsRegion := os.Getenv("AWS_REGION")
+	if awsRegion == "" {
+		log.Fatal("AWS_REGION environment variable not set!")
 	}
-	log.Printf("starting with GCP_PROJECT_ID: %v", project)
+	log.Printf("starting with AWS_REGION: %v", awsRegion)
 
-	topic := os.Getenv("GCP_TOPIC_NAME")
-	if topic == "" {
-		log.Fatal("GCP_TOPIC_NAME environment variable not set!")
+	s3BucketName := os.Getenv("S3_BUCKET_NAME")
+	if s3BucketName == "" {
+		log.Fatal("S3_BUCKET_NAME environment variable not set!")
 	}
-	log.Printf("starting with GCP_TOPIC_NAME: %v", topic)
+	log.Printf("starting with S3_BUCKET_NAME: %v", s3BucketName)
 
-	// Firestore
+	dynamoTableName := os.Getenv("DYNAMODB_TABLE_NAME")
+	if dynamoTableName == "" {
+		log.Fatal("DYNAMODB_TABLE_NAME environment variable not set!")
+	}
+	log.Printf("starting with DYNAMODB_TABLE_NAME: %v", dynamoTableName)
+
+	sqsQueueURL := os.Getenv("SQS_QUEUE_URL")
+	if sqsQueueURL == "" {
+		log.Fatal("SQS_QUEUE_URL environment variable not set!")
+	}
+	log.Printf("starting with SQS_QUEUE_URL: %v", sqsQueueURL)
+
+	// AWS SDK configuration
 	ctx := context.Background()
-	client, err := firestore.NewClient(ctx, project)
+	cfg, err := config.LoadDefaultConfig(ctx, config.WithRegion(awsRegion))
 	if err != nil {
-		log.Fatalf("failed to create Firestore client: %v\n", err)
+		log.Fatalf("unable to load SDK config, %v", err)
 	}
-	defer client.Close()
+
+	// S3 client
+	s3Client := s3.NewFromConfig(cfg)
+
+	// DynamoDB client
+	dynamoClient := dynamodb.NewFromConfig(cfg)
+
+	// SQS client
+	sqsClient := sqs.NewFromConfig(cfg)
 
 	var posts models.Posts
-	if err = posts.LoadFromFirestore(ctx, client); err != nil {
+	if err = posts.LoadFromDynamoDB(ctx, dynamoClient, dynamoTableName); err != nil {
 		log.Fatalf("Failed to load posts: %v\n", err)
 	}
 
@@ -46,30 +68,10 @@ func main() {
 	e := echo.New()
 
 	// Instantiate new instance of Application
-	app := application.NewApplication(posts, client)
+	app := application.NewApplication(posts, s3Client, dynamoClient, sqsClient, s3BucketName, dynamoTableName, sqsQueueURL)
 
-	// PubSub
-	pubsubClient, err := pubsub.NewClient(ctx, topic)
-	if err != nil {
-		log.Printf("Failed to create pubsub client: %v\n", err)
-	}
-	defer pubsubClient.Close()
-
-	// sub := pubsubClient.Subscription(topic)
-	// go func() {
-	// 	err = sub.Receive(ctx, func(ctx context.Context, msg *pubsub.Message) {
-	// 		log.Println("Message received, reloading posts")
-	// 		if err = app.ReloadPosts(ctx); err != nil {
-	// 			log.Printf("Failed to reload posts: %v\n", err)
-	// 			msg.Nack()
-	// 		} else {
-	// 			msg.Ack()
-	// 		}
-	// 	})
-	// 	if err != nil {
-	// 		log.Printf("Failed to receive messages: %v\n", err)
-	// 	}
-	// }()
+	// Start SQS polling in a goroutine
+	go app.PollSQS(ctx)
 
 	// Enable gzip compression
 	e.Use(middleware.GzipWithConfig(middleware.GzipConfig{
