@@ -39,14 +39,3 @@ variable "project_name" {
   type        = string
   default     = "jgn-dev"
 }
-
-variable "subnet_ids" {
-  description = "Name of the Subnet IDs"
-  type        = list(string)
-}
-
-variable "vpc_id" {
-  description = "Name of the VPC"
-  type        = string
-  default     = "jgn-dev-vpc"
-}
