@@ -12,3 +12,8 @@ const (
 	// Generator is the metadata property for the app in the html header for SEO
 	Generator string = "jgn.dev"
 )
+
+var (
+	ResumeURLPDF string = "https://jgn-dev-public-resume.s3.us-east-2.amazonaws.com/jeremy-novak-resume.pdf"
+	ResumeURLDOC string = "https://jgn-dev-public-resume.s3.us-east-2.amazonaws.com/jeremy-novak-resume.docx"
+)
