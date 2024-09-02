@@ -38,11 +38,11 @@ func Tools() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = icons.Gcp().Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = icons.Git().Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = icons.Git().Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = icons.GitHub().Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -55,6 +55,10 @@ func Tools() templ.Component {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = icons.Terraform().Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = icons.Aws().Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

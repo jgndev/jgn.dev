@@ -6,7 +6,7 @@ import (
 	"github.com/jgndev/jgn.dev/internal/models"
 )
 
-templ Home(posts []models.Post) {
+templ Home(posts []*models.Post) {
 	@shared.Base("Home") {
 		@lockups.Home(posts)
 	}

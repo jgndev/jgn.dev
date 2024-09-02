@@ -14,7 +14,7 @@ import "github.com/jgndev/jgn.dev/internal/models"
    HTMLContent string   `firestore:"htmlContent"`
 */
 
-templ PostBody(post models.Post) {
+templ PostBody(post *models.Post) {
 	<div>
 		<div class="text-center">
 			<div class="flex flex-col">

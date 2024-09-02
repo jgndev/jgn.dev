@@ -88,7 +88,7 @@ func Base(title string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("--><link rel=\"preload\" href=\"/public/css/site.css\" as=\"style\"><link rel=\"stylesheet\" href=\"/public/css/site.css\"><!--")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("--><link rel=\"preload\" href=\"/public/css/site.css\" as=\"style\"><link rel=\"preload\" href=\"/public/font/jetbrains-mono-v18-latin-regular.woff2\" as=\"font\" crossorigin><link rel=\"stylesheet\" href=\"/public/css/site.css\"><!--")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

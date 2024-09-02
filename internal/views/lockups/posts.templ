@@ -2,7 +2,7 @@ package lockups
 
 import "github.com/jgndev/jgn.dev/internal/models"
 
-templ Posts(posts []models.Post) {
+templ Posts(posts []*models.Post) {
 	<div class="flex flex-col text-center">
 		<h1>Posts</h1>
 		<div class="mb-8 grid grid-cols-3 grid-rows-2 gap-4">

@@ -22,5 +22,5 @@ func (a *Application) Post(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound)
 	}
 
-	return pages.Post(*post).Render(c.Request().Context(), c.Response().Writer)
+	return pages.Post(post).Render(c.Request().Context(), c.Response().Writer)
 }

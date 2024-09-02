@@ -17,4 +17,4 @@ fi
 
 # Start the watch process to build templ files on change
 echo "Watching for template changes. Press CTRL+C to stop."
-templ fmt && templ generate --watch
+templ fmt internal/views/** && templ generate --watch

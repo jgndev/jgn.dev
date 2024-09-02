@@ -100,6 +100,63 @@ resource "aws_s3_bucket_acl" "post_bucket" {
   acl        = "private"
 }
 
+# S3 bucket for storing publicly accessible resume
+resource "aws_s3_bucket" "resume_bucket" {
+  bucket = "${var.project_name}-public-resume"
+
+  tags = {
+    Name        = "Public Resume Bucket"
+    Environment = var.environment
+  }
+}
+
+# S3 bucket ownership controls
+resource "aws_s3_bucket_ownership_controls" "resume_bucket_ownership" {
+  bucket = aws_s3_bucket.resume_bucket.id
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
+# S3 bucket public access block
+resource "aws_s3_bucket_public_access_block" "resume_bucket_public_access" {
+  bucket = aws_s3_bucket.resume_bucket.id
+
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
+}
+
+# S3 bucket ACL
+resource "aws_s3_bucket_acl" "resume_bucket_acl" {
+  depends_on = [
+    aws_s3_bucket_ownership_controls.resume_bucket_ownership,
+    aws_s3_bucket_public_access_block.resume_bucket_public_access,
+  ]
+
+  bucket = aws_s3_bucket.resume_bucket.id
+  acl    = "public-read"
+}
+
+# S3 bucket policy
+resource "aws_s3_bucket_policy" "resume_bucket_policy" {
+  bucket = aws_s3_bucket.resume_bucket.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid       = "PublicReadGetObject"
+        Effect    = "Allow"
+        Principal = "*"
+        Action    = "s3:GetObject"
+        Resource  = "${aws_s3_bucket.resume_bucket.arn}/*"
+      },
+    ]
+  })
+}
+
 # DynamoDB table for storing parsed posts
 resource "aws_dynamodb_table" "post_table" {
   name         = var.dynamodb_table_name
@@ -422,6 +479,17 @@ output "ecr_repository_url" {
 output "bucket_name" {
   description = "Name of the S3 bucket"
   value       = aws_s3_bucket.post_bucket.id
+}
+
+# Output the bucket name and URL
+output "resume_bucket_name" {
+  description = "Name of the public resume S3 bucket"
+  value       = aws_s3_bucket.resume_bucket.id
+}
+
+output "resume_bucket_url" {
+  description = "URL of the public resume S3 bucket"
+  value       = "https://${aws_s3_bucket.resume_bucket.bucket_regional_domain_name}"
 }
 
 output "dynamodb_table_name" {

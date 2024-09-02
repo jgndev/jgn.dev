@@ -4,7 +4,7 @@ import (
 	"github.com/jgndev/jgn.dev/internal/models"
 )
 
-templ PostCard(post models.Post) {
+templ PostCard(post *models.Post) {
 	<div class="w-full max-w-[25rem] h-full m-4 p-6 flex flex-col bg-zinc-900 border border-zinc-700/50 rounded-md shadow-md">
 		<div class="flex-1">
 			<h5 class="mb-2 text-2xl font-bold text-zinc-200">{ post.Title }</h5>

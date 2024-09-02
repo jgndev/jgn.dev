@@ -15,7 +15,7 @@ import (
 	"github.com/jgndev/jgn.dev/internal/views/icons"
 )
 
-func Home(posts []models.Post) templ.Component {
+func Home(posts []*models.Post) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -41,7 +41,7 @@ func Home(posts []models.Post) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Var3 := `Howdy, I'm a programmer from Texas.`
+		templ_7745c5c3_Var3 := `Howdy, I'm a programmer from Oklahoma.`
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -81,11 +81,11 @@ func Home(posts []models.Post) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = icons.Gcp().Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = icons.Kubernetes().Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = icons.Kubernetes().Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = icons.Aws().Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

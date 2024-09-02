@@ -6,7 +6,7 @@ import (
 	"github.com/jgndev/jgn.dev/internal/views/lockups"
 )
 
-templ Post(post models.Post) {
+templ Post(post *models.Post) {
 	@shared.Base(post.Title) {
 		@lockups.PostBody(post)
 	}

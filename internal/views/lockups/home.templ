@@ -5,7 +5,7 @@ import (
 	"github.com/jgndev/jgn.dev/internal/views/icons"
 )
 
-templ Home(posts []models.Post) {
+templ Home(posts []*models.Post) {
 	<div class="mx-auto mb-24 px-4 py-8 grid grid-cols-2 gap-4">
 		<div class="mx-auto w-full flex flex-col">
 			<h1>Jeremy Novak</h1>
@@ -17,7 +17,7 @@ templ Home(posts []models.Post) {
 					></path>
 				</svg>
 				<p>
-					Howdy, I'm a programmer from Texas.
+					Howdy, I'm a programmer from Oklahoma.
 					<br/>
 					I build <em>fast</em> sites and tools for the web.
 				</p>
@@ -25,8 +25,8 @@ templ Home(posts []models.Post) {
 		</div>
 		<div class="flex items-center justify-center space-x-2">
 			@icons.Go()
-			@icons.Gcp()
 			@icons.Kubernetes()
+			@icons.Aws()
 		</div>
 	</div>
 	<div class="flex flex-col text-center">
