@@ -29,6 +29,9 @@ WORKDIR /app
 
 COPY --from=builder /app/main .
 
+# Copy over the static assets
+COPY public/ /app/public/
+
 # Cloud Run uses a PORT variablle which we can set explicitly here.
 ENV PORT 8080
 EXPOSE 8080
