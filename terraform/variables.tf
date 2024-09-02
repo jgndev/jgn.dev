@@ -1,7 +1,7 @@
 variable "aws_region" {
   description = "The AWS region to deploy resources in"
   type        = string
-  default     = "us-west-2"  # Change this to your preferred region
+  default     = "us-east-2"
 }
 
 variable "environment" {
@@ -25,4 +25,26 @@ variable "sqs_queue_name" {
   description = "Name of the SQS queue for notifications"
   type        = string
   default     = "post-notification-queue"
+}
+
+variable "ecr_repository_name" {
+  description = "Name of the ECR repository"
+  type        = string
+  default     = "jgn-dev-image"
+}
+
+variable "project_name" {
+  description = "Name of the project"
+  type        = string
+  default     = "jgn-dev"
+}
+
+variable "subnet_ids" {
+  description = "Name of the Subnet IDs"
+  type        = list(string)
+}
+
+variable "vpc_id" {
+  description = "Name of the VPC"
+  type        = string
 }
