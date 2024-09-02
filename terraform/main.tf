@@ -157,15 +157,6 @@ resource "aws_s3_bucket_policy" "resume_bucket_policy" {
   })
 }
 
-resource "aws_s3_bucket_public_access_block" "resume_bucket_public_access" {
-  bucket = aws_s3_bucket.resume_bucket.id
-
-  block_public_acls       = false
-  block_public_policy     = false
-  ignore_public_acls      = false
-  restrict_public_buckets = false
-}
-
 # DynamoDB table for storing parsed posts
 resource "aws_dynamodb_table" "post_table" {
   name         = var.dynamodb_table_name
