@@ -1,0 +1,37 @@
+name: Go Security Scan
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  gosec:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.23' 
+
+    - name: Install gosec
+      run: go install github.com/securego/gosec/v2/cmd/gosec@latest
+
+    - name: Run gosec
+      run: gosec ./...
+
+    - name: Upload gosec report
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: gosec-report
+        path: gosec.json
+      run: gosec -fmt=json -out=gosec.json ./...
+
