@@ -13,6 +13,7 @@ variable "environment" {
 variable "bucket_name" {
   description = "Name of the S3 bucket to store Markdown files"
   type        = string
+  default     = "jgn-posts-bucket"
 }
 
 variable "dynamodb_table_name" {
@@ -47,4 +48,5 @@ variable "subnet_ids" {
 variable "vpc_id" {
   description = "Name of the VPC"
   type        = string
+  default     = "jgn-dev-vpc"
 }
