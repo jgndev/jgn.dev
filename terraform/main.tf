@@ -2,7 +2,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 3.0"  # Use the latest 3.x version
+      version = "~> 3.0" # Use the latest 3.x version
     }
   }
 }
@@ -142,6 +142,31 @@ resource "aws_sqs_queue" "post_queue" {
   }
 }
 
+resource "aws_sqs_queue_policy" "post_queue_policy" {
+  queue_url = aws_sqs_queue.post_queue.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Service = "s3.amazonaws.com"
+        }
+        Action = [
+          "sqs:SendMessage"
+        ]
+        Resource = aws_sqs_queue.post_queue.arn
+        Condition = {
+          ArnEquals = {
+            "aws:SourceArn" = aws_s3_bucket.post_bucket.arn
+          }
+        }
+      }
+    ]
+  })
+}
+
 # S3 event notification to SQS
 resource "aws_s3_bucket_notification" "bucket_notification" {
   bucket = aws_s3_bucket.post_bucket.id
@@ -151,6 +176,8 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
     events        = ["s3:ObjectCreated:*", "s3:ObjectRemoved:*"]
     filter_suffix = ".md"
   }
+
+  depends_on = [aws_sqs_queue_policy.post_queue_policy]
 }
 
 # ECS Cluster
