@@ -9,9 +9,11 @@ on:
 jobs:
   security-scan:
     runs-on: ubuntu-latest
+    env:
+      GO11MODULE: on
     steps:
-    - uses: actions/checkout@v2
-    - name: Run gosec
+    - uses: actions/checkout@v3
+    - name: Run GoSec Security Scanner
       uses: securego/gosec@master
       with:
         args: ./...
@@ -19,17 +21,14 @@ jobs:
   static-check:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Set up Go
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v4
       with:
         go-version: 1.23
-    - name: Run golangci-lint
-      uses: golangci/golangci-lint-action@v2
-    - name: Install staticcheck
-      run: go install honnef.co/go/tools/cmd/staticcheck@latest
-    - name: Run staticcheck
-      run: staticcheck ./...
+    - uses: reviewdog/action-staticcheck@v1
+      with:
+        fail_on_error: true
 
   unit-tests:
     runs-on: ubuntu-latest
