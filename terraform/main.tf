@@ -287,11 +287,29 @@ resource "aws_lb" "main" {
   enable_deletion_protection = false
 }
 
-# ALB Listener
+# ALB Listener for HTTP (redirect to HTTPS)
 resource "aws_lb_listener" "http" {
   load_balancer_arn = aws_lb.main.arn
   port              = "80"
   protocol          = "HTTP"
+
+  default_action {
+    type = "redirect"
+    redirect {
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
+    }
+  }
+}
+
+# ALB Listener for HTTPS
+resource "aws_lb_listener" "https" {
+  load_balancer_arn = aws_lb.main.arn
+  port              = "443"
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
+  certificate_arn   = aws_acm_certificate.main.arn
 
   default_action {
     type             = "forward"
@@ -370,6 +388,13 @@ resource "aws_security_group" "alb" {
     protocol    = "tcp"
     from_port   = 80
     to_port     = 80
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    protocol    = "tcp"
+    from_port   = 443
+    to_port     = 443
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -467,6 +492,73 @@ resource "aws_cloudwatch_log_group" "ecs_logs" {
   retention_in_days = 30
 }
 
+# Route 53 Hosted Zone
+resource "aws_route53_zone" "main" {
+  name = "jgn.dev"
+}
+
+# Route 53 Record for apex domain
+resource "aws_route53_record" "apex" {
+  zone_id = aws_route53_zone.main.zone_id
+  name    = "jgn.dev"
+  type    = "A"
+
+  alias {
+    name                   = aws_lb.main.dns_name
+    zone_id                = aws_lb.main.zone_id
+    evaluate_target_health = true
+  }
+}
+
+# Route 53 Record for www subdomain
+resource "aws_route53_record" "www" {
+  zone_id = aws_route53_zone.main.zone_id
+  name    = "www.jgn.dev"
+  type    = "A"
+
+  alias {
+    name                   = aws_lb.main.dns_name
+    zone_id                = aws_lb.main.zone_id
+    evaluate_target_health = true
+  }
+}
+
+# ACM Certificate
+resource "aws_acm_certificate" "main" {
+  domain_name       = "jgn.dev"
+  validation_method = "DNS"
+
+  subject_alternative_names = ["www.jgn.dev"]
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+# Route 53 Record for ACM DNS Validation
+resource "aws_route53_record" "acm_validation" {
+  for_each = {
+    for dvo in aws_acm_certificate.main.domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
+  }
+
+  allow_overwrite = true
+  name            = each.value.name
+  records         = [each.value.record]
+  ttl             = 60
+  type            = each.value.type
+  zone_id         = aws_route53_zone.main.zone_id
+}
+
+# ACM Certificate Validation
+resource "aws_acm_certificate_validation" "main" {
+  certificate_arn         = aws_acm_certificate.main.arn
+  validation_record_fqdns = [for record in aws_route53_record.acm_validation : record.fqdn]
+}
+
 # Data source for availability zones
 data "aws_availability_zones" "available" {}
 
@@ -515,4 +607,15 @@ output "ecs_service_name" {
 output "alb_dns_name" {
   description = "DNS name of the Application Load Balancer"
   value       = aws_lb.main.dns_name
+}
+
+# Output the nameservers
+output "nameservers" {
+  value       = aws_route53_zone.main.name_servers
+  description = "Nameservers for the Route 53 zone. Update these in Porkbun."
+}
+
+output "website_url" {
+  description = "URL of the website"
+  value       = "https://jgn.dev"
 }
