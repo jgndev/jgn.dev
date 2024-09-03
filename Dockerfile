@@ -1,8 +1,13 @@
 # Alpine Linux chosen for small base image size and fast startup times
-FROM golang:1.23-alpine AS builder
+FROM public.ecr.aws/amazonlinux/amazonlinux:2 AS builder
 
-# Set the working directory in the container to /app. All following commands
-# will be run from this directory.
+# Install Go
+RUN yum update -y && \
+    yum install -y golang && \
+    yum clean all
+
+# Set the working directory in the container to /app. \
+# All following commands will be run from this directory.
 WORKDIR /app
 
 # Copy only the Go module fils first. This leverages Docker's cache layers
@@ -21,12 +26,14 @@ COPY . ./
 RUN GOOS=linux go build -v -o main ./server/main.go
 
 # Final state
-FROM alpine:latest
+FROM public.ecr.aws/amazonlinux/amazonlinux:2
 
 # Install necessary system packages:
 # - ca-certificates installs trusted root certificates for secure connections
 # - tzdata adds time xone data, enabling proper time localization
-RUN apk --no-cache add ca-certificates tzdata
+RUN yum update -y && \
+    yum install -y ca-certificates tzdata && \
+    yum clean all
 
 # Set the working directory inside the container to /app
 # This affects subsequent RUN, CMD, ENTRYPOINT, COPY and ADD instructions
