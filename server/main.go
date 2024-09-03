@@ -97,8 +97,9 @@ func main() {
 	e.GET("/about", app.About)
 	e.GET("/contact", app.Contact)
 	e.GET("/search", app.SearchPosts)
-	e.GET("/sitemap.xml", app.SiteMap)
+	e.GET("/health", app.Health)
 	e.GET("/get-time", app.GetTime)
+	e.GET("/sitemap.xml", app.SiteMap)
 
 	// Start app
 	e.Logger.Fatal(e.Start(":8080"))
