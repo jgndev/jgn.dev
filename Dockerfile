@@ -1,4 +1,4 @@
-# Alpine Linux chosen for small base image size and fast startup times
+# Amazon Linux 2 chosen for compatibility
 FROM public.ecr.aws/amazonlinux/amazonlinux:2 AS builder
 
 # Install Go
