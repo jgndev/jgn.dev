@@ -76,7 +76,7 @@ resource "aws_ecr_repository" "app" {
   }
 }
 
-# S3 bucket for storing Markdown files
+# S3 post bucket for storing Markdown files
 resource "aws_s3_bucket" "post_bucket" {
   bucket = var.bucket_name
 
@@ -86,7 +86,7 @@ resource "aws_s3_bucket" "post_bucket" {
   }
 }
 
-# S3 bucket ACL
+# S3 post bucket ACL
 resource "aws_s3_bucket_ownership_controls" "post_bucket" {
   bucket = aws_s3_bucket.post_bucket.id
   rule {
@@ -94,13 +94,14 @@ resource "aws_s3_bucket_ownership_controls" "post_bucket" {
   }
 }
 
+# S3 post bucket ACL
 resource "aws_s3_bucket_acl" "post_bucket" {
   depends_on = [aws_s3_bucket_ownership_controls.post_bucket]
   bucket     = aws_s3_bucket.post_bucket.id
   acl        = "private"
 }
 
-# S3 bucket for storing publicly accessible resume
+# S3 resume bucket for storing publicly accessible resume
 resource "aws_s3_bucket" "resume_bucket" {
   bucket = "${var.project_name}-public-resume"
 
@@ -110,7 +111,7 @@ resource "aws_s3_bucket" "resume_bucket" {
   }
 }
 
-# S3 bucket ownership controls
+# S3 resume bucket ownership controls
 resource "aws_s3_bucket_ownership_controls" "resume_bucket_ownership" {
   bucket = aws_s3_bucket.resume_bucket.id
   rule {
@@ -118,7 +119,7 @@ resource "aws_s3_bucket_ownership_controls" "resume_bucket_ownership" {
   }
 }
 
-# S3 bucket public access block
+# S3 resume bucket public access block
 resource "aws_s3_bucket_public_access_block" "resume_bucket_public_access" {
   bucket = aws_s3_bucket.resume_bucket.id
 
@@ -128,7 +129,7 @@ resource "aws_s3_bucket_public_access_block" "resume_bucket_public_access" {
   restrict_public_buckets = false
 }
 
-# S3 bucket ACL
+# S3 resume bucket ACL
 resource "aws_s3_bucket_acl" "resume_bucket_acl" {
   depends_on = [
     aws_s3_bucket_ownership_controls.resume_bucket_ownership,
@@ -139,9 +140,66 @@ resource "aws_s3_bucket_acl" "resume_bucket_acl" {
   acl    = "public-read"
 }
 
-# S3 bucket policy
+# S3 pubic img bucket policy
 resource "aws_s3_bucket_policy" "resume_bucket_policy" {
   bucket = aws_s3_bucket.resume_bucket.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid       = "PublicReadGetObject"
+        Effect    = "Allow"
+        Principal = "*"
+        Action    = "s3:GetObject"
+        Resource  = "${aws_s3_bucket.resume_bucket.arn}/*"
+      },
+    ]
+  })
+}
+
+# S3 public img bucket for storing publicly accessible resume
+resource "aws_s3_bucket" "public_img_bucket" {
+  bucket = "${var.project_name}-public-image"
+
+  tags = {
+    Name        = "Public Image Bucket"
+    Environment = var.environment
+  }
+}
+
+# S3 public img bucket ownership controls
+resource "aws_s3_bucket_ownership_controls" "public_img_bucket_ownership" {
+  bucket = aws_s3_bucket.public_img_bucket.id
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
+# S3 public img bucket public access block
+resource "aws_s3_bucket_public_access_block" "pubic_img_bucket_public_access" {
+  bucket = aws_s3_bucket.public_img_bucket.id
+
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
+}
+
+# S3 public img bucket ACL
+resource "aws_s3_bucket_acl" "public_img_bucket_acl" {
+  depends_on = [
+    aws_s3_bucket_ownership_controls.public_img_bucket_ownership,
+    aws_s3_bucket_public_access_block.pubic_img_bucket_public_access,
+  ]
+
+  bucket = aws_s3_bucket.public_img_bucket.id
+  acl    = "public-read"
+}
+
+# S3 public img bucket policy
+resource "aws_s3_bucket_policy" "public_img_bucket_policy" {
+  bucket = aws_s3_bucket.public_img_bucket.id
 
   policy = jsonencode({
     Version = "2012-10-17"
