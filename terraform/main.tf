@@ -372,7 +372,7 @@ resource "aws_elastic_beanstalk_application" "app" {
 resource "aws_elastic_beanstalk_environment" "app_env" {
   name                = "${var.project_name}-env"
   application         = aws_elastic_beanstalk_application.app.name
-  solution_stack_name = "64bit Amazon Linux 2 running Docker"
+  solution_stack_name = "Go 1 running on 64bit Amazon Linux 2023"
 
   setting {
     namespace = "aws:ec2:vpc"
