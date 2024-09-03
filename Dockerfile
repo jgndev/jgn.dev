@@ -23,10 +23,17 @@ RUN GOOS=linux go build -v -o main ./server/main.go
 # Final state
 FROM alpine:latest
 
-RUN apk --no-cache add ca-certificates
+# Install necessary system packages:
+# - ca-certificates installs trusted root certificates for secure connections
+# - tzdata adds time xone data, enabling proper time localization
+RUN apk --no-cache add ca-certificates tzdata
 
+# Set the working directory inside the container to /app
+# This affects subsequent RUN, CMD, ENTRYPOINT, COPY and ADD instructions
 WORKDIR /app
 
+# Copy the compiled binary 'main' from the builder stage to the current working directory (/app)
+# This uses multi-stage builds to keep the final image small, containing only the necessary executable
 COPY --from=builder /app/main .
 
 # Copy over the static assets
