@@ -308,7 +308,7 @@ resource "aws_route53_record" "apex" {
 
   alias {
     name                   = aws_elastic_beanstalk_environment.app_env.cname
-    zone_id                = aws_elastic_beanstalk_environment.app_env.cname_prefix == "" ? aws_elastic_beanstalk_environment.app_env.load_balancers[0] : aws_elastic_beanstalk_environment.app_env.cname_prefix
+    zone_id                = "Z14LCN19Q5QHIC"
     evaluate_target_health = true
   }
 }
@@ -321,7 +321,7 @@ resource "aws_route53_record" "www" {
 
   alias {
     name                   = aws_elastic_beanstalk_environment.app_env.cname
-    zone_id                = aws_elastic_beanstalk_environment.app_env.cname_prefix == "" ? aws_elastic_beanstalk_environment.app_env.load_balancers[0] : aws_elastic_beanstalk_environment.app_env.cname_prefix
+    zone_id                = "Z14LCN19Q5QHIC"
     evaluate_target_health = true
   }
 }
