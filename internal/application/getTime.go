@@ -2,7 +2,6 @@ package application
 
 import (
 	"github.com/labstack/echo/v4"
-	"log"
 	"net/http"
 	"time"
 
@@ -10,11 +9,6 @@ import (
 )
 
 func (a *Application) GetTime(c echo.Context) error {
-
-	log.Println("GetTime function called")
-
-	zones, count := time.Now().In(time.Local).Zone()
-	log.Printf("Available time zones: %v, %d total", zones, count)
 
 	c.Response().Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 	c.Response().Header().Set("Pragma", "no-cache")

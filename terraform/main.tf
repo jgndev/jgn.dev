@@ -295,292 +295,20 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
   depends_on = [aws_sqs_queue_policy.post_queue_policy]
 }
 
-# ECS Cluster
-resource "aws_ecs_cluster" "main" {
-  name = "${var.project_name}-cluster"
-}
-
-# ECS Task Definition
-resource "aws_ecs_task_definition" "app" {
-  family                   = "${var.project_name}-task"
-  network_mode             = "awsvpc"
-  requires_compatibilities = ["FARGATE"]
-  cpu                      = "256"
-  memory                   = "512"
-  execution_role_arn       = aws_iam_role.ecs_execution_role.arn
-  task_role_arn            = aws_iam_role.ecs_task_role.arn
-
-  container_definitions = jsonencode([{
-    name  = "${var.project_name}-container"
-    image = "${aws_ecr_repository.app.repository_url}:latest"
-    portMappings = [{
-      containerPort = 8080
-      hostPort      = 8080
-    }]
-    environment = [
-      { name = "AWS_REGION", value = var.aws_region },
-      { name = "S3_BUCKET_NAME", value = aws_s3_bucket.post_bucket.id },
-      { name = "DYNAMODB_TABLE_NAME", value = aws_dynamodb_table.post_table.name },
-      { name = "SQS_QUEUE_URL", value = aws_sqs_queue.post_queue.url }
-    ]
-    logConfiguration = {
-      logDriver = "awslogs"
-      options = {
-        awslogs-group         = aws_cloudwatch_log_group.ecs_logs.name
-        awslogs-region        = var.aws_region
-        awslogs-stream-prefix = "ecs"
-      }
-    }
-  }])
-}
-
-# Application Load Balancer
-resource "aws_lb" "main" {
-  name               = "${var.project_name}-alb"
-  internal           = false
-  load_balancer_type = "application"
-  security_groups    = [aws_security_group.alb.id]
-  subnets            = aws_subnet.main[*].id
-
-  enable_deletion_protection = false
-}
-
-# ALB Listener for HTTP (redirect to HTTPS)
-resource "aws_lb_listener" "http" {
-  load_balancer_arn = aws_lb.main.arn
-  port              = "80"
-  protocol          = "HTTP"
-
-  default_action {
-    type = "redirect"
-    redirect {
-      port        = "443"
-      protocol    = "HTTPS"
-      status_code = "HTTP_301"
-    }
-  }
-}
-
-# ALB Listener for HTTPS
-resource "aws_lb_listener" "https" {
-  load_balancer_arn = aws_lb.main.arn
-  port              = "443"
-  protocol          = "HTTPS"
-  ssl_policy        = "ELBSecurityPolicy-2016-08"
-  certificate_arn   = aws_acm_certificate.main.arn
-
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.app.arn
-  }
-}
-
-# ALB Target Group
-resource "aws_lb_target_group" "app" {
-  name        = "${var.project_name}-tg"
-  port        = 8080
-  protocol    = "HTTP"
-  vpc_id      = aws_vpc.main.id
-  target_type = "ip"
-
-  health_check {
-    healthy_threshold   = "3"
-    interval            = "30"
-    protocol            = "HTTP"
-    matcher             = "200"
-    timeout             = "3"
-    path                = "/"
-    unhealthy_threshold = "2"
-  }
-}
-
-# ALB listener rue for the /get-time endpoint
-resource "aws_lb_listener_rule" "get_time" {
-  listener_arn = aws_lb_listener.https.arn
-  priority     = 100
-
-  action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.app.arn
-  }
-
-  condition {
-    path_pattern {
-      values = ["/get-time"]
-    }
-  }
-}
-
-# ECS Service
-resource "aws_ecs_service" "main" {
-  name            = "${var.project_name}-service"
-  cluster         = aws_ecs_cluster.main.id
-  task_definition = aws_ecs_task_definition.app.arn
-  desired_count   = 1
-  launch_type     = "FARGATE"
-
-  network_configuration {
-    subnets          = aws_subnet.main[*].id
-    assign_public_ip = true
-    security_groups  = [aws_security_group.ecs_tasks.id]
-  }
-
-  load_balancer {
-    target_group_arn = aws_lb_target_group.app.arn
-    container_name   = "${var.project_name}-container"
-    container_port   = 8080
-  }
-}
-
-# Security Group for ECS Tasks
-resource "aws_security_group" "ecs_tasks" {
-  name        = "${var.project_name}-sg-ecs-tasks"
-  description = "Allow inbound access from the ALB only"
-  vpc_id      = aws_vpc.main.id
-
-  ingress {
-    protocol        = "tcp"
-    from_port       = 8080
-    to_port         = 8080
-    security_groups = [aws_security_group.alb.id]
-  }
-
-  egress {
-    protocol    = "-1"
-    from_port   = 0
-    to_port     = 0
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
-# Security Group for ALB
-resource "aws_security_group" "alb" {
-  name        = "${var.project_name}-sg-alb"
-  description = "Allow inbound traffic to ALB"
-  vpc_id      = aws_vpc.main.id
-
-  ingress {
-    protocol    = "tcp"
-    from_port   = 80
-    to_port     = 80
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    protocol    = "tcp"
-    from_port   = 443
-    to_port     = 443
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    protocol    = "-1"
-    from_port   = 0
-    to_port     = 0
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
-# IAM Roles
-resource "aws_iam_role" "ecs_execution_role" {
-  name = "${var.project_name}-ecs-execution-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Action = "sts:AssumeRole"
-      Effect = "Allow"
-      Principal = {
-        Service = "ecs-tasks.amazonaws.com"
-      }
-    }]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "ecs_execution_role_policy" {
-  role       = aws_iam_role.ecs_execution_role.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
-}
-
-resource "aws_iam_role" "ecs_task_role" {
-  name = "${var.project_name}-ecs-task-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Action = "sts:AssumeRole"
-      Effect = "Allow"
-      Principal = {
-        Service = "ecs-tasks.amazonaws.com"
-      }
-    }]
-  })
-}
-
-# Attach policies to the ECS task role
-resource "aws_iam_role_policy" "ecs_task_role_policy" {
-  name = "${var.project_name}-ecs-task-role-policy"
-  role = aws_iam_role.ecs_task_role.id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "s3:GetObject",
-          "s3:ListBucket",
-        ]
-        Resource = [
-          aws_s3_bucket.post_bucket.arn,
-          "${aws_s3_bucket.post_bucket.arn}/*",
-        ]
-      },
-      {
-        Effect = "Allow"
-        Action = [
-          "dynamodb:GetItem",
-          "dynamodb:PutItem",
-          "dynamodb:UpdateItem",
-          "dynamodb:DeleteItem",
-          "dynamodb:Scan",
-          "dynamodb:Query",
-        ]
-        Resource = aws_dynamodb_table.post_table.arn
-      },
-      {
-        Effect = "Allow"
-        Action = [
-          "sqs:ReceiveMessage",
-          "sqs:DeleteMessage",
-          "sqs:GetQueueAttributes",
-        ]
-        Resource = aws_sqs_queue.post_queue.arn
-      },
-    ]
-  })
-}
-
-# CloudWatch Log Group
-resource "aws_cloudwatch_log_group" "ecs_logs" {
-  name              = "/ecs/${var.project_name}-logs"
-  retention_in_days = 30
-}
-
 # Route 53 Hosted Zone
 resource "aws_route53_zone" "main" {
   name = "jgn.dev"
 }
 
-# Route 53 Record for apex domain
+# Update Route 53 records to point to Elastic Beanstalk environment
 resource "aws_route53_record" "apex" {
   zone_id = aws_route53_zone.main.zone_id
   name    = "jgn.dev"
   type    = "A"
 
   alias {
-    name                   = aws_lb.main.dns_name
-    zone_id                = aws_lb.main.zone_id
+    name                   = aws_elastic_beanstalk_environment.app_env.cname
+    zone_id                = aws_elastic_beanstalk_environment.app_env.cname_prefix == "" ? aws_elastic_beanstalk_environment.app_env.load_balancers[0] : aws_elastic_beanstalk_environment.app_env.cname_prefix
     evaluate_target_health = true
   }
 }
@@ -592,8 +320,8 @@ resource "aws_route53_record" "www" {
   type    = "A"
 
   alias {
-    name                   = aws_lb.main.dns_name
-    zone_id                = aws_lb.main.zone_id
+    name                   = aws_elastic_beanstalk_environment.app_env.cname
+    zone_id                = aws_elastic_beanstalk_environment.app_env.cname_prefix == "" ? aws_elastic_beanstalk_environment.app_env.load_balancers[0] : aws_elastic_beanstalk_environment.app_env.cname_prefix
     evaluate_target_health = true
   }
 }
@@ -634,6 +362,209 @@ resource "aws_acm_certificate_validation" "main" {
   validation_record_fqdns = [for record in aws_route53_record.acm_validation : record.fqdn]
 }
 
+# Elastic Beanstalk Application
+resource "aws_elastic_beanstalk_application" "app" {
+  name        = var.project_name
+  description = "Application for ${var.project_name}"
+}
+
+# Elastic Beanstalk Environment
+resource "aws_elastic_beanstalk_environment" "app_env" {
+  name                = "${var.project_name}-env"
+  application         = aws_elastic_beanstalk_application.app.name
+  solution_stack_name = "64bit Amazon Linux 2 v3.5.4 running Docker"
+
+  setting {
+    namespace = "aws:ec2:vpc"
+    name      = "VPCId"
+    value     = aws_vpc.main.id
+  }
+
+  setting {
+    namespace = "aws:ec2:vpc"
+    name      = "Subnets"
+    value     = join(",", aws_subnet.main[*].id)
+  }
+
+  setting {
+    namespace = "aws:autoscaling:launchconfiguration"
+    name      = "IamInstanceProfile"
+    value     = aws_iam_instance_profile.eb_instance_profile.name
+  }
+
+  setting {
+    namespace = "aws:autoscaling:launchconfiguration"
+    name      = "InstanceType"
+    value     = "t3.micro"
+  }
+
+  setting {
+    namespace = "aws:autoscaling:asg"
+    name      = "MinSize"
+    value     = "1"
+  }
+
+  setting {
+    namespace = "aws:autoscaling:asg"
+    name      = "MaxSize"
+    value     = "2"
+  }
+
+  setting {
+    namespace = "aws:elasticbeanstalk:environment"
+    name      = "LoadBalancerType"
+    value     = "application"
+  }
+
+  setting {
+    namespace = "aws:elasticbeanstalk:environment"
+    name      = "ServiceRole"
+    value     = aws_iam_role.eb_service_role.name
+  }
+
+  setting {
+    namespace = "aws:elbv2:listener:443"
+    name      = "Protocol"
+    value     = "HTTPS"
+  }
+
+  setting {
+    namespace = "aws:elbv2:listener:443"
+    name      = "SSLCertificateArns"
+    value     = aws_acm_certificate.main.arn
+  }
+
+  setting {
+    namespace = "aws:elasticbeanstalk:application:environment"
+    name      = "AWS_REGION"
+    value     = var.aws_region
+  }
+
+  setting {
+    namespace = "aws:elasticbeanstalk:application:environment"
+    name      = "S3_BUCKET_NAME"
+    value     = aws_s3_bucket.post_bucket.id
+  }
+
+  setting {
+    namespace = "aws:elasticbeanstalk:application:environment"
+    name      = "DYNAMODB_TABLE_NAME"
+    value     = aws_dynamodb_table.post_table.name
+  }
+
+  setting {
+    namespace = "aws:elasticbeanstalk:application:environment"
+    name      = "SQS_QUEUE_URL"
+    value     = aws_sqs_queue.post_queue.url
+  }
+}
+
+# IAM Instance Profile for Elastic Beanstalk
+resource "aws_iam_instance_profile" "eb_instance_profile" {
+  name = "${var.project_name}-eb-instance-profile"
+  role = aws_iam_role.eb_instance_role.name
+}
+
+resource "aws_iam_role" "eb_instance_role" {
+  name = "${var.project_name}-eb-instance-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Action = "sts:AssumeRole"
+      Effect = "Allow"
+      Principal = {
+        Service = "ec2.amazonaws.com"
+      }
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "eb_web_tier" {
+  policy_arn = "arn:aws:iam::aws:policy/AWSElasticBeanstalkWebTier"
+  role       = aws_iam_role.eb_instance_role.name
+}
+
+resource "aws_iam_role_policy_attachment" "eb_worker_tier" {
+  policy_arn = "arn:aws:iam::aws:policy/AWSElasticBeanstalkWorkerTier"
+  role       = aws_iam_role.eb_instance_role.name
+}
+
+resource "aws_iam_role_policy_attachment" "eb_docker" {
+  policy_arn = "arn:aws:iam::aws:policy/AWSElasticBeanstalkMulticontainerDocker"
+  role       = aws_iam_role.eb_instance_role.name
+}
+
+# Attach policies for S3, DynamoDB, and SQS access
+resource "aws_iam_role_policy" "eb_instance_policy" {
+  name = "${var.project_name}-eb-instance-policy"
+  role = aws_iam_role.eb_instance_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:ListBucket",
+        ]
+        Resource = [
+          aws_s3_bucket.post_bucket.arn,
+          "${aws_s3_bucket.post_bucket.arn}/*",
+        ]
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "dynamodb:GetItem",
+          "dynamodb:PutItem",
+          "dynamodb:UpdateItem",
+          "dynamodb:DeleteItem",
+          "dynamodb:Scan",
+          "dynamodb:Query",
+        ]
+        Resource = aws_dynamodb_table.post_table.arn
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "sqs:ReceiveMessage",
+          "sqs:DeleteMessage",
+          "sqs:GetQueueAttributes",
+        ]
+        Resource = aws_sqs_queue.post_queue.arn
+      },
+    ]
+  })
+}
+
+# Elastic Beanstalk Service Role
+resource "aws_iam_role" "eb_service_role" {
+  name = "${var.project_name}-eb-service-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Action = "sts:AssumeRole"
+      Effect = "Allow"
+      Principal = {
+        Service = "elasticbeanstalk.amazonaws.com"
+      }
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "eb_enhanced_health" {
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSElasticBeanstalkEnhancedHealth"
+  role       = aws_iam_role.eb_service_role.name
+}
+
+resource "aws_iam_role_policy_attachment" "eb_service" {
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSElasticBeanstalkService"
+  role       = aws_iam_role.eb_service_role.name
+}
+
 # Data source for availability zones
 data "aws_availability_zones" "available" {}
 
@@ -669,25 +600,26 @@ output "sqs_queue_url" {
   value       = aws_sqs_queue.post_queue.url
 }
 
-output "ecs_cluster_name" {
-  description = "Name of the ECS cluster"
-  value       = aws_ecs_cluster.main.name
-}
-
-output "ecs_service_name" {
-  description = "Name of the ECS service"
-  value       = aws_ecs_service.main.name
-}
-
-output "alb_dns_name" {
-  description = "DNS name of the Application Load Balancer"
-  value       = aws_lb.main.dns_name
-}
-
 # Output the nameservers
 output "nameservers" {
   value       = aws_route53_zone.main.name_servers
   description = "Nameservers for the Route 53 zone. Update these in Porkbun."
+}
+
+# Update outputs
+output "elastic_beanstalk_env_name" {
+  description = "Name of the Elastic Beanstalk environment"
+  value       = aws_elastic_beanstalk_environment.app_env.name
+}
+
+output "elastic_beanstalk_env_cname" {
+  description = "CNAME of the Elastic Beanstalk environment"
+  value       = aws_elastic_beanstalk_environment.app_env.cname
+}
+
+output "elastic_beanstalk_env_endpoint" {
+  description = "Endpoint URL of the Elastic Beanstalk environment"
+  value       = aws_elastic_beanstalk_environment.app_env.endpoint_url
 }
 
 output "website_url" {
