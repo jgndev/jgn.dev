@@ -2,11 +2,6 @@ package main
 
 import (
 	"context"
-	"log"
-	"net/http"
-	"os"
-	"time"
-
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -15,6 +10,8 @@ import (
 	"github.com/jgndev/jgn.dev/internal/models"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"log"
+	"os"
 )
 
 func main() {
@@ -101,11 +98,7 @@ func main() {
 	e.GET("/contact", app.Contact)
 	e.GET("/search", app.SearchPosts)
 	e.GET("/sitemap.xml", app.SiteMap)
-	e.GET("/get-time", func(c echo.Context) error {
-		loc, _ := time.LoadLocation("America/Chicago")
-		currentTime := time.Now().In(loc).Format("3:04 PM")
-		return c.String(http.StatusOK, currentTime)
-	})
+	e.GET("/get-time", app.GetTime)
 
 	// Start app
 	e.Logger.Fatal(e.Start(":8080"))
