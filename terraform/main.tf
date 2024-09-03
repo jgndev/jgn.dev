@@ -394,6 +394,23 @@ resource "aws_lb_target_group" "app" {
   }
 }
 
+# ALB listener rue for the /get-time endpoint
+resource "aws_lb_listener_rule" "get_time" {
+  listener_arn = aws_lb_listener.https.arn
+  priority     = 100
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.app.arn
+  }
+
+  condition {
+    path_pattern {
+      values = ["/get-time"]
+    }
+  }
+}
+
 # ECS Service
 resource "aws_ecs_service" "main" {
   name            = "${var.project_name}-service"
