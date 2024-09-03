@@ -308,7 +308,7 @@ resource "aws_route53_record" "apex" {
 
   alias {
     name                   = aws_elastic_beanstalk_environment.app_env.cname
-    zone_id                = "Z14LCN19Q5QHIC"
+    zone_id                = "Z14LCN19Q5QHIC" # us-east-2
     evaluate_target_health = true
   }
 }
@@ -321,7 +321,7 @@ resource "aws_route53_record" "www" {
 
   alias {
     name                   = aws_elastic_beanstalk_environment.app_env.cname
-    zone_id                = "Z14LCN19Q5QHIC"
+    zone_id                = "Z14LCN19Q5QHIC" # us-east-2
     evaluate_target_health = true
   }
 }
