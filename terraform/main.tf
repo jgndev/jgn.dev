@@ -76,6 +76,11 @@ resource "aws_ecr_repository" "app" {
   }
 }
 
+resource "aws_iam_role_policy_attachment" "ecr_policy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+  role       = aws_iam_role.eb_instance_role.name
+}
+
 # S3 post bucket for storing Markdown files
 resource "aws_s3_bucket" "post_bucket" {
   bucket = var.bucket_name
@@ -372,7 +377,7 @@ resource "aws_elastic_beanstalk_application" "app" {
 resource "aws_elastic_beanstalk_environment" "app_env" {
   name                = "${var.project_name}-env"
   application         = aws_elastic_beanstalk_application.app.name
-  solution_stack_name = "64bit Amazon Linux 2023 v4.1.3 running Go 1"
+  solution_stack_name = "64bit Amazon Linux 2023 v4.3.6 running Docker"
 
   setting {
     namespace = "aws:ec2:vpc"

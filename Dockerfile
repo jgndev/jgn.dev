@@ -19,20 +19,18 @@ RUN go mod download
 
 # Copy the application code into the container's /app directory. The build cache
 # can be used to skip unchanged layers by running the copy as late as possible.
-COPY . ./
+COPY . .
 
 # Compile the application into a static binary for Cloud Run using Linux AMD64
 # as the target build machine type.
-RUN GOOS=linux go build -v -o main ./server/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffux cgo -o main ./server/main.go
 
 # Final state
 FROM public.ecr.aws/amazonlinux/amazonlinux:2
 
-# Install necessary system packages:
-# - ca-certificates installs trusted root certificates for secure connections
-# - tzdata adds time xone data, enabling proper time localization
+# Install ca-certificates for HTTPS requests
 RUN yum update -y && \
-    yum install -y ca-certificates tzdata && \
+    yum install -y ca-certificates && \
     yum clean all
 
 # Set the working directory inside the container to /app
@@ -47,7 +45,6 @@ COPY --from=builder /app/main .
 COPY public/ /app/public/
 
 # Cloud Run uses a PORT variablle which we can set explicitly here.
-ENV PORT 8080
 EXPOSE 8080
 
 # Prevent the executable from being wrapped in a shell, reducing startup time
