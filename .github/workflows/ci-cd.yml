@@ -4,17 +4,18 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+
+permissions:
+  # Required to upload SARIF file to CodeQL. See: https://github.com/github/codeql-action/issues/2117
+  actions: read
+  # Require writing security events to upload SARIF file to security tab
+  security-events: write
+  # Only need to read contents
+  contents: read
+
 jobs:
-  security-scan:
-    runs-on: ubuntu-latest
-    env:
-      GO11MODULE: on
-    steps:
-      - uses: actions/checkout@v4
-      - name: Run GoSec Security Scanner
-        uses: securego/gosec@master
-        with:
-          args: ./...
+  scan-pr:
+    uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v1.8.4"
   static-check:
     runs-on: ubuntu-latest
     steps:
@@ -22,7 +23,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: 1.22.3
+          go-version: 1.22.5
       - uses: reviewdog/action-staticcheck@v1
         with:
           fail_on_error: true
@@ -33,11 +34,11 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: 1.22.3
+          go-version: 1.22.5
       - name: Run unit tests
         run: go test ./...
   build-and-deploy:
-    needs: [security-scan, static-check, unit-tests]
+    needs: [scan-pr, static-check, unit-tests]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
