@@ -5,7 +5,15 @@ on:
   pull_request:
     branches: [ main ]
 
+permissions:
+  actions: read
+  security-events: write
+  contents: read
+
 jobs:
+  scan-pr:
+    uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v1.8.4"
+
   static-check:
     runs-on: ubuntu-latest
     steps:
@@ -30,7 +38,7 @@ jobs:
         run: go test ./...
 
   build-and-deploy:
-    needs: [static-check, unit-tests]
+    needs: [scan-pr, static-check, unit-tests]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
