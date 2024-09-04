@@ -23,7 +23,7 @@ COPY . .
 
 # Compile the application into a static binary for Cloud Run using Linux AMD64
 # as the target build machine type.
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffux cgo -o main ./server/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main ./server/main.go
 
 # Final state
 FROM public.ecr.aws/amazonlinux/amazonlinux:2
