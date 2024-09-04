@@ -23,10 +23,25 @@ templ Home(posts []*models.Post) {
 				</p>
 			</div>
 		</div>
-		<div class="flex items-center justify-center space-x-2">
-			@icons.Go()
-			@icons.Kubernetes()
-			@icons.Aws()
+		<div class="mt-6 ml-4 mx-auto w-full grid grid-cols-3">
+		    <div class="flex justify-center items-center">
+			    @icons.Go()
+			</div>
+		    <div class="flex justify-center items-center">
+			    @icons.Linux()
+			</div>
+		    <div class="flex justify-center items-center">
+			    @icons.Docker()
+			</div>
+		    <div class="flex justify-center items-center">
+			    @icons.Kubernetes()
+			</div>
+		    <div class="flex justify-center items-center">
+			    @icons.Terraform()
+			</div>
+		    <div class="flex justify-center items-center">
+			    @icons.Aws()
+			</div>
 		</div>
 	</div>
 	<div class="flex flex-col text-center">
