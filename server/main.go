@@ -96,6 +96,7 @@ func main() {
 	e.GET("/posts/:slug", app.Post)
 	e.GET("/about", app.About)
 	e.GET("/contact", app.Contact)
+	e.GET("/plan", app.Plan)
 	e.GET("/search", app.SearchPosts)
 	e.GET("/health", app.Health)
 	e.GET("/get-time", app.GetTime)

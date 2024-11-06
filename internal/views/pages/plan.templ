@@ -1,0 +1,12 @@
+package pages
+
+import (
+	"github.com/jgndev/jgn.dev/internal/views/shared"
+	"github.com/jgndev/jgn.dev/internal/views/lockups"
+)
+
+templ Plan() {
+	@shared.Base("Plan") {
+		@lockups.Plan()
+	}
+}
