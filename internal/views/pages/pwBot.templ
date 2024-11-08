@@ -8,16 +8,16 @@ import (
 templ PwBot() {
 	@shared.Base("Generate New Password") {
 		<div class="grid grid-cols-1 space-y-4">
-		    <div class="my-4 flex items-center justify-center">
-		        @icons.PwBot()
-		    </div>
+			<div class="my-4 flex items-center justify-center">
+				@icons.PwBot()
+			</div>
 			<div id="password-display">
 				<!-- Generated password here -->
 			</div>
 			<div class="mt-2 flex items-center justify-center">
 				<form hx-post="/password" hx-target="#password-display" method="post">
 					<div class="my-4 flex items-center justify-start">
-                        <input type="checkbox" name="uppercase" checked/>
+						<input type="checkbox" name="uppercase" checked/>
 						<label class="ml-4">
 							UPPERCASE LETTERS
 						</label>
@@ -44,7 +44,7 @@ templ PwBot() {
 						<label>
 							Length:
 						</label>
-						<input type="number" name="length" min="6" max="64" value="16"/>
+						<input type="number" name="length" min="6" max="64" value="21"/>
 					</div>
 					<div class="tex-center">
 						<button class="black-button" type="submit">Generate</button>

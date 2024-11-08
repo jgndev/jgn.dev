@@ -1,5 +1,5 @@
 package models
 
-type Response struct {
+type PasswordResponse struct {
 	Password string
 }
