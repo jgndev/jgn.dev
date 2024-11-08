@@ -49,7 +49,7 @@ func NewPassword(c echo.Context) error {
 		return err
 	}
 
-	response := models.Response{
+	response := models.PasswordResponse{
 		Password: pw,
 	}
 

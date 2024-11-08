@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-// character set contstants for password generation
+// character set constants for password generation
 const (
 	// Uppercase is the possible uppercase letters
 	Uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"

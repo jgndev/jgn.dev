@@ -96,7 +96,7 @@ func PwBot() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</label> <input type=\"number\" name=\"length\" min=\"6\" max=\"64\" value=\"16\"></div><div class=\"tex-center\"><button class=\"black-button\" type=\"submit\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</label> <input type=\"number\" name=\"length\" min=\"6\" max=\"64\" value=\"21\"></div><div class=\"tex-center\"><button class=\"black-button\" type=\"submit\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
