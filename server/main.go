@@ -105,6 +105,7 @@ func main() {
 	e.GET("/search", app.SearchPosts)
 	e.GET("/health", app.Health)
 	e.GET("/get-time", app.GetTime)
+	e.GET("/times", app.TimeUpdate)
 	e.GET("/sitemap.xml", app.SiteMap)
 
 	// Start app

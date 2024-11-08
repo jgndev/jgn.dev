@@ -1,12 +1,15 @@
 package application
 
 import (
+	"github.com/jgndev/jgn.dev/internal/views/cards"
 	"github.com/labstack/echo/v4"
 	"net/http"
 	"time"
-
-	_ "time/tzdata"
 )
+
+func (a *Application) TimeUpdate(c echo.Context) error {
+	return cards.TimeUpdate().Render(c.Request().Context(), c.Response().Writer)
+}
 
 func (a *Application) GetTime(c echo.Context) error {
 
