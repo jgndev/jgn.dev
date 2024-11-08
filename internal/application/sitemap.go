@@ -32,6 +32,12 @@ func (a *Application) SiteMap(c echo.Context) error {
 			Priority:   "1.0",
 		},
 		{
+			Loc:        "https://jgn.dev/plan",
+			LastMod:    sitemapDate(),
+			ChangeFreq: "weekly",
+			Priority:   "1.0",
+		},
+		{
 			Loc:        "https://jgn.dev/contact",
 			LastMod:    sitemapDate(),
 			ChangeFreq: "weekly",
