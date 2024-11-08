@@ -27,7 +27,7 @@ func UtcCard() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"w-full max-w-xl border border-zinc-600 rounded-md shadow-lg pb-4 my-8\"><div class=\"flex flex-col items-center\"><h2 class=\"text-2xl text-center font-mono uppercase mb-4\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"w-[26rem] h-[12rem] border border-zinc-700/50 rounded-md py-4 mb-6\"><div class=\"flex flex-col items-center justify-center\"><span class=\"text-xl text-zinc-500/50 font-mono uppercase py\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -36,7 +36,7 @@ func UtcCard() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</h2><span id=\"utc-timestamp\" class=\"text-3xl text-center font-bold\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</span> <span id=\"utc-timestamp\" class=\"text-3xl font-mono my-2\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -45,7 +45,7 @@ func UtcCard() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</span><div class=\"mt-8\"><button class=\"black-button w-14\" onclick=\"copyTimeToClipboard()\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</span><div class=\"mt-2\"><button class=\"black-button\" onclick=\"copyTimeToClipboard()\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

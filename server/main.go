@@ -71,7 +71,8 @@ func main() {
 	// Start SQS polling in a goroutine
 	go app.PollSQS(ctx)
 
-	// Enable gzip compression
+	// Middleware
+	e.Use(middleware.Recover())
 	e.Use(middleware.GzipWithConfig(middleware.GzipConfig{
 		Level: 5,
 	}))

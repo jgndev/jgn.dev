@@ -110,12 +110,12 @@
     }
 
     input {
-        @apply outline-none focus:ring-1 focus:border-amber-500 shadow-sm border border-zinc-500/50 text-sm rounded-md block w-full p-2.5 bg-zinc-800 placeholder-zinc-400 text-white;
+        @apply outline-none focus:ring-1 focus:border-zinc-300 shadow-sm border border-zinc-500/50 text-sm rounded-md block w-full p-2.5 bg-zinc-800 placeholder-zinc-400 text-white;
 
     }
 
     textarea {
-        @apply outline-none focus:ring-1 focus:border-amber-500 shadow-sm border border-zinc-500/50 text-sm rounded-md block w-full p-2.5 bg-zinc-800 placeholder-zinc-400 text-white;
+        @apply outline-none focus:ring-1 focus:border-zinc-500 shadow-sm border border-zinc-500/50 text-sm rounded-md block w-full p-2.5 bg-zinc-800 placeholder-zinc-400 text-white;
     }
 
     svg {
@@ -131,11 +131,11 @@
     }
 
     input[type="checkbox"] {
-        @apply h-5 w-5 cursor-pointer appearance-none rounded-md border transition-all before:absolute checked:border-amber-500 checked:bg-amber-500 checked:before:bg-amber-500 hover:before:opacity-10;
+        @apply h-5 w-5 cursor-pointer appearance-none rounded-md border transition-all before:absolute checked:border-zinc-300 checked:bg-zinc-300 checked:before:bg-zinc-300 hover:before:opacity-10;
     }
 
     input[type="number"] {
-        @apply p-2 m-2 w-[4rem] text-sm ring-1 ring-amber-800 outline-0 focus:ring-amber-500 focus:border-amber-500 bg-zinc-900 rounded-md;
+        @apply p-2 m-2 w-[4rem] text-sm ring-1 ring-zinc-800 outline-0 focus:ring-zinc-300 focus:border-zinc-300 bg-zinc-900 rounded-md;
     }
 
     .password {
@@ -147,7 +147,7 @@
     }
 
     #copy-tooltip {
-        @apply py-1 px-2 my-2 text-white text-sm bg-amber-600 text-center rounded-md;
+        @apply py-1 px-2 my-2 text-white text-sm bg-amber-500 text-center rounded-md;
     }
 
     .black-button {

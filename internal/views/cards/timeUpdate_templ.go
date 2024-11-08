@@ -44,7 +44,7 @@ func TimeUpdate() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"flex justify-center gap-8 p-4\"><div class=\"flex flex-col\"><!--")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"flex justify-center gap-8 p-4\"><!--")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -53,7 +53,7 @@ func TimeUpdate() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("--><span class=\"text-4xl uppercase font-bold text-center\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("--><div class=\"flex flex-col\"><span class=\"text-4xl uppercase font-bold text-center\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -82,7 +82,7 @@ func TimeUpdate() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!--")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><!--")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -91,7 +91,7 @@ func TimeUpdate() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("--></div><div class=\"flex flex-col\"><span class=\"text-4xl uppercase font-bold text-center\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("--><div class=\"flex flex-col\"><span class=\"text-4xl uppercase font-bold text-center\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -116,7 +116,7 @@ func TimeUpdate() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = TimeCard("Moscow", timebot.GetCurrentTime("Europe/Moscow"), "msk-time").Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = TimeCard("Moscow (MSK)", timebot.GetCurrentTime("Europe/Moscow"), "msk-time").Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -142,19 +142,19 @@ func TimeUpdate() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = TimeCard("India", timebot.GetCurrentTime("Asia/Kolkata"), "ist-time").Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = TimeCard("India (IST)", timebot.GetCurrentTime("Asia/Kolkata"), "ist-time").Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = TimeCard("Hong Kong", timebot.GetCurrentTime("Asia/Shanghai"), "cst-time").Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = TimeCard("Hong Kong (HKT)", timebot.GetCurrentTime("Asia/Shanghai"), "cst-time").Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = TimeCard("Tokyo", timebot.GetCurrentTime("Asia/Tokyo"), "jst-time").Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = TimeCard("Tokyo (JST)", timebot.GetCurrentTime("Asia/Tokyo"), "jst-time").Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = TimeCard("Sydney", timebot.GetCurrentTime("Australia/Sydney"), "aedt-time").Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = TimeCard("Sydney (AEST)", timebot.GetCurrentTime("Australia/Sydney"), "aedt-time").Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
