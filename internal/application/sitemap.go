@@ -43,6 +43,18 @@ func (a *Application) SiteMap(c echo.Context) error {
 			ChangeFreq: "weekly",
 			Priority:   "1.0",
 		},
+		{
+			Loc:        "https://jgn.dev/pwbot",
+			LastMod:    sitemapDate(),
+			ChangeFreq: "weekly",
+			Priority:   "1.0",
+		},
+		{
+			Loc:        "https://jgn.dev/timebot",
+			LastMod:    sitemapDate(),
+			ChangeFreq: "weekly",
+			Priority:   "1.0",
+		},
 	}
 
 	header := `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`
