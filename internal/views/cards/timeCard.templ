@@ -1,0 +1,12 @@
+package cards
+
+templ TimeCard(zone string, time string, id string) {
+	<div class="w-[20rem] h-[10rem] grid border border-zinc-600 rounded-md shadow-lg my-4">
+		<div class="text-center p-4">
+			<span class="text-2xl font-mono uppercase mb-4">{ zone }</span>
+		</div>
+		<div class="p-4 text-center">
+			<p id={ id } class="font-bold text-4xl">{ time }</p>
+		</div>
+	</div>
+}

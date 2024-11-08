@@ -110,12 +110,12 @@
     }
 
     input {
-        @apply outline-none focus:ring-1 focus:border-indigo-500 shadow-sm border border-zinc-500/50 text-sm rounded-md block w-full p-2.5 bg-zinc-800 placeholder-zinc-400 text-white;
+        @apply outline-none focus:ring-1 focus:border-amber-500 shadow-sm border border-zinc-500/50 text-sm rounded-md block w-full p-2.5 bg-zinc-800 placeholder-zinc-400 text-white;
 
     }
 
     textarea {
-        @apply outline-none focus:ring-1 focus:border-indigo-500 shadow-sm border border-zinc-500/50 text-sm rounded-md block w-full p-2.5 bg-zinc-800 placeholder-zinc-400 text-white;
+        @apply outline-none focus:ring-1 focus:border-amber-500 shadow-sm border border-zinc-500/50 text-sm rounded-md block w-full p-2.5 bg-zinc-800 placeholder-zinc-400 text-white;
     }
 
     svg {
@@ -130,16 +130,65 @@
         @apply bg-zinc-800 border border-zinc-700/20 no-underline;
     }
 
+    input[type="checkbox"] {
+        @apply h-5 w-5 cursor-pointer appearance-none rounded-md border transition-all before:absolute checked:border-amber-500 checked:bg-amber-500 checked:before:bg-amber-500 hover:before:opacity-10;
+    }
+
+    input[type="number"] {
+        @apply p-2 m-2 w-[4rem] text-sm ring-1 ring-amber-800 outline-0 focus:ring-amber-500 focus:border-amber-500 bg-zinc-900 rounded-md;
+    }
+
+    .password {
+        @apply grid grid-cols-1 place-items-center space-y-2;
+    }
+
+    .icon {
+        @apply flex flex-col items-center justify-center;
+    }
+
+    #copy-tooltip {
+        @apply py-1 px-2 my-2 text-white text-sm bg-amber-600 text-center rounded-md;
+    }
+
     .black-button {
-        @apply transition-all px-8 py-4 w-full min-w-full md:min-w-[18rem] md:max-w-[18rem] flex space-x-4 text-sm md:text-base items-center justify-center uppercase border border-zinc-700/50 text-zinc-200  hover:border-zinc-50 hover:shadow-md hover:no-underline rounded-md disabled:cursor-not-allowed;
+        @apply transition-all duration-200 ease-in-out
+        px-8 py-4 w-full
+        min-w-full md:min-w-[12rem] md:max-w-[18rem]
+        flex space-x-4
+        text-sm md:text-base
+        items-center justify-center uppercase
+        border border-zinc-700/50
+        text-zinc-200
+        hover:border-zinc-50
+        hover:shadow-lg
+        hover:no-underline
+        hover:transform hover:scale-[1.02]
+        hover:bg-zinc-800/30
+        active:scale-[0.98]
+        active:shadow-inner
+        active:border-zinc-400
+        rounded-md
+        disabled:cursor-not-allowed
+        disabled:opacity-50
+        disabled:hover:scale-100
+        disabled:hover:bg-transparent
+        disabled:hover:shadow-none;
     }
 
     .black-button > svg {
-        @apply fill-zinc-200;
+        @apply fill-zinc-200 transition-all duration-200 ease-in-out;
     }
 
     .black-button:hover > svg {
-        @apply transition-all delay-100 ease-in-out fill-white disabled:fill-zinc-200;
+        @apply fill-white transform scale-110;
+    }
+
+    .black-button:active > svg {
+        @apply scale-95;
+    }
+
+    .black-button:disabled > svg {
+        @apply fill-zinc-400 transform-none;
     }
 
     .brand-block {

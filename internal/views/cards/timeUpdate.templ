@@ -1,0 +1,38 @@
+package cards
+
+import (
+	"github.com/jgndev/jgn.dev/internal/local"
+)
+
+templ TimeUpdate() {
+	<div class="flex flex-col items-center w-full">
+		<!-- UTC RFC 3339 Card -->
+		@UtcCard()
+		<div class="flex justify-center gap-8 p-4">
+			<div class="flex flex-col">
+				<!-- US Time Zones -->
+				<span class="text-4xl uppercase font-bold text-center">USA</span>
+				@TimeCard("Eastern (ET)", local.GetCurrentTime("America/New_York"), "et-time")
+				@TimeCard("Central (CT)", local.GetCurrentTime("America/Chicago"), "ct-time")
+				@TimeCard("Mountain (MT)", local.GetCurrentTime("America/Denver"), "mt-time")
+				@TimeCard("Pacific (PT)", local.GetCurrentTime("America/Los_Angeles"), "pt-time")
+				<!-- EU Time Zones -->
+			</div>
+			<div class="flex flex-col">
+				<span class="text-4xl uppercase font-bold text-center">EU</span>
+				@TimeCard("Western (WET)", local.GetCurrentTime("Europe/London"), "wet-time")
+				@TimeCard("Central (CET)", local.GetCurrentTime("Europe/Paris"), "cet-time")
+				@TimeCard("Eastern (EET)", local.GetCurrentTime("Europe/Bucharest"), "eet-time")
+				@TimeCard("Moscow", local.GetCurrentTime("Europe/Moscow"), "msk-time")
+			</div>
+			<!-- APAC -->
+			<div class="flex flex-col">
+				<span class="text-4xl uppercase font-bold text-center">APAC</span>
+				@TimeCard("India", local.GetCurrentTime("Asia/Kolkata"), "ist-time")
+				@TimeCard("Hong Kong", local.GetCurrentTime("Asia/Shanghai"), "cst-time")
+				@TimeCard("Tokyo", local.GetCurrentTime("Asia/Tokyo"), "jst-time")
+				@TimeCard("Sydney", local.GetCurrentTime("Australia/Sydney"), "aedt-time")
+			</div>
+		</div>
+	</div>
+}
