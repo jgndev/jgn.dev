@@ -8,6 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
 	"github.com/jgndev/jgn.dev/internal/application"
 	"github.com/jgndev/jgn.dev/internal/models"
+	"github.com/jgndev/jgn.dev/internal/pwbot"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"log"
@@ -70,18 +71,19 @@ func main() {
 	// Start SQS polling in a goroutine
 	go app.PollSQS(ctx)
 
-	// Enable gzip compression
+	// Middleware
+	e.Use(middleware.Recover())
 	e.Use(middleware.GzipWithConfig(middleware.GzipConfig{
 		Level: 5,
 	}))
 
 	// Static assets with caching
-	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
-			c.Response().Header().Set("Cache-Control", "public, max-age=86400")
-			return next(c)
-		}
-	})
+	//e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
+	//	return func(c echo.Context) error {
+	//		c.Response().Header().Set("Cache-Control", "public, max-age=86400")
+	//		return next(c)
+	//	}
+	//})
 
 	// Static assets
 	e.Static("/public", "public")
@@ -97,9 +99,14 @@ func main() {
 	e.GET("/about", app.About)
 	e.GET("/contact", app.Contact)
 	e.GET("/plan", app.Plan)
+	e.GET("/utils", app.Utils)
+	e.GET("/timebot", app.TimeBot)
+	e.GET("/pwbot", app.PwBot)
+	e.POST("/password", pwbot.NewPassword)
 	e.GET("/search", app.SearchPosts)
 	e.GET("/health", app.Health)
 	e.GET("/get-time", app.GetTime)
+	e.GET("/times", app.TimeUpdate)
 	e.GET("/sitemap.xml", app.SiteMap)
 
 	// Start app
