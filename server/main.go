@@ -94,8 +94,8 @@ func main() {
 
 	// Routes
 	e.GET("/", app.Home)
-	e.GET("/posts", app.Posts)
-	e.GET("/posts/:slug", app.Post)
+	//e.GET("/posts", app.Posts)
+	//e.GET("/posts/:slug", app.Post)
 	e.GET("/about", app.About)
 	e.GET("/contact", app.Contact)
 	e.GET("/plan", app.Plan)

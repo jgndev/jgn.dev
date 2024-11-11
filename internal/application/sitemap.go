@@ -19,12 +19,12 @@ func (a *Application) SiteMap(c echo.Context) error {
 			ChangeFreq: "weekly",
 			Priority:   "1.0",
 		},
-		{
-			Loc:        "https://jgn.dev/posts",
-			LastMod:    sitemapDate(),
-			ChangeFreq: "weekly",
-			Priority:   "1.0",
-		},
+		//{
+		//	Loc:        "https://jgn.dev/posts",
+		//	LastMod:    sitemapDate(),
+		//	ChangeFreq: "weekly",
+		//	Priority:   "1.0",
+		//},
 		{
 			Loc:        "https://jgn.dev/about",
 			LastMod:    sitemapDate(),
