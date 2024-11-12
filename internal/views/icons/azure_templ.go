@@ -10,7 +10,7 @@ import "context"
 import "io"
 import "bytes"
 
-func FreeBsd() templ.Component {
+func Azure() templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -23,7 +23,7 @@ func FreeBsd() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"brand-icon-block\" title=\"FreeBSD\"><svg class=\"w-12\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path fill=\"currentColor\" d=\"M2.69 2c.85-.05 3.39 1.16 3.44 1.19c-1.29.81-2.39 1.9-3.22 3.19C2.09 4.81 1.34 2.91 2 2.25c.17-.17.4-.25.69-.25m18.15.13c.41-.05.74.01.94.21c1.07 1.08-1.9 5.81-2.4 6.32c-.51.5-1.81.04-2.88-1.03c-1.07-1.08-1.53-2.37-1.03-2.88c.41-.41 3.62-2.45 5.37-2.62M12 2.56c1.29 0 2.53.26 3.66.72c-.49.32-.85.57-.97.69c-.99.99-.55 2.86 1.03 4.44c.98.97 2.12 1.56 3.06 1.56c.68 0 1.14-.29 1.38-.53c.17-.17.44-.56.75-1.03c.51 1.18.78 2.47.78 3.84c0 5.36-4.33 9.72-9.69 9.72s-9.69-4.36-9.69-9.72A9.68 9.68 0 0 1 12 2.56\"></path></svg></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"brand-icon-block\" title=\"Microsoft Azure\"><svg class=\"w-12\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 15 15\"><path fill=\"currentColor\" d=\"M7.97.67a.5.5 0 0 0-.824-.524l-4 4a.5.5 0 0 0-.106.157l-3 7A.5.5 0 0 0 .5 12h3a.5.5 0 0 0 .47-.33zm1.985 1.623a.5.5 0 0 0-.92.021l-2 5A.5.5 0 0 0 7.1 7.8l2.584 3.445l-5.342 1.78A.5.5 0 0 0 4.5 14h10a.5.5 0 0 0 .455-.707z\"></path></svg></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
