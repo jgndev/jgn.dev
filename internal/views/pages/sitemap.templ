@@ -1,0 +1,18 @@
+package pages
+
+import (
+	"github.com/stratocraft/stratocraft.dev/internal/models"
+)
+
+templ Sitemap(data []models.SitemapData) {
+	<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+		for _, sm := range data {
+			<url>
+				<loc>{ sm.Loc }</loc>
+				<lastmod>{ sm.LastMod }</lastmod>
+				<changefreq>{ sm.ChangeFreq }</changefreq>
+				<priority>{ sm.Priority }</priority>
+			</url>
+		}
+	</urlset>
+}

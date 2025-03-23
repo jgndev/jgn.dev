@@ -1,0 +1,15 @@
+package pages
+
+import "github.com/stratocraft/stratocraft.dev/internal/views/shared"
+
+templ ServerError() {
+	@shared.Base("Server Error") {
+		<div class="max-h-screen mx-auto flex flex-col">
+			<h1 class="font-jbmono text-center text-9xl">Boop beep bfft</h1>
+			<div class="flex flex-col items-center justify-center">
+				<p class="font-jbmono text-xl">Great, now you're breaking stuff...</p>
+				<a class="mt-8 black-button font-jbmono" href="/" aria-label="Go back to Home">Back to Safety</a>
+			</div>
+		</div>
+	}
+}

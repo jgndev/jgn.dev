@@ -1,0 +1,18 @@
+package lockups
+
+import (
+	"github.com/stratocraft/stratocraft.dev/internal/contentmanager"
+)
+
+templ SearchResults(posts []contentmanager.Post) {
+	<div id="search-overlay" class="fixed inset-0 mx-auto mt-[10%] w-full h-3/4 bg-zinc-900 z-40 border border-zinc-700/50 rounded-md shadow-2xl flex flex-col">
+		<div>
+			<h2 class="uppercase text-center">Search Results</h2>
+		</div>
+		<div class="mb-8 grid grid-cols-3 gap-4">
+			for _, post := range posts {
+				@PostCard(post)
+			}
+		</div>
+	</div>
+}

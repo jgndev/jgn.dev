@@ -1,0 +1,14 @@
+package partials
+
+import (
+	"github.com/stratocraft/stratocraft.dev/internal/views/buttons"
+)
+
+templ Socials() {
+	<div class="flex space-x-8 items-center">
+		@buttons.GitHub()
+		@buttons.GitLab()
+		@buttons.Linkedin()
+		@buttons.LeetCode()
+	</div>
+}

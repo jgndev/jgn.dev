@@ -1,0 +1,38 @@
+package cards
+
+import (
+	"github.com/stratocraft/stratocraft.dev/internal/timebot"
+)
+
+templ TimeUpdate() {
+	<div class="flex flex-col items-center w-full">
+		<!-- UTC RFC 3339 Card -->
+		@UtcCard()
+		<div class="flex justify-center gap-8 p-4">
+			<!-- US Time Zones -->
+			<div class="flex flex-col">
+				<span class="text-4xl uppercase font-bold text-center">USA</span>
+				@TimeCard("Eastern (ET)", timebot.GetCurrentTime("America/New_York"), "et-time")
+				@TimeCard("Central (CT)", timebot.GetCurrentTime("America/Chicago"), "ct-time")
+				@TimeCard("Mountain (MT)", timebot.GetCurrentTime("America/Denver"), "mt-time")
+				@TimeCard("Pacific (PT)", timebot.GetCurrentTime("America/Los_Angeles"), "pt-time")
+			</div>
+			<!-- EU Time Zones -->
+			<div class="flex flex-col">
+				<span class="text-4xl uppercase font-bold text-center">EU</span>
+				@TimeCard("Western (WET)", timebot.GetCurrentTime("Europe/London"), "wet-time")
+				@TimeCard("Central (CET)", timebot.GetCurrentTime("Europe/Paris"), "cet-time")
+				@TimeCard("Eastern (EET)", timebot.GetCurrentTime("Europe/Bucharest"), "eet-time")
+				@TimeCard("Moscow (MSK)", timebot.GetCurrentTime("Europe/Moscow"), "msk-time")
+			</div>
+			<!-- APAC -->
+			<div class="flex flex-col">
+				<span class="text-4xl uppercase font-bold text-center">APAC</span>
+				@TimeCard("India (IST)", timebot.GetCurrentTime("Asia/Kolkata"), "ist-time")
+				@TimeCard("Hong Kong (HKT)", timebot.GetCurrentTime("Asia/Shanghai"), "cst-time")
+				@TimeCard("Tokyo (JST)", timebot.GetCurrentTime("Asia/Tokyo"), "jst-time")
+				@TimeCard("Sydney (AEST)", timebot.GetCurrentTime("Australia/Sydney"), "aedt-time")
+			</div>
+		</div>
+	</div>
+}

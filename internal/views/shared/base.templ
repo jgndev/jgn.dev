@@ -1,0 +1,71 @@
+package shared
+
+import (
+	"github.com/stratocraft/stratocraft.dev/internal/site"
+	"github.com/stratocraft/stratocraft.dev/internal/views/partials"
+)
+
+templ Base(title string) {
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			<!-- Meta Tags -->
+			<meta charset="UTF-8"/>
+			<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<meta name="robots" content="follow, index"/>
+			<meta name="revisit-after" content="7 days"/>
+			<meta name="language" content="English"/>
+			<meta name="description" content={ site.MetaDescription }/>
+			<meta name="author" content={ site.Author }/>
+			<meta name="generator" content={ site.Generator }/>
+			<!-- Meta Properties -->
+			<meta property="og:locale" content="en_US"/>
+			<meta property="og:type" content="website"/>
+			<meta property="og:title" content={ title }/>
+			<meta property="og:description" content={ site.MetaDescription }/>
+			<meta property="og:url" content={ site.URL }/>
+			<!-- Favicon -->
+			<link rel="apple-touch-icon" sizes="180x180" href="/public/img/apple-touch-icon.png"/>
+			<link rel="icon" type="image/png" sizes="32x32" href="/public/img/favicon-32x32.png"/>
+			<link rel="icon" type="image/png" sizes="16x16" href="/public/img/favicon-16x16.png"/>
+			<link rel="manifest" href="/public/img/site.webmanifest"/>
+			<link rel="mask-icon" href="/public/img/safari-pinned-tab.svg" color="#5bbad5"/>
+			<link rel="shortcut icon" href="/public/img/favicon.svg"/>
+			<meta name="msapplication-TileColor" content="#ffc40d"/>
+			<meta name="msapplication-config" content="/public/img/browserconfig.xml"/>
+			<meta name="theme-color" content="#ffffff"/>
+			<!-- CSS -->
+			<link rel="stylesheet" href="/public/css/tokyo-night-dark.css" />
+			<link rel="preload" href="/public/font/jetbrains-mono-v18-latin-regular.woff2" as="font" crossorigin/>
+			<link rel="stylesheet" href="/public/css/site.css" as="style"/>
+			<!-- Title -->
+			<title>{ title } | { site.Generator } </title>
+            <!-- Structured Data: JSON-LD -->
+            <script type="application/ld+json">
+                {
+                    "@context": "http://schema.org",
+                    "@type": "WebPage",
+                    "name": "{ title }",
+                    "description": "{ site.MetaDescription }",
+                    "url": "{ site.URL }"
+                }
+            </script>
+		</head>
+		<body>
+			<!-- Navbar -->
+			@partials.Nav()
+			<div id="search-overlay" class="hidden fixed inset-0 mx-auto mt-[15%] w-3/4 h-3/4 bg-zinc-800 bg-opactiy-50 z-40 border border-zinc-700/10 rounded-md shadow-xl flex justify-center items-center"></div>
+			<main>
+				{ children... }
+			</main>
+			<!-- Footer -->
+			@partials.Footer()
+			<!-- Scripts -->
+			<script src="/public/js/htmx.min.js" defer></script>
+			<script src="/public/js/helpers.js" defer></script>
+			<script src="/public/js/highlight.min.js"></script>
+            <script>hljs.highlightAll();</script>
+		</body>
+	</html>
+}

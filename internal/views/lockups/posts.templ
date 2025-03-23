@@ -1,0 +1,16 @@
+package lockups
+
+import (
+    "github.com/stratocraft/stratocraft.dev/internal/contentmanager"
+)
+
+templ Posts(posts []contentmanager.Post) {
+	<div class="flex flex-col text-center">
+		<h1>Posts</h1>
+		<div class="mb-8 grid grid-cols-3 grid-rows-2 gap-4">
+			for _, post := range posts {
+				@PostCard(post)
+			}
+		</div>
+	</div>
+}

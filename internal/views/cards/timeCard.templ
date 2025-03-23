@@ -1,0 +1,8 @@
+package cards
+
+templ TimeCard(zone string, time string, id string) {
+	<div class="w-[18rem] h-[6rem] flex flex-col items-center border border-zinc-600/50 rounded-md mt-4 py-4">
+		<span class="text-xl text-zinc-500/50 font-mono uppercase">{ zone }</span>
+		<span id={ id } class="font-mono text-3xl">{ time }</span>
+	</div>
+}

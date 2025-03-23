@@ -1,0 +1,34 @@
+version: 2
+updates:
+  - package-ecosystem: "gomod"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    target-branch: "main"
+    pull-request-branch-name:
+      separator: "-"
+    commit-message:
+      prefix: "go"
+      include: "scope"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    target-branch: "main"
+    pull-request-branch-name:
+      separator: "-"
+    commit-message:
+      prefix: "github-actions"
+      include: "scope"
+
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    target-branch: "main"
+    pull-request-branch-name:
+      separator: "-"
+    commit-message:
+      prefix: "docker"
+      include: "scope"

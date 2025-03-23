@@ -1,0 +1,20 @@
+package partials
+
+import (
+	"time"
+	"strconv"
+	"github.com/stratocraft/stratocraft.dev/internal/site"
+)
+
+templ Footer() {
+	<footer>
+		&copy; { site.Author }, { currentYear() }
+		<div>
+			@Socials()
+		</div>
+	</footer>
+}
+
+func currentYear() string {
+	return strconv.Itoa(time.Now().Year())
+}

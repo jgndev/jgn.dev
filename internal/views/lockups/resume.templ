@@ -1,0 +1,18 @@
+package lockups
+
+import "github.com/stratocraft/stratocraft.dev/internal/views/buttons"
+
+templ Resume() {
+	<div class="">
+		<h2 class="uppercase font-bold text-3xl">Resume</h2>
+		<div>
+			Choose PDF or DOCX below to download a copy of my resume.
+		</div>
+		<div class="my-4 flex items-center space-x-4">
+			<!-- PDF Download Button -->
+			@buttons.ResumePdf()
+			<!-- DOCX Download Button -->
+			@buttons.ResumeDocx()
+		</div>
+	</div>
+}

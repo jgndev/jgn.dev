@@ -1,0 +1,37 @@
+package lockups
+
+import (
+	"github.com/stratocraft/stratocraft.dev/internal/contentmanager"
+)
+
+templ PostCard(post contentmanager.Post) {
+	<div class="w-full max-w-[25rem] h-full m-4 p-6 flex flex-col bg-zinc-900 border border-zinc-700/50 rounded-md shadow-md">
+		<div class="flex-1">
+			<h5 class="mb-2 text-2xl font-bold text-zinc-200">{ post.Title }</h5>
+			<p class="mb-3 font-normal text-zinc-400">{ post.Summary }</p>
+		</div>
+		<div class="flex-1">
+			<a href={ templ.SafeURL("/posts/" + post.Slug) } class="mt-4 inline-flex items-center read-button">
+				Read
+				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+					<path
+ 						fill="currentColor"
+ 						d="M10.91 15.242q-.168 0-.289-.11q-.121-.112-.121-.294V9.162q0-.182.124-.293q.124-.111.289-.111q.04 0 .283.13l2.677 2.677q.092.093.142.2q.05.107.05.235t-.05.235q-.05.107-.142.2l-2.677 2.677q-.056.055-.129.093t-.157.037"
+					></path>
+				</svg>
+			</a>
+		</div>
+		<div class="bottom-0 align-bottom flex items-center justify-between">
+			if len(post.Tags) > 0 {
+				<div class="flex items-center justify-center my-4">
+					for _, tag := range post.Tags {
+						<div class="mx-1 px-2 py-1 text-[8pt] font-mono bg-zinc-800 rounded-md">
+							{ tag }
+						</div>
+					}
+				</div>
+			}
+			<div class="text-sm font-mono my-2">{ post.DisplayDate }</div>
+		</div>
+	</div>
+}

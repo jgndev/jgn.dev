@@ -1,0 +1,12 @@
+package pages
+
+import (
+	"github.com/stratocraft/stratocraft.dev/internal/views/shared"
+	"github.com/stratocraft/stratocraft.dev/internal/views/lockups"
+)
+
+templ Contact() {
+	@shared.Base("Contact") {
+		@lockups.Contact()
+	}
+}

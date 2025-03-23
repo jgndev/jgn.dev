@@ -1,0 +1,13 @@
+package pages
+
+import (
+    "github.com/stratocraft/stratocraft.dev/internal/views/shared"
+    "github.com/stratocraft/stratocraft.dev/internal/views/lockups"
+    "github.com/stratocraft/stratocraft.dev/internal/contentmanager"
+)
+
+templ Posts(posts []contentmanager.Post) {
+    @shared.Base("Posts") {
+        @lockups.Posts(posts)
+    }
+}
