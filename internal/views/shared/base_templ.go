@@ -11,8 +11,8 @@ import "io"
 import "bytes"
 
 import (
-	"github.com/stratocraft/stratocraft.dev/internal/site"
-	"github.com/stratocraft/stratocraft.dev/internal/views/partials"
+	"github.com/jgndev/jgn.dev/internal/site"
+	"github.com/jgndev/jgn.dev/internal/views/partials"
 )
 
 func Base(title string) templ.Component {

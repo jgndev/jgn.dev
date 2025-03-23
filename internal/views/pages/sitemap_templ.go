@@ -11,7 +11,7 @@ import "io"
 import "bytes"
 
 import (
-	"github.com/stratocraft/stratocraft.dev/internal/models"
+	"github.com/jgndev/jgn.dev/internal/models"
 )
 
 func Sitemap(data []models.SitemapData) templ.Component {

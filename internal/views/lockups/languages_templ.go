@@ -10,7 +10,7 @@ import "context"
 import "io"
 import "bytes"
 
-import "github.com/stratocraft/stratocraft.dev/internal/views/icons"
+import "github.com/jgndev/jgn.dev/internal/views/icons"
 
 func Languages() templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {

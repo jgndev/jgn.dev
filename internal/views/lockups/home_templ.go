@@ -11,8 +11,8 @@ import "io"
 import "bytes"
 
 import (
-	"github.com/stratocraft/stratocraft.dev/internal/contentmanager"
-	"github.com/stratocraft/stratocraft.dev/internal/views/icons"
+	"github.com/jgndev/jgn.dev/internal/contentmanager"
+	"github.com/jgndev/jgn.dev/internal/views/icons"
 )
 
 func Home(posts []contentmanager.Post) templ.Component {

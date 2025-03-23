@@ -2,8 +2,8 @@ package application
 
 import (
 	"fmt"
+	"github.com/jgndev/jgn.dev/internal/models"
 	"github.com/labstack/echo/v4"
-	"github.com/stratocraft/stratocraft.dev/internal/models"
 	"net/http"
 	"time"
 )
@@ -11,25 +11,25 @@ import (
 func (a *Application) SiteMap(c echo.Context) error {
 	sd := []models.SitemapData{
 		{
-			Loc:        "https://stratocraft.dev",
+			Loc:        "https://jgn.dev",
 			LastMod:    sitemapDate(),
 			ChangeFreq: "weekly",
 			Priority:   "1.0",
 		},
 		{
-			Loc:        "https://stratocraft.dev/posts",
+			Loc:        "https://jgn.dev/posts",
 			LastMod:    sitemapDate(),
 			ChangeFreq: "weekly",
 			Priority:   "1.0",
 		},
 		{
-			Loc:        "https://stratocraft.dev/about",
+			Loc:        "https://jgn.dev/about",
 			LastMod:    sitemapDate(),
 			ChangeFreq: "weekly",
 			Priority:   "1.0",
 		},
 		{
-			Loc:        "https://stratocraft.dev/contact",
+			Loc:        "https://jgn.dev/contact",
 			LastMod:    sitemapDate(),
 			ChangeFreq: "weekly",
 			Priority:   "1.0",

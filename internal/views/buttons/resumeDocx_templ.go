@@ -10,7 +10,7 @@ import "context"
 import "io"
 import "bytes"
 
-import "github.com/stratocraft/stratocraft.dev/internal/site"
+import "github.com/jgndev/jgn.dev/internal/site"
 
 func ResumeDocx() templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {

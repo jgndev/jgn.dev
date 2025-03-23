@@ -11,7 +11,7 @@ import "io"
 import "bytes"
 
 import (
-	"github.com/stratocraft/stratocraft.dev/internal/timebot"
+	"github.com/jgndev/jgn.dev/internal/timebot"
 )
 
 func TimeUpdate() templ.Component {

@@ -11,9 +11,9 @@ import "io"
 import "bytes"
 
 import (
-	"github.com/stratocraft/stratocraft.dev/internal/views/cards"
-	"github.com/stratocraft/stratocraft.dev/internal/views/icons"
-	"github.com/stratocraft/stratocraft.dev/internal/views/shared"
+	"github.com/jgndev/jgn.dev/internal/views/cards"
+	"github.com/jgndev/jgn.dev/internal/views/icons"
+	"github.com/jgndev/jgn.dev/internal/views/shared"
 )
 
 func TimeBot() templ.Component {

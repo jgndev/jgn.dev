@@ -11,9 +11,9 @@ import "io"
 import "bytes"
 
 import (
-	"github.com/stratocraft/stratocraft.dev/internal/contentmanager"
-	"github.com/stratocraft/stratocraft.dev/internal/views/lockups"
-	"github.com/stratocraft/stratocraft.dev/internal/views/shared"
+	"github.com/jgndev/jgn.dev/internal/contentmanager"
+	"github.com/jgndev/jgn.dev/internal/views/lockups"
+	"github.com/jgndev/jgn.dev/internal/views/shared"
 )
 
 func Post(post contentmanager.Post) templ.Component {

@@ -11,7 +11,7 @@ import "io"
 import "bytes"
 
 import (
-	"github.com/stratocraft/stratocraft.dev/internal/site"
+	"github.com/jgndev/jgn.dev/internal/site"
 	"strconv"
 	"time"
 )

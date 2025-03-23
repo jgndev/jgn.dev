@@ -11,7 +11,7 @@ import "io"
 import "bytes"
 
 import (
-	"github.com/stratocraft/stratocraft.dev/internal/contentmanager"
+	"github.com/jgndev/jgn.dev/internal/contentmanager"
 )
 
 func Posts(posts []contentmanager.Post) templ.Component {

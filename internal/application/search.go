@@ -3,8 +3,8 @@ package application
 import (
 	"log"
 
+	"github.com/jgndev/jgn.dev/internal/views/lockups"
 	"github.com/labstack/echo/v4"
-	"github.com/stratocraft/stratocraft.dev/internal/views/lockups"
 )
 
 // SearchPosts is the handler for the post searching feature

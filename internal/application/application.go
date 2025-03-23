@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/stratocraft/stratocraft.dev/internal/contentmanager"
+	"github.com/jgndev/jgn.dev/internal/contentmanager"
 )
 
 type Application struct {

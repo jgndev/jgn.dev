@@ -1,10 +1,10 @@
 package main
 
 import (
+	"github.com/jgndev/jgn.dev/internal/application"
+	"github.com/jgndev/jgn.dev/internal/pwbot"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/stratocraft/stratocraft.dev/internal/application"
-	"github.com/stratocraft/stratocraft.dev/internal/pwbot"
 )
 
 func main() {
