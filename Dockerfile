@@ -47,9 +47,9 @@ COPY . .
 # -a: Force rebuild of packages that are already up-to-date.
 # -installsuffix cgo: Add suffix to package directory to avoid conflicts.
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
-    -ldflags='-w -s -extldflags "-static"' \
-    -a -installsuffix cgo \
-    -o main ./server/main.go
+  -ldflags='-w -s -extldflags "-static"' \
+  -a -installsuffix cgo \
+  -o main ./main.go
 
 # Stage 2: Final Stage
 # Using Google's distroless image as our final base.
