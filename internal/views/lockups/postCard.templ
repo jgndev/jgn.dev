@@ -6,10 +6,12 @@ import (
 
 templ PostCard(post contentmanager.Post) {
 	<div class="w-full max-w-[25rem] h-full m-4 p-6 flex flex-col bg-zinc-900 border border-zinc-700/50 rounded-md shadow-md">
+	    <!-- Title and Summary -->
 		<div class="flex-1">
 			<h5 class="mb-2 text-2xl font-bold text-zinc-200">{ post.Title }</h5>
 			<p class="mb-3 font-normal text-zinc-400">{ post.Summary }</p>
 		</div>
+		<!-- Read Button -->
 		<div class="flex-1">
 			<a href={ templ.SafeURL("/posts/" + post.Slug) } class="mt-4 inline-flex items-center read-button">
 				Read
@@ -21,17 +23,22 @@ templ PostCard(post contentmanager.Post) {
 				</svg>
 			</a>
 		</div>
-		<div class="bottom-0 align-bottom flex items-center justify-between">
+		<!-- Tags -->
+		<div class="flex items-center justify-center">
 			if len(post.Tags) > 0 {
 				<div class="flex items-center justify-center my-4">
 					for _, tag := range post.Tags {
-						<div class="mx-1 px-2 py-1 text-[8pt] font-mono bg-zinc-800 rounded-md">
+						<div class="mx-1 px-1 py-1 text-[8pt] font-mono bg-zinc-800 rounded-md">
 							{ tag }
 						</div>
 					}
 				</div>
 			}
-			<div class="text-sm font-mono my-2">{ post.DisplayDate }</div>
 		</div>
+		<!-- Display Date -->
+        <div class="flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M12 14q-.425 0-.712-.288T11 13q0-.425.288-.712T12 12q.425 0 .713.288T13 13q0 .425-.288.713T12 14m-4 0q-.425 0-.712-.288T7 13q0-.425.288-.712T8 12q.425 0 .713.288T9 13q0 .425-.288.713T8 14m8 0q-.425 0-.712-.288T15 13q0-.425.288-.712T16 12q.425 0 .713.288T17 13q0 .425-.288.713T16 14m-4 4q-.425 0-.712-.288T11 17q0-.425.288-.712T12 16q.425 0 .713.288T13 17q0 .425-.288.713T12 18m-4 0q-.425 0-.712-.288T7 17q0-.425.288-.712T8 16q.425 0 .713.288T9 17q0 .425-.288.713T8 18m8 0q-.425 0-.712-.288T15 17q0-.425.288-.712T16 16q.425 0 .713.288T17 17q0 .425-.288.713T16 18M5 22q-.825 0-1.412-.587T3 20V6q0-.825.588-1.412T5 4h1V2h2v2h8V2h2v2h1q.825 0 1.413.588T21 6v14q0 .825-.587 1.413T19 22zm0-2h14V10H5z"></path></svg>
+            <div class="ml-2 text-sm font-mono">{ post.DisplayDate }</div>
+        </div>
 	</div>
 }
