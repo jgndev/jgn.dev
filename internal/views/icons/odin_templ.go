@@ -10,7 +10,7 @@ import "context"
 import "io"
 import "bytes"
 
-func JavaScript() templ.Component {
+func Odin() templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -23,7 +23,7 @@ func JavaScript() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"brand-icon-block\" title=\"JavaScript\"><svg class=\"w-12\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 20 20\"><path fill=\"currentColor\" d=\"M3 6a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3zm7.25 1.5a.75.75 0 0 0-.75.75v5a.25.25 0 0 1-.25.25h-1a.75.75 0 0 0 0 1.5h1A1.75 1.75 0 0 0 11 13.25v-5a.75.75 0 0 0-.75-.75m1.25 1.75v1c0 .966.784 1.75 1.75 1.75h.5a.25.25 0 0 1 .25.25v1a.25.25 0 0 1-.25.25h-1.5a.75.75 0 0 0 0 1.5h1.5a1.75 1.75 0 0 0 1.75-1.75v-1a1.75 1.75 0 0 0-1.75-1.75h-.5a.25.25 0 0 1-.25-.25v-1a.25.25 0 0 1 .25-.25h1.5a.75.75 0 0 0 0-1.5h-1.5a1.75 1.75 0 0 0-1.75 1.75\"></path></svg></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"brand-icon-block\" title=\"Odin\"><svg xmlns=\"http://www.w3.org/2000/svg\" class=\"w-10\" viewBox=\"0 0 512 512\"><path fill=\"currentColor\" d=\"M90.076 452.839L344.858 11.524C704.146 180.817 420.076 682.572 90.076 452.84M362.953 70.431L149.9 438.64C383.25 563.76 600.708 239.483 362.953 70.43M301.199 3.273L60.356 423.203C-87.082 228.676 51.866-32.236 301.2 3.273M224.778 46.5s-89.544 12.35-148.211 98.035C16.934 231.631 61.128 334.43 61.128 334.43z\"></path></svg></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
