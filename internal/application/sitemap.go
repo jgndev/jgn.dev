@@ -1,7 +1,8 @@
 package application
 
 import (
-	"fmt"
+	"bytes"
+	"encoding/xml"
 	"github.com/jgndev/jgn.dev/internal/models"
 	"github.com/labstack/echo/v4"
 	"net/http"
@@ -9,9 +10,26 @@ import (
 )
 
 func (a *Application) SiteMap(c echo.Context) error {
-	sd := []models.SitemapData{
+	// Define the header and footer
+	header := `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`
+	footer := `</urlset>`
+
+	// Define the sitemap data
+	urls := []models.SitemapURL{
 		{
 			Loc:        "https://jgn.dev",
+			LastMod:    sitemapDate(),
+			ChangeFreq: "weekly",
+			Priority:   "1.0",
+		},
+		{
+			Loc:        "https://jgn.dev/plan",
+			LastMod:    sitemapDate(),
+			ChangeFreq: "weekly",
+			Priority:   "1.0",
+		},
+		{
+			Loc:        "https://jgn.dev/utils",
 			LastMod:    sitemapDate(),
 			ChangeFreq: "weekly",
 			Priority:   "1.0",
@@ -36,27 +54,29 @@ func (a *Application) SiteMap(c echo.Context) error {
 		},
 	}
 
-	header := `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`
-	footer := `</urlset>`
+	// Use a buffer to build the XML
+	var buf bytes.Buffer
+	buf.WriteString(xml.Header) // Add <?xml version="1.0" encoding="UTF-8"?>
+	buf.WriteString(header)
+	buf.WriteString("\n") // Optional: for readability
 
-	var xml string
-	xml = xml + header
-
-	for _, s := range sd {
-		xml += fmt.Sprintf(`
-		<url>
-		<loc>%s</loc>
-		<lastmod>%s</lastmod>
-		<changefreq>%s</changefreq>
-		<priority>%s</priority>
-		</url>`, s.Loc, s.LastMod, s.ChangeFreq, s.Priority)
+	// Generate XML for each <url> entry with indentation
+	for _, u := range urls {
+		urlData, err := xml.MarshalIndent(u, "  ", "  ") // Indent with 2 spaces
+		if err != nil {
+			return c.String(http.StatusInternalServerError, "Failed to generate sitemap")
+		}
+		buf.WriteString(string(urlData))
+		buf.WriteString("\n") // Optional: for readability
 	}
 
-	xml = xml + footer
+	buf.WriteString(footer)
 
-	return c.XML(http.StatusOK, xml)
+	// Set content type and return the XML
+	c.Response().Header().Set("Content-Type", "application/xml")
+	return c.Blob(http.StatusOK, "application/xml", buf.Bytes())
 }
 
 func sitemapDate() string {
-	return time.Now().UTC().Format(time.RFC3339)
+	return time.Now().UTC().Format("2006-01-02") // Use YYYY-MM-DD for sitemap
 }
