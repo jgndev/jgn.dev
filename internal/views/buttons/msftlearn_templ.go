@@ -23,7 +23,7 @@ func MsftLearn() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<a class=\"socials\" href=\"https://linkedin.com/in/jgnovak\" target=\"_blank\" title=\"Linkedin\" rel=\"nofollow\" aria-label=\"Linkedin\"><svg xmlns=\"http://www.w3.org/2000/svg\" class=\"socials\" width=\"1.5em\" viewBox=\"0 0 24 24\"><path fill=\"currentColor\" d=\"M2 3h9v9H2zm9 19H2v-9h9zM21 3v9h-9V3zm0 19h-9v-9h9z\"></path></svg></a>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<a class=\"socials\" href=\"https://learn.microsoft.com/en-us/users/jeremynovak-4626/\" target=\"_blank\" title=\"Linkedin\" rel=\"nofollow\" aria-label=\"Linkedin\"><svg xmlns=\"http://www.w3.org/2000/svg\" class=\"socials\" width=\"1.5em\" viewBox=\"0 0 24 24\"><path fill=\"currentColor\" d=\"M2 3h9v9H2zm9 19H2v-9h9zM21 3v9h-9V3zm0 19h-9v-9h9z\"></path></svg></a>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
