@@ -1,9 +1,9 @@
 package main
 
 import (
+	"github.com/jgndev/jgn.dev/internal/application"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/stratocraft/stratocraft.dev/internal/application"
 )
 
 func main() {
@@ -29,10 +29,10 @@ func main() {
 	e.GET("/search", app.Search)
 	e.GET("/posts/:slug", app.PostDetail)
 	e.GET("/about", app.About)
-	
+
 	// Webhook for automatic content updates
 	e.POST("/webhook/github", app.WebhookHandler)
-	
+
 	//e.GET("/contact", app.Contact)
 	//e.GET("/services", app.Services)
 

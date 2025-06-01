@@ -45,7 +45,7 @@ if [ ! -f "$STYLE_FILE" ]; then
 fi
 
 # Check if Tailwind CSS is installed
-if ! npx tailwindcss --help &>/dev/null; then
+if ! npx @tailwindcss/cli --help &>/dev/null; then
     error_exit "Tailwind CSS is not installed. Please run 'npm install tailwindcss' first."
 fi
 
@@ -54,4 +54,4 @@ mkdir -p "$(dirname "$OUTPUT_FILE")" || error_exit "Failed to create output dire
 
 # Run Tailwind CSS in watch mode with minification
 log "Watching for changes in $STYLE_FILE. Press CTRL+C to stop."
-npx tailwindcss -i "$STYLE_FILE" -o "$OUTPUT_FILE" --minify --watch
+npx @tailwindcss/cli -i "$STYLE_FILE" -o "$OUTPUT_FILE" --minify --watch

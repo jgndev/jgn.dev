@@ -175,9 +175,14 @@ show_status() {
     echo ""
     
     # Check for running processes
-    local tailwind_running=$(pgrep -f "tailwindcss.*--watch" 2>/dev/null || echo "")
-    local templ_running=$(pgrep -f "templ.*--watch" 2>/dev/null || echo "")
-    local air_running=$(pgrep -f "air" 2>/dev/null || echo "")
+    local tailwind_running
+    tailwind_running=$(pgrep -f "tailwindcss.*--watch" 2>/dev/null || echo "")
+
+    local templ_running
+    templ_running=$(pgrep -f "templ.*--watch" 2>/dev/null || echo "")
+
+    local air_running
+    air_running=$(pgrep -f "air" 2>/dev/null || echo "")
     
     if [ -n "$tailwind_running" ]; then
         echo -e "  ${GREEN}✓${NC} Tailwind CSS watch (PID: $tailwind_running)"
@@ -208,8 +213,11 @@ stop_development() {
     log "Stopping all development processes..."
     
     # Kill processes by name
+    # shellcheck disable=SC2015
     pkill -f "tailwindcss.*--watch" 2>/dev/null && log "Stopped Tailwind CSS watch" || true
+    # shellcheck disable=SC2015
     pkill -f "templ.*--watch" 2>/dev/null && log "Stopped Templ watch" || true
+    # shellcheck disable=SC2015
     pkill -f "air" 2>/dev/null && log "Stopped Air" || true
     
     log "All development processes stopped"
@@ -225,7 +233,7 @@ start_development() {
     # Initial build
     log "Running initial build..."
     templ generate
-    npx tailwindcss -i ./public/css/style.css -o ./public/css/site.css --minify
+    npx @tailwindcss/cli -i ./public/css/style.css -o ./public/css/site.css --minify
     
     # Start Tailwind CSS watch in background
     log "Starting Tailwind CSS watch..."
@@ -249,7 +257,6 @@ start_development() {
     else
         log_error "Failed to start Templ watch"
         cleanup
-        exit 1
     fi
     
     # Give background processes time to initialize

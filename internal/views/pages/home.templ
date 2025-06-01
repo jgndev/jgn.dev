@@ -3,14 +3,15 @@ package pages
 import (
 	"github.com/jgndev/jgn.dev/internal/views/shared"
 	"github.com/jgndev/jgn.dev/internal/views/components"
+	"github.com/jgndev/jgn.dev/internal/views/lockups"
 	"github.com/jgndev/jgn.dev/internal/contentmanager"
 )
 
 templ Home(recentPosts []contentmanager.Post) {
 	@shared.Layout("Home", "Expert Cloud & DevOps engineering services. Scale your infrastructure with modern best practices, Azure, AWS, Kubernetes, and more.") {
-		<!-- Hero Section -->
-		<!--@lockups.CTA()-->
-		
+		<!-- Greeting Section -->
+		@lockups.Greeting()
+
 		<!-- Recent Posts Section -->
 		<section id="posts" class="py-16 bg-white dark:bg-zinc-900">
 			<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
