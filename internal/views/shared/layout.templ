@@ -1,36 +1,40 @@
 package shared
 
+import (
+    "github.com/jgndev/jgn.dev/internal/site"
+)
+
 templ Layout(title, description string) {
 	<!DOCTYPE html>
 	<html lang="en" class="scroll-smooth">
 		<head>
 			<meta charset="UTF-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-			<title>{ title } | Stratocraft - Cloud & DevOps Engineering, Education and Consulting</title>
-			<meta name="description" content={ description }/>
-			<meta name="author" content="Stratocraft"/>
+			<title>{ title } | { site.Generator }</title>
+			<meta name="description" content={ site.Description }/>
+			<meta name="author" content={ site.Author }/>
 			<meta name="robots" content="index, follow"/>
-			<link rel="canonical" href="https://stratocraft.dev"/>
+			<meta name="generator" content={ site.Generator }/>
+			<link rel="canonical" href={ site.URL }/>
 
 			<!-- Open Graph -->
 			<meta property="og:title" content={ title }/>
-			<meta property="og:description" content={ description }/>
+			<meta property="og:description" content={ site.Description }/>
 			<meta property="og:type" content="website"/>
-			<meta property="og:url" content="https://stratocraft.dev"/>
+			<meta property="og:url" content={ site.URL }/>
 			<meta property="og:image" content="https://stratocraft.dev/public/og-image.jpg"/>
-			<meta property="og:site_name" content="Stratocraft"/>
+			<meta property="og:site_name" content={ site.Generator }/>
 
 			<!-- Twitter Card -->
 			<meta name="twitter:card" content="summary_large_image"/>
-			<meta name="twitter:site" content="@stratocraft"/>
+			<meta name="twitter:site" content="@jgndev"/>
 			<meta name="twitter:title" content={ title }/>
-			<meta name="twitter:description" content={ description }/>
+			<meta name="twitter:description" content={ site.MetaDescription }/>
 			<meta name="twitter:image" content="https://stratocraft.dev/public/og-image.jpg"/>
 
 			<!-- Preload critical resources -->
 			<link rel="preload" href="/public/css/site.css" as="style"/>
 			<link rel="preload" href="/public/css/tokyo-night-dark.css" as="style"/>
-			<!--<link rel="preload" href="/public/js/theme.js" as="script"/>-->
 			<link rel="preload" href="/public/font/Inter-Regular.woff2" as="font" type="font/woff2" crossorigin/>
 
 			<!-- Stylesheets -->
@@ -41,18 +45,17 @@ templ Layout(title, description string) {
 			<script type="application/ld+json">
                {
                    "@context": "https://schema.org",
-                   "@type": "Organization",
-                   "name": "Stratocraft",
+                   "@type": "WebPage",
+                   "name": "{ title }",
 				   "jobTitle": "Cloud & DevOps Engineer",
-                   "description": "Cloud Engineering, Education and Consulting",
-                   "url": "https://stratocraft.dev",
-                   "serviceType": "Cloud Computing Services, Education and Consulting",
+                   "description": "{ site.Description }",
+                   "url": "{ site.URL }",
                    "areaServed": "Worldwide",
                    "sameAs": [
-                       "https://linkedin.com/in/stratocraft",
-                       "https://github.com/stratocraft"
+                       "https://linkedin.com/in/jgndev",
+                       "https://github.com/jgndev"
                    ],
-                   "knowsAbout": ["Cloud Computing", "DevOps", "Azure", "AWS", "Kubernetes", "Docker"]
+                   "knowsAbout": ["Cloud Computing", "DevOps", "Azure", "GCP", "Kubernetes", "Docker"]
                }
            </script>
 			<!-- Theme Detection Script -->
