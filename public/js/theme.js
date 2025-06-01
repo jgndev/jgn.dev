@@ -1,30 +1,15 @@
 // Theme toggle functionality
 function toggleTheme() {
-    console.log('toggleTheme called');
     const html = document.documentElement;
     const isDark = html.classList.contains('dark');
-    
-    console.log('Current classList:', html.classList.toString());
-    console.log('Is currently dark:', isDark);
-    console.log('Current localStorage.theme:', localStorage.theme);
 
     if (isDark) {
         html.classList.remove('dark');
         localStorage.theme = 'light';
-        console.log('Switched to light mode');
-        console.log('New classList:', html.classList.toString());
     } else {
         html.classList.add('dark');
         localStorage.theme = 'dark';
-        console.log('Switched to dark mode');
-        console.log('New classList:', html.classList.toString());
     }
-    
-    // Double-check the change took effect
-    setTimeout(() => {
-        console.log('After timeout - classList:', html.classList.toString());
-        console.log('After timeout - localStorage.theme:', localStorage.theme);
-    }, 100);
 }
 
 // Mobile menu toggle functionality
@@ -40,39 +25,23 @@ function toggleMobileMenu() {
     }
 }
 
-console.log('Theme script loaded');
-
 // Wait for DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM content loaded');
-    
     // Initialize syntax highlighting
     if (typeof hljs !== 'undefined') {
         hljs.highlightAll();
-        console.log('Syntax highlighting initialized');
-    } else {
-        console.log('Highlight.js not found');
     }
     
     // Add event listeners for both desktop and mobile toggle buttons
     const themeToggle = document.getElementById('theme-toggle');
     const themeToggleMobile = document.getElementById('theme-toggle-mobile');
     
-    console.log('Theme toggle element:', themeToggle);
-    console.log('Theme toggle mobile element:', themeToggleMobile);
-    
     if (themeToggle) {
         themeToggle.addEventListener('click', toggleTheme);
-        console.log('Added click listener to desktop theme toggle');
-    } else {
-        console.log('Desktop theme toggle element not found');
     }
     
     if (themeToggleMobile) {
         themeToggleMobile.addEventListener('click', toggleTheme);
-        console.log('Added click listener to mobile theme toggle');
-    } else {
-        console.log('Mobile theme toggle element not found');
     }
 
     // Add event listener for mobile menu toggle
@@ -80,9 +49,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (mobileMenuButton) {
         mobileMenuButton.addEventListener('click', toggleMobileMenu);
-        console.log('Added click listener to mobile menu button');
-    } else {
-        console.log('Mobile menu button not found');
     }
 
     // Close mobile menu when clicking on menu links

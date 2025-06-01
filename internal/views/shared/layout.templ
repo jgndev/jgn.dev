@@ -10,6 +10,7 @@ templ Layout(title, description string) {
 			<meta name="description" content={ description }/>
 			<meta name="author" content="Stratocraft"/>
 			<meta name="robots" content="index, follow"/>
+			<link rel="canonical" href="https://stratocraft.dev"/>
 
 			<!-- Open Graph -->
 			<meta property="og:title" content={ title }/>
@@ -17,9 +18,11 @@ templ Layout(title, description string) {
 			<meta property="og:type" content="website"/>
 			<meta property="og:url" content="https://stratocraft.dev"/>
 			<meta property="og:image" content="https://stratocraft.dev/public/og-image.jpg"/>
+			<meta property="og:site_name" content="Stratocraft"/>
 
 			<!-- Twitter Card -->
 			<meta name="twitter:card" content="summary_large_image"/>
+			<meta name="twitter:site" content="@stratocraft"/>
 			<meta name="twitter:title" content={ title }/>
 			<meta name="twitter:description" content={ description }/>
 			<meta name="twitter:image" content="https://stratocraft.dev/public/og-image.jpg"/>
@@ -44,12 +47,12 @@ templ Layout(title, description string) {
                    "description": "Cloud Engineering, Education and Consulting",
                    "url": "https://stratocraft.dev",
                    "serviceType": "Cloud Computing Services, Education and Consulting",
-                   "areaServed": "Worldwide"
-                    "sameAs": [
-                        "https://linkedin.com/in/stratocraft",
-	"https://github.com/stratocraft"
-                    ],
-                    "knowsAbout": ["Cloud Computing", "DevOps", "Azure", "AWS", "Kubernetes", "Docker"]
+                   "areaServed": "Worldwide",
+                   "sameAs": [
+                       "https://linkedin.com/in/stratocraft",
+                       "https://github.com/stratocraft"
+                   ],
+                   "knowsAbout": ["Cloud Computing", "DevOps", "Azure", "AWS", "Kubernetes", "Docker"]
                }
            </script>
 			<!-- Theme Detection Script -->
