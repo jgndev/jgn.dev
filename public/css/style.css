@@ -6,6 +6,76 @@
 @source "../internal/**/*_templ.go";
 @source "../internal/**/*.go";
 
+/* Custom darker theme for dark mode */
+:root {
+  /* Extra dark color palette for enhanced dark mode */
+  --dark-bg-primary: #0a0a0a;     /* Much darker than zinc-900 (4% lightness) */
+  --dark-bg-secondary: #111111;   /* Darker than zinc-800 (6.5% lightness) */
+  --dark-bg-tertiary: #1a1a1a;    /* Darker than zinc-700 (10% lightness) */
+  --dark-border: #222222;         /* Darker borders (13% lightness) */
+  --dark-border-light: #2a2a2a;   /* Slightly lighter borders (16% lightness) */
+}
+
+/* Override dark mode backgrounds for a much darker theme */
+.dark {
+  /* Main page background */
+  --color-zinc-900: var(--dark-bg-primary);
+  
+  /* Secondary backgrounds (cards, panels) */
+  --color-zinc-800: var(--dark-bg-secondary);
+  
+  /* Tertiary backgrounds (buttons, inputs) */
+  --color-zinc-700: var(--dark-bg-tertiary);
+  
+  /* Borders */
+  --color-zinc-700: var(--dark-border);
+  --color-zinc-600: var(--dark-border-light);
+}
+
+/* Apply even darker backgrounds to specific elements in dark mode */
+.dark body {
+  background-color: var(--dark-bg-primary) !important;
+}
+
+.dark .bg-zinc-900 {
+  background-color: var(--dark-bg-primary) !important;
+}
+
+.dark .bg-zinc-800,
+.dark .dark\:bg-zinc-800 {
+  background-color: var(--dark-bg-secondary) !important;
+}
+
+.dark .bg-zinc-700,
+.dark .dark\:bg-zinc-700 {
+  background-color: var(--dark-bg-tertiary) !important;
+}
+
+.dark .bg-zinc-800\/95,
+.dark .dark\:bg-zinc-800\/95 {
+  background-color: rgba(17, 17, 17, 0.95) !important;
+}
+
+.dark .bg-zinc-800\/50,
+.dark .dark\:bg-zinc-800\/50 {
+  background-color: rgba(17, 17, 17, 0.5) !important;
+}
+
+.dark .border-zinc-700,
+.dark .dark\:border-zinc-700 {
+  border-color: var(--dark-border) !important;
+}
+
+.dark .border-zinc-700\/50,
+.dark .dark\:border-zinc-700\/50 {
+  border-color: rgba(34, 34, 34, 0.5) !important;
+}
+
+.dark .border-zinc-600,
+.dark .dark\:border-zinc-600 {
+  border-color: var(--dark-border-light) !important;
+}
+
 /* Footer social icons - ensure horizontal layout */
 /* footer div:has(a[href*="github.com"]),
 footer div:has(a[href*="linkedin.com"]),
