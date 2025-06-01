@@ -87,6 +87,96 @@ footer div:has(a[href*="x.com"]) {
   gap: 4px !important;
 } */
 
+/* Force Tokyo Night Dark theme for ALL code blocks in both light and dark modes */
+.post-content pre,
+.post-content pre code,
+.post-content pre .hljs {
+  /* Always use Tokyo Night Dark background and base text color */
+  background-color: #1a1b26 !important;
+  color: #9aa5ce !important;
+}
+
+/* Tokyo Night Dark syntax highlighting colors - force in both light and dark modes */
+.post-content .hljs-comment,
+.post-content .hljs-meta {
+  color: #565f89 !important;
+}
+
+.post-content .hljs-deletion,
+.post-content .hljs-doctag,
+.post-content .hljs-regexp,
+.post-content .hljs-selector-attr,
+.post-content .hljs-selector-class,
+.post-content .hljs-selector-id,
+.post-content .hljs-selector-pseudo,
+.post-content .hljs-tag,
+.post-content .hljs-template-tag,
+.post-content .hljs-variable.language_ {
+  color: #f7768e !important;
+}
+
+.post-content .hljs-link,
+.post-content .hljs-literal,
+.post-content .hljs-number,
+.post-content .hljs-params,
+.post-content .hljs-template-variable,
+.post-content .hljs-type,
+.post-content .hljs-variable {
+  color: #ff9e64 !important;
+}
+
+.post-content .hljs-attribute,
+.post-content .hljs-built_in {
+  color: #e0af68 !important;
+}
+
+.post-content .hljs-keyword,
+.post-content .hljs-property,
+.post-content .hljs-subst,
+.post-content .hljs-title,
+.post-content .hljs-title.class_,
+.post-content .hljs-title.class_.inherited__,
+.post-content .hljs-title.function_ {
+  color: #7dcfff !important;
+}
+
+.post-content .hljs-selector-tag {
+  color: #73daca !important;
+}
+
+.post-content .hljs-addition,
+.post-content .hljs-bullet,
+.post-content .hljs-quote,
+.post-content .hljs-string,
+.post-content .hljs-symbol {
+  color: #9ece6a !important;
+}
+
+.post-content .hljs-code,
+.post-content .hljs-formula,
+.post-content .hljs-section {
+  color: #7aa2f7 !important;
+}
+
+.post-content .hljs-attr,
+.post-content .hljs-char.escape_,
+.post-content .hljs-name,
+.post-content .hljs-operator {
+  color: #bb9af7 !important;
+}
+
+.post-content .hljs-punctuation {
+  color: #c0caf5 !important;
+}
+
+.post-content .hljs-emphasis {
+  font-style: italic !important;
+}
+
+.post-content .hljs-strong {
+  font-weight: 700 !important;
+}
+
 /* Custom prose styles for blog content */
 .post-content {
   @apply text-zinc-700 dark:text-zinc-300 leading-relaxed;
@@ -137,19 +227,18 @@ footer div:has(a[href*="x.com"]) {
 
 .post-content pre {
   @apply mb-4 rounded-lg overflow-x-auto;
-  /* Let highlight.js handle the background and colors */
+  /* Tokyo Night Dark theme is now enforced above */
 }
 
-.post-content code {
+/* Inline code (not in pre blocks) - keep theme-specific styling */
+.post-content code:not(pre code) {
   @apply bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 px-1 py-0.5 rounded text-sm;
 }
 
-/* Code inside pre blocks - let highlight.js handle styling */
+/* Code inside pre blocks - Tokyo Night Dark theme enforced above */
 .post-content pre code {
-  @apply bg-transparent px-0 py-0 rounded-none;
-  /* Remove custom colors to let highlight.js theme take over */
-  color: inherit;
-  background: transparent;
+  @apply px-0 py-0 rounded-none text-sm;
+  /* All colors are now forced above with !important */
 }
 
 .post-content img {
