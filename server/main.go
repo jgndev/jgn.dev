@@ -26,7 +26,7 @@ func main() {
 	// Routes
 	e.GET("/", app.Home)
 	e.GET("/posts", app.PostsList)
-	e.GET("/search", app.Search)
+	e.GET("/search", app.SearchPage)
 	e.GET("/posts/:slug", app.PostDetail)
 	e.GET("/about", app.About)
 

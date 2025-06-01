@@ -75,13 +75,13 @@ $env:GITHUB_TOKEN="ghp_your_token_here"
 Add-Content $PROFILE '$env:GITHUB_TOKEN="ghp_your_token_here"'
 ```
 
-### For Production (Azure Deployment)
+### For Production (GCP Cloud Run Deployment)
 
 The deployment scripts will automatically use the `GITHUB_TOKEN` environment variable:
 
 ```bash
 export GITHUB_TOKEN=ghp_your_token_here
-./scripts/deploy-azure-appservice.sh
+./scripts/deploy-gcp-cloud-run.sh
 ```
 
 ## Token Security Best Practices

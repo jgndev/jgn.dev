@@ -10,20 +10,13 @@ templ Nav() {
                 <div class="flex items-center">
                     @components.Logo()
                 </div>
-				<!-- Mobile Search Bar (center) -->
-				<div class="md:hidden flex-1 max-w-xs mx-4">
-					@components.SearchBar()
-				</div>
 
 				<!-- Desktop Navigation -->
 				<div class="hidden md:flex items-center space-x-8 uppercase">
 					<div class="flex items-baseline space-x-8">
 						<a href="/posts" class="text-zinc-700 dark:text-zinc-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors duration-200 px-3 py-2 text-sm font-medium">Posts</a>
+						<a href="/search" class="text-zinc-700 dark:text-zinc-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors duration-200 px-3 py-2 text-sm font-medium">Search</a>
 						<a href="/about" class="text-zinc-700 dark:text-zinc-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors duration-200 px-3 py-2 text-sm font-medium">About</a>
-					</div>
-					<!-- Search Bar -->
-					<div class="w-64">
-						@components.SearchBar()
 					</div>
 					<!-- Theme Toggle -->
 					<button id="theme-toggle" class="p-2 rounded-lg bg-zinc-200 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-300 dark:hover:bg-zinc-600 transition-colors duration-200" aria-label="Toggle theme">
@@ -63,6 +56,7 @@ templ Nav() {
 			<div id="mobile-menu" class="hidden md:hidden border-t border-zinc-300/50 dark:border-zinc-700/50 bg-zinc-50/95 dark:bg-zinc-800/95">
 				<div class="px-2 pt-2 pb-3 space-y-1">
 					<a href="/posts" class="block px-3 py-2 text-zinc-700 dark:text-zinc-200 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-md text-base font-medium transition-colors duration-200">Posts</a>
+					<a href="/search" class="block px-3 py-2 text-zinc-700 dark:text-zinc-200 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-md text-base font-medium transition-colors duration-200">Search</a>
 					<a href="/about" class="block px-3 py-2 text-zinc-700 dark:text-zinc-200 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-md text-base font-medium transition-colors duration-200">About</a>
 				</div>
 			</div>
