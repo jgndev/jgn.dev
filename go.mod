@@ -1,4 +1,4 @@
-module github.com/stratocraft/stratocraft.dev
+module github.com/jgndev/jgn.dev
 
 go 1.24.3
 

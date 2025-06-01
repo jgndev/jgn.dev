@@ -1,9 +1,9 @@
 package application
 
 import (
+	"github.com/jgndev/jgn.dev/internal/contentmanager"
+	"github.com/jgndev/jgn.dev/internal/site"
 	"github.com/labstack/echo/v4"
-	"github.com/stratocraft/stratocraft.dev/internal/contentmanager"
-	"github.com/stratocraft/stratocraft.dev/internal/site"
 	"log"
 )
 

@@ -36,44 +36,6 @@ func New(repoOwner, repoName string) *ContentManager {
 	}
 }
 
-//func (cm *ContentManager) listRepoContent(path string) ([]githubContent, error) {
-//	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/contents/%s", cm.repoOwner, cm.repoName, path)
-//
-//	log.Printf("fetching content from: %s", url)
-//
-//	req, err := http.NewRequest("GET", url, nil)
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	//req.Header.Set("Authorization", "token"+cm.githubToken)
-//	req.Header.Set("Accept", "application/vnd.github.v3+json")
-//
-//	resp, err := cm.client.Do(req)
-//	if err != nil {
-//		return nil, err
-//	}
-//	defer resp.Body.Close()
-//
-//	// Handle single file response
-//	var singleContent githubContent
-//	if err = json.NewDecoder(resp.Body).Decode(&singleContent); err != nil {
-//		return []githubContent{singleContent}, nil
-//	}
-//
-//	// Reset response body for array parsing
-//	resp.Body.Close()
-//	resp, _ = cm.client.Do(req)
-//	defer resp.Body.Close()
-//
-//	var contents []githubContent
-//	if err = json.NewDecoder(resp.Body).Decode(&contents); err != nil {
-//		return nil, err
-//	}
-//
-//	return contents, nil
-//}
-
 func (cm *ContentManager) listRepoContent(path string) ([]githubContent, error) {
 	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/contents/%s", cm.repoOwner, cm.repoName, path)
 
@@ -85,7 +47,7 @@ func (cm *ContentManager) listRepoContent(path string) ([]githubContent, error) 
 	}
 
 	req.Header.Set("Accept", "application/vnd.github.v3+json")
-	
+
 	// Add authentication if token is available
 	if cm.githubToken != "" {
 		req.Header.Set("Authorization", "token "+cm.githubToken)
@@ -131,7 +93,7 @@ func (cm *ContentManager) fetchFileContent(path string) (string, error) {
 	}
 
 	req.Header.Set("Accept", "application/vnd.github.v3+json")
-	
+
 	// Add authentication if token is available
 	if cm.githubToken != "" {
 		req.Header.Set("Authorization", "token "+cm.githubToken)
@@ -227,7 +189,7 @@ func (cm *ContentManager) RefreshContent() error {
 			return fmt.Errorf("failed to parse %s: %w", file.Name, err)
 		}
 
-		log.Printf("Parsed post: Title='%s', Slug='%s', Published=%v, Tags=%v", 
+		log.Printf("Parsed post: Title='%s', Slug='%s', Published=%v, Tags=%v",
 			post.Title, post.Slug, post.Published, post.Tags)
 
 		// Check for empty slug
