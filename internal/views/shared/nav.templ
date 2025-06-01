@@ -1,0 +1,84 @@
+package shared
+
+import "github.com/stratocraft/stratocraft.dev/internal/views/components"
+
+templ Nav() {
+	<nav class="bg-zinc-50/95 dark:bg-zinc-800/95 backdrop-blur-sm border-b border-zinc-300/50 dark:border-zinc-700/50 sticky top-0 z-50 transition-colors duration-300">
+		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+			<div class="flex justify-between items-center h-16">
+				<!-- Logo/Brand Section -->
+				<div class="flex items-center">
+					<div class="flex-shrink-0">
+					    <div class="flex gap-x-2 items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                <path
+                                    fill="currentColor"
+                                    d="m13.16 22.19l-1.66-3.84c1.6-.58 3.07-1.35 4.43-2.27l-2.78 6.11m-7.5-9.69l-3.84-1.65l6.11-2.78a20 20 0 0 0-2.27 4.43M21.66 2.35S23.78 7.31 18.11 13c-2.2 2.17-4.58 3.5-6.73 4.34c-.74.28-1.57.1-2.12-.46l-2.13-2.13c-.56-.56-.74-1.38-.47-2.13C7.5 10.5 8.83 8.09 11 5.89C16.69.216 21.66 2.35 21.66 2.35M6.25 22H4.84l4.09-4.1c.3.21.63.36.97.45zM2 22v-1.41l4.77-4.78l1.43 1.42L3.41 22zm0-2.84v-1.41l3.65-3.65c.09.35.24.68.45.97zM16 6a2 2 0 1 0 0 4c1.11 0 2-.89 2-2a2 2 0 0 0-2-2"/>
+                             </svg>
+                            <!-- Hide text on mobile, show on md+ screens -->
+                            <h1 class="hidden md:block text-md font-bold lowercase text-zinc-800 dark:text-zinc-200">
+								<a href="/" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">stratocraft.dev</a>
+							</h1>
+						</div>
+					</div>
+				</div>
+
+				<!-- Mobile Search Bar (center) -->
+				<div class="md:hidden flex-1 max-w-xs mx-4">
+					@components.SearchBar()
+				</div>
+
+				<!-- Desktop Navigation -->
+				<div class="hidden md:flex items-center space-x-8 uppercase">
+					<div class="flex items-baseline space-x-8">
+						<a href="/posts" class="text-zinc-700 dark:text-zinc-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors duration-200 px-3 py-2 text-sm font-medium">Posts</a>
+						<a href="/about" class="text-zinc-700 dark:text-zinc-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors duration-200 px-3 py-2 text-sm font-medium">About</a>
+					</div>
+					<!-- Search Bar -->
+					<div class="w-64">
+						@components.SearchBar()
+					</div>
+					<!-- Theme Toggle -->
+					<button id="theme-toggle" class="p-2 rounded-lg bg-zinc-200 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-300 dark:hover:bg-zinc-600 transition-colors duration-200" aria-label="Toggle theme">
+						<svg id="sun-icon" class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+						</svg>
+						<svg id="moon-icon" class="w-5 h-5 block dark:hidden text-zinc-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 0 1 8.646 3.646 9.003 9.003 0 0 0 12 21a9.003 9.003 0 0 0 8.354-5.646z"></path>
+						</svg>
+					</button>
+				</div>
+
+				<!-- Mobile Navigation -->
+				<div class="md:hidden flex items-center space-x-2">
+					<!-- Mobile Theme Toggle -->
+					<button id="theme-toggle-mobile" class="p-2 rounded-lg bg-zinc-200 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-300 dark:hover:bg-zinc-600 transition-colors duration-200" aria-label="Toggle theme">
+						<svg class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+						</svg>
+						<svg class="w-5 h-5 block dark:hidden text-zinc-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 0 1 8.646 3.646 9.003 9.003 0 0 0 12 21a9.003 9.003 0 0 0 8.354-5.646z"></path>
+						</svg>
+					</button>
+					<!-- Mobile Menu Button -->
+					<button id="mobile-menu-button" class="text-zinc-700 dark:text-zinc-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors duration-200" aria-label="Menu">
+						<svg id="menu-icon" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+						</svg>
+						<svg id="close-icon" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+						</svg>
+					</button>
+				</div>
+			</div>
+
+			<!-- Mobile Menu (hidden by default) -->
+			<div id="mobile-menu" class="hidden md:hidden border-t border-zinc-300/50 dark:border-zinc-700/50 bg-zinc-50/95 dark:bg-zinc-800/95">
+				<div class="px-2 pt-2 pb-3 space-y-1">
+					<a href="/posts" class="block px-3 py-2 text-zinc-700 dark:text-zinc-200 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-md text-base font-medium transition-colors duration-200">Posts</a>
+					<a href="/about" class="block px-3 py-2 text-zinc-700 dark:text-zinc-200 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-zinc-100 dark:hover:bg-zinc-700 rounded-md text-base font-medium transition-colors duration-200">About</a>
+				</div>
+			</div>
+		</div>
+	</nav>
+}

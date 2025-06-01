@@ -1,0 +1,50 @@
+package components
+
+import "github.com/stratocraft/stratocraft.dev/internal/contentmanager"
+
+templ PostCard(post contentmanager.Post) {
+	<article class="bg-white dark:bg-zinc-800 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 border border-zinc-200 dark:border-zinc-700">
+		<div class="p-6">
+			<div class="flex items-center justify-between mb-3">
+				<time class="text-sm text-zinc-500 dark:text-zinc-400">{ post.Date.Format("January 2, 2006") }</time>
+				if len(post.Tags) > 0 {
+					<div class="flex gap-1">
+						for _, tag := range post.Tags {
+							<span class="inline-block px-2 py-1 text-xs bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 rounded">{ tag }</span>
+						}
+					</div>
+				}
+			</div>
+			<h2 class="text-xl font-bold text-zinc-900 dark:text-zinc-100 mb-3 line-clamp-2">
+				<a href={ templ.URL("/posts/" + post.Slug) } class="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+					{ post.Title }
+				</a>
+			</h2>
+			if post.Summary != "" {
+				<p class="text-zinc-600 dark:text-zinc-300 mb-4 line-clamp-3">{ post.Summary }</p>
+			}
+			<div class="flex items-center justify-between">
+				<a 
+					href={ templ.URL("/posts/" + post.Slug) }
+					class="inline-flex items-center text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors"
+				>
+					Read more
+					<svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+					</svg>
+				</a>
+				if post.Author != "" {
+					<span class="text-sm text-zinc-500 dark:text-zinc-400">by { post.Author }</span>
+				}
+			</div>
+		</div>
+	</article>
+}
+
+templ PostGrid(posts []contentmanager.Post) {
+	<div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+		for _, post := range posts {
+			@PostCard(post)
+		}
+	</div>
+} 

@@ -1,0 +1,79 @@
+package shared
+
+templ Layout(title, description string) {
+	<!DOCTYPE html>
+	<html lang="en" class="scroll-smooth">
+		<head>
+			<meta charset="UTF-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<title>{ title } | Stratocraft - Cloud & DevOps Engineering, Education and Consulting</title>
+			<meta name="description" content={ description }/>
+			<meta name="author" content="Stratocraft"/>
+			<meta name="robots" content="index, follow"/>
+
+			<!-- Open Graph -->
+			<meta property="og:title" content={ title }/>
+			<meta property="og:description" content={ description }/>
+			<meta property="og:type" content="website"/>
+			<meta property="og:url" content="https://stratocraft.dev"/>
+			<meta property="og:image" content="https://stratocraft.dev/public/og-image.jpg"/>
+
+			<!-- Twitter Card -->
+			<meta name="twitter:card" content="summary_large_image"/>
+			<meta name="twitter:title" content={ title }/>
+			<meta name="twitter:description" content={ description }/>
+			<meta name="twitter:image" content="https://stratocraft.dev/public/og-image.jpg"/>
+
+			<!-- Preload critical resources -->
+			<link rel="preload" href="/public/css/site.css" as="style"/>
+			<link rel="preload" href="/public/css/tokyo-night-dark.css" as="style"/>
+			<!--<link rel="preload" href="/public/js/theme.js" as="script"/>-->
+			<link rel="preload" href="/public/font/Inter-Regular.woff2" as="font" type="font/woff2" crossorigin/>
+
+			<!-- Stylesheets -->
+			<link href="/public/css/site.css" rel="stylesheet"/>
+			<link href="/public/css/tokyo-night-dark.css" rel="stylesheet"/>
+
+			<!-- Structured Data for SEO -->
+			<script type="application/ld+json">
+               {
+                   "@context": "https://schema.org",
+                   "@type": "Organization",
+                   "name": "Stratocraft",
+				   "jobTitle": "Cloud & DevOps Engineer",
+                   "description": "Cloud Engineering, Education and Consulting",
+                   "url": "https://stratocraft.dev",
+                   "serviceType": "Cloud Computing Services, Education and Consulting",
+                   "areaServed": "Worldwide"
+                    "sameAs": [
+                        "https://linkedin.com/in/stratocraft",
+	"https://github.com/stratocraft"
+                    ],
+                    "knowsAbout": ["Cloud Computing", "DevOps", "Azure", "AWS", "Kubernetes", "Docker"]
+               }
+           </script>
+			<!-- Theme Detection Script -->
+			<script>
+	           // Check for saved theme preference or default to OS preference
+               if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                   document.documentElement.classList.add('dark')
+               } else {
+                   document.documentElement.classList.remove('dark')
+               }
+           </script>
+		</head>
+		<body class="bg-zinc-100 dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 font-sans antialiased transition-colors duration-300 min-h-screen flex flex-col">
+			@Nav()
+			<!-- @Header() -->
+			<main class="flex-1">
+				{ children... }
+			</main>
+			@Footer()
+			<!-- Scripts -->
+			<script src="/public/js/htmx.min.js" defer></script>
+			<script src="/public/js/highlight.min.js" defer></script>
+			<script src="/public/js/theme.js" defer></script>
+
+		</body>
+	</html>
+}

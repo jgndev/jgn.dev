@@ -1,0 +1,119 @@
+# Git files
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+README.md
+docs/
+*.md
+
+# IDE/Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Node modules (will be installed in container)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Go build artifacts (will be built in container)
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+go.work
+
+# Templ generated files (will be generated in container)
+*_templ.go
+
+# CSS build output (will be built in container)
+public/css/site.css
+
+# Development scripts
+scripts/
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Testing
+coverage.txt
+*.cover
+
+# Temporary files
+tmp/
+temp/
+
+# Logs
+*.log
+
+# Docker files
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Ignore version control directories
+.github/
+.gitlab/
+.bitbucket/
+
+# Ignore editor directories
+.idea/
+.vscode/
+
+# Ignore environment variable files
+.env
+.env.*
+
+# Ignore Google Cloud ignore file
+.gcloudignore
+
+# Ignore dependency directories
+**/node_modules/
+**/vendor/
+
+# Ignore npm related files that don't belong in production image
+# package.json
+# package-lock.json
+tailwind.config.js
+
+# Ignore build outputs and temporary files and directories
+**/dist/
+**/build/
+**/out/
+**/tmp/
+
+# Ignore Terraform configuration and state files
+terraform/
+**/*.tfstate
+**/*.tfstate.*
+**/.terraform/
+
+# Ignore all shell scripts
+*.sh
+
+# Ignore config files that are not needed in a production image
+Dockerfile
+.dockerignore
+*.md
+*.yml
+*.yaml
+*.toml

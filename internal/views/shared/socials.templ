@@ -1,0 +1,14 @@
+package shared
+
+import (
+	"github.com/stratocraft/stratocraft.dev/internal/views/buttons"
+)
+
+templ Socials() {
+	<div class="flex space-x-8 items-center">
+	    @buttons.YouTube()
+	    @buttons.X()
+		@buttons.GitHub()
+		@buttons.Linkedin()
+	</div>
+}

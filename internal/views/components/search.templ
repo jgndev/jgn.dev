@@ -1,0 +1,55 @@
+package components
+
+import "github.com/stratocraft/stratocraft.dev/internal/contentmanager"
+
+templ SearchBar() {
+	<div class="relative">
+		<form hx-get="/search" hx-target="#search-results" hx-trigger="keyup changed delay:300ms from:input[name='q']" hx-include="input[name='q']" class="relative">
+			<input 
+				type="text" 
+				name="q"
+				placeholder="Search posts..."
+				class="w-full px-4 py-2 pl-10 pr-4 text-sm bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-zinc-900 dark:text-zinc-100 placeholder-zinc-500 dark:placeholder-zinc-400"
+				onfocus="document.getElementById('search-results').classList.remove('hidden')"
+				onblur="setTimeout(() => document.getElementById('search-results').classList.add('hidden'), 200)"
+			/>
+			<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+				<svg class="h-4 w-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+				</svg>
+			</div>
+		</form>
+		<div id="search-results" class="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto hidden"></div>
+	</div>
+}
+
+templ SearchResults(posts []contentmanager.Post) {
+	if len(posts) > 0 {
+		<div class="p-2">
+			for _, post := range posts {
+				<div class="p-3 hover:bg-zinc-50 dark:hover:bg-zinc-700 cursor-pointer border-b border-zinc-200 dark:border-zinc-600 last:border-b-0">
+					<a href={ templ.URL("/posts/" + post.Slug) } class="block">
+						<h3 class="font-medium text-zinc-900 dark:text-zinc-100 text-sm">{ post.Title }</h3>
+						<p class="text-xs text-zinc-600 dark:text-zinc-400 mt-1 line-clamp-2">{ post.Summary }</p>
+						<div class="flex items-center justify-between mt-2">
+							<div class="flex gap-1">
+								for _, tag := range post.Tags {
+									<span class="inline-block px-2 py-1 text-xs bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 rounded">{ tag }</span>
+								}
+							</div>
+							<span class="text-xs text-zinc-500 dark:text-zinc-500">{ post.DisplayDate }</span>
+						</div>
+					</a>
+				</div>
+			}
+		</div>
+	} else {
+		<div class="p-4 text-center text-zinc-500 dark:text-zinc-400 text-sm">
+			No posts found. Try different keywords.
+		</div>
+	}
+	<script>
+		// Show search results when content is loaded
+		document.getElementById('search-results').classList.remove('hidden');
+	</script>
+} 

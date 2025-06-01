@@ -1,0 +1,26 @@
+package shared
+
+import (
+	"time"
+	"strconv"
+	"github.com/stratocraft/stratocraft.dev/internal/site"
+)
+
+templ Footer() {
+    <footer class="z-50 w-full flex items-center justify-between px-6 lg:px-8 py-4 xl:px-16 bg-zinc-50/95 dark:bg-zinc-800/95 backdrop-blur-sm border-t border-zinc-300/50 dark:border-zinc-700/50 transition-colors duration-300 mt-auto">
+        <!-- Copyright - hidden on mobile, shown on md+ screens -->
+        <div class="hidden md:block">
+        <span class="font-bold lowercase">
+        &copy; { site.Author }, { currentYear() }
+        </span>
+        </div>
+        <!-- Social icons - centered on mobile, right-aligned on desktop -->
+        <div class="mx-auto md:mx-0">
+            @Socials()
+        </div>
+    </footer>
+}
+
+func currentYear() string {
+	return strconv.Itoa(time.Now().Year())
+}

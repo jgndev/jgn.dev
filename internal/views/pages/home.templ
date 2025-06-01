@@ -1,0 +1,51 @@
+package pages
+
+import (
+	"github.com/stratocraft/stratocraft.dev/internal/views/shared"
+	"github.com/stratocraft/stratocraft.dev/internal/views/components"
+	"github.com/stratocraft/stratocraft.dev/internal/contentmanager"
+)
+
+templ Home(recentPosts []contentmanager.Post) {
+	@shared.Layout("Home", "Expert Cloud & DevOps engineering services. Scale your infrastructure with modern best practices, Azure, AWS, Kubernetes, and more.") {
+		<!-- Hero Section -->
+		<!--@lockups.CTA()-->
+		
+		<!-- Recent Posts Section -->
+		<section id="posts" class="py-16 bg-white dark:bg-zinc-900">
+			<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+				<div class="text-center mb-12">
+					<h2 class="text-3xl md:text-4xl font-bold text-zinc-900 dark:text-zinc-50 mb-4">Latest Posts</h2>
+					<p class="text-lg text-zinc-600 dark:text-zinc-300 max-w-2xl mx-auto">
+						Insights and tutorials on cloud engineering, DevOps, and modern infrastructure practices.
+					</p>
+				</div>
+				
+				if len(recentPosts) > 0 {
+					@components.PostGrid(recentPosts)
+					<div class="text-center mt-12">
+						<a 
+							href="/posts" 
+							class="inline-flex items-center px-6 py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-500 transition-colors duration-200"
+						>
+							View All Posts
+							<svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+							</svg>
+						</a>
+					</div>
+				} else {
+					<div class="text-center py-12">
+						<div class="text-zinc-400 dark:text-zinc-500 mb-4">
+							<svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+							</svg>
+						</div>
+						<h3 class="text-xl font-medium text-zinc-900 dark:text-zinc-100 mb-2">No posts yet</h3>
+						<p class="text-zinc-600 dark:text-zinc-400">Check back soon for new content!</p>
+					</div>
+				}
+			</div>
+		</section>
+	}
+}

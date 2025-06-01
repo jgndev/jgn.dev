@@ -1,0 +1,82 @@
+package pages
+
+import (
+	"github.com/stratocraft/stratocraft.dev/internal/views/shared"
+	"github.com/stratocraft/stratocraft.dev/internal/contentmanager"
+)
+
+templ Post(post contentmanager.Post) {
+	@shared.Layout(post.Title, post.Summary) {
+		<article class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+			<!-- Post Header -->
+			<header class="mb-8">
+				<div class="flex items-center justify-between mb-4">
+					<time class="text-sm text-zinc-500 dark:text-zinc-400">
+						{ post.Date.Format("January 2, 2006") }
+					</time>
+					<a 
+						href="/" 
+						class="inline-flex items-center text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors"
+					>
+						<svg class="mr-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+						</svg>
+						Back to Home
+					</a>
+				</div>
+				
+				<h1 class="text-3xl md:text-4xl font-bold text-zinc-900 dark:text-zinc-100 mb-4 leading-tight">
+					{ post.Title }
+				</h1>
+				
+				if post.Summary != "" {
+					<p class="text-xl text-zinc-600 dark:text-zinc-300 mb-6 leading-relaxed">
+						{ post.Summary }
+					</p>
+				}
+				
+				<div class="flex items-center justify-between">
+					if len(post.Tags) > 0 {
+						<div class="flex gap-2">
+							for _, tag := range post.Tags {
+								<span class="inline-block px-3 py-1 text-sm bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 rounded-full">
+									{ tag }
+								</span>
+							}
+						</div>
+					}
+					if post.Author != "" {
+						<span class="text-sm text-zinc-500 dark:text-zinc-400">
+							by { post.Author }
+						</span>
+					}
+				</div>
+			</header>
+			
+			<!-- Post Content -->
+			<div class="prose prose-lg dark:prose-invert max-w-none">
+				<div class="post-content">
+					@templ.Raw(post.Content)
+				</div>
+			</div>
+			
+			<!-- Post Footer -->
+			<footer class="mt-12 pt-8 border-t border-zinc-200 dark:border-zinc-700">
+				<div class="flex items-center justify-between">
+					<div class="text-sm text-zinc-500 dark:text-zinc-400">
+						Published on { post.Date.Format("January 2, 2006") }
+					</div>
+					<a 
+						href="/#posts" 
+						class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-500 transition-colors duration-200"
+					>
+						View More Posts
+						<svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+						</svg>
+					</a>
+				</div>
+			</footer>
+		</article>
+	}
+} 

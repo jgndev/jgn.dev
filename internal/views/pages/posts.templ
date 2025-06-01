@@ -1,0 +1,67 @@
+package pages
+
+import (
+	"github.com/stratocraft/stratocraft.dev/internal/views/shared"
+	"github.com/stratocraft/stratocraft.dev/internal/views/components"
+	"github.com/stratocraft/stratocraft.dev/internal/contentmanager"
+	"fmt"
+)
+
+templ Posts(posts []contentmanager.Post) {
+	@shared.Layout("All Posts", "Browse all posts about cloud engineering, DevOps, and modern infrastructure practices.") {
+		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+			<!-- Header Section -->
+			<header class="text-center mb-12">
+				<div class="flex items-center justify-center mb-4">
+					<a 
+						href="/" 
+						class="inline-flex items-center text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors mr-4"
+					>
+						<svg class="mr-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+						</svg>
+						Back to Home
+					</a>
+				</div>
+				<h1 class="text-4xl md:text-5xl font-bold text-zinc-900 dark:text-zinc-50 mb-4">
+					All Posts
+				</h1>
+				<p class="text-xl text-zinc-600 dark:text-zinc-300 max-w-3xl mx-auto">
+					Insights and tutorials on cloud engineering, DevOps, and modern infrastructure practices.
+				</p>
+				if len(posts) > 0 {
+					<p class="text-sm text-zinc-500 dark:text-zinc-400 mt-4">
+						{ fmt.Sprintf("%d posts", len(posts)) } • Sorted by newest first
+					</p>
+				}
+			</header>
+
+			<!-- Posts Grid -->
+			if len(posts) > 0 {
+				@components.PostGrid(posts)
+			} else {
+				<!-- Empty State -->
+				<div class="text-center py-16">
+					<div class="text-zinc-400 dark:text-zinc-500 mb-6">
+						<svg class="w-20 h-20 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+						</svg>
+					</div>
+					<h2 class="text-2xl font-semibold text-zinc-900 dark:text-zinc-100 mb-4">No posts yet</h2>
+					<p class="text-zinc-600 dark:text-zinc-400 mb-8 max-w-md mx-auto">
+						Posts are being loaded from the GitHub repository. Check back soon for new content!
+					</p>
+					<a 
+						href="/" 
+						class="inline-flex items-center px-6 py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-500 transition-colors duration-200"
+					>
+						<svg class="mr-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+						</svg>
+						Back to Home
+					</a>
+				</div>
+			}
+		</div>
+	}
+} 
