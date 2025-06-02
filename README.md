@@ -10,8 +10,6 @@ Designed and optimized for exceptional web performance:
 
 🏆 **100 Lighthouse Score** for Performance when deployed to GCP Cloud Run.
 
-![Lighthouse Score](docs/gcp-cloud-run-lighthouse-score.png)
-
 ## 🚀 Features
 
 - **Modern Go Stack**: Go 1.24 + Echo v4 + Templ templates + Tailwind CSS v4
@@ -36,7 +34,7 @@ Designed and optimized for exceptional web performance:
 ┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
 │   Content API   │    │   GCP Cloud Run  │    │   Real-time     │
 │   (GitHub API)  │    │   (Containers)   │    │   Search        │
-│                 │    │   + Terraform    │    │   (HTMX)        │
+│                 │    │                  │    │   (HTMX)        │
 └─────────────────┘    └──────────────────┘    └─────────────────┘
 ```
 
@@ -58,8 +56,7 @@ Designed and optimized for exceptional web performance:
 - Docker for containerization
 - GCP Cloud Run for hosting
 - GCP Artifact Registry for image storage
-- Terraform for infrastructure as code
-- GitHub Actions for CI/CD pipeline
+- GCP Cloud Build for automated deployments
 
 ## 📁 Project Structure
 
@@ -67,48 +64,32 @@ Designed and optimized for exceptional web performance:
 jgn.dev/
 ├── docs/
 │   ├── gcp-deployment-guide.md              # GCP Cloud Run deployment guide
-│   ├── terraform-guide.md                   # Terraform infrastructure guide
-│   ├── cicd-guide.md                        # GitHub Actions CI/CD guide
+│   ├── cicd-guide.md                        # CI/CD pipeline guide
 │   ├── webhook-setup-guide.md               # GitHub webhook setup
 │   └── github-token-setup-guide.md          # GitHub token configuration
-├── terraform/
-│   ├── main.tf                              # Main Terraform configuration
-│   ├── variables.tf                         # Terraform variables
-│   ├── outputs.tf                           # Terraform outputs
-│   └── terraform.tfvars.example             # Example configuration
-├── .github/workflows/
-│   └── deploy.yml                           # GitHub Actions CI/CD pipeline
 ├── internal/
-│   ├── application/                         # HTTP handlers
-│   │   ├── home.go                          # Home page handler
-│   │   ├── posts.go                         # Posts listing handler
-│   │   ├── post.go                          # Individual post handler
-│   │   ├── search.go                        # Search functionality
-│   │   ├── about.go                         # About page handler
-│   │   └── webhook.go                        # GitHub webhook handler
-│   ├── contentmanager/                       # GitHub integration
-│   │   ├── contentmanager.go                 # Content fetching logic
-│   │   └── parsemarkdown.go                  # Markdown parsing
-│   ├── views/
-│   │   ├── pages/                             # Page templates
-│   │   ├── components/                          # Reusable components
-│   │   └── shared/                              # Layout and navigation
-│   └── site/                                    # Site configuration
+│   ├── application/                         # HTTP handlers and controllers
+│   ├── contentmanager/                      # GitHub integration and content fetching
+│   ├── views/                              # Templ templates and components
+│   └── site/                               # Site configuration and metadata
 ├── public/
-│   ├── css/                                      # Stylesheets
-│   ├── js/                                         # JavaScript files
-│   └── img/                                        # Images and assets
+│   ├── css/                                # Stylesheets and themes
+│   ├── js/                                 # JavaScript files
+│   ├── font/                              # Web fonts (Inter, JetBrains Mono)
+│   ├── img/                               # Images and static assets
+│   └── txt/                               # Text files (robots.txt)
 ├── scripts/
-│   ├── deploy-gcp-cloud-run.sh                      # GCP Cloud Run deployment
-│   ├── run-dev.sh                                     # Development orchestration
-│   ├── templ-watch.sh                                 # Template hot reloading
-│   ├── tailwind-watch.sh                                # CSS hot reloading
-│   └── test-webhook.sh                                    # Webhook testing
+│   ├── deploy-gcp-cloud-run.sh            # GCP Cloud Run deployment script
+│   ├── run-dev.sh                         # Development environment orchestration
+│   ├── templ-watch.sh                     # Template hot reloading
+│   ├── tailwind-watch.sh                  # CSS hot reloading
+│   └── test-webhook.sh                    # Webhook testing utility
 ├── server/
-│   └── main.go                                         # Application entry point
-├── Dockerfile                                            # Container configuration
-├── package.json                                            # Tailwind CSS dependencies
-└── README.md                                                 # This file
+│   └── main.go                            # Application entry point
+├── Dockerfile                             # Container configuration
+├── package.json                           # Tailwind CSS dependencies
+├── go.mod                                 # Go module dependencies
+└── README.md                              # This file
 ```
 
 ## 🚀 Quick Start
@@ -119,7 +100,6 @@ jgn.dev/
 - Docker (for deployment)
 - Node.js (for Tailwind CSS)
 - gcloud CLI (for GCP deployment)
-- Terraform (for infrastructure)
 - GitHub Personal Access Token ([setup guide](docs/github-token-setup-guide.md))
 
 ### Local Development
@@ -194,7 +174,7 @@ jgn.dev/
 
 ## 🌐 Deployment to GCP Cloud Run
 
-Deploy to GCP Cloud Run for cost-effective, scalable hosting with automatic CI/CD:
+Deploy to GCP Cloud Run for cost-effective, scalable hosting:
 
 ### Quick Deployment
 ```bash
@@ -215,50 +195,24 @@ export GITHUB_WEBHOOK_SECRET=your_webhook_secret
 
 📖 **Detailed Instructions**: See [GCP Deployment Guide](docs/gcp-deployment-guide.md) for complete setup instructions and configuration options.
 
-## 🔄 GitHub Actions CI/CD
+## 🔄 CI/CD Pipeline
 
-Automatic deployment pipeline that triggers on every push to main:
+The application supports automated deployment via GCP Cloud Build triggers:
 
 ### Features
-- ✅ **Automated Testing**: Go tests, linting, and format checking
-- ✅ **Security Scanning**: Trivy vulnerability scanning on PRs
-- ✅ **Docker Build**: Multi-stage builds with caching
+- ✅ **Automatic Builds**: Triggered on git pushes to main branch
+- ✅ **Docker Build**: Multi-stage builds with optimized layers
 - ✅ **Cloud Run Deployment**: Automatic deployment to GCP
-- ✅ **Smoke Tests**: Post-deployment health checks
-- ✅ **Status Updates**: Commit status updates with deployment results
+- ✅ **Health Checks**: Built-in container health monitoring
+- ✅ **Rollback Support**: Easy rollback to previous versions
 
-### Required Secrets
-Configure these secrets in your GitHub repository:
-- `GCP_PROJECT_ID`: Your GCP project ID
-- `GCP_REGION`: GCP region (e.g., us-central1)
-- `GCP_SA_KEY`: GCP service account key (JSON)
-- `GITHUB_TOKEN_FOR_API`: GitHub token for API access
-- `GITHUB_WEBHOOK_SECRET`: Webhook secret for GitHub integration
+### Setup
+1. **Enable Cloud Build API** in your GCP project
+2. **Connect GitHub Repository** to Cloud Build
+3. **Create Build Trigger** for main branch
+4. **Configure Environment Variables** for the service
 
 📖 **Detailed Instructions**: See [CI/CD Guide](docs/cicd-guide.md) for complete pipeline setup and configuration.
-
-## 📊 Infrastructure as Code
-
-Complete Terraform configuration for reproducible deployments:
-
-### Resources Created
-- **Cloud Run Service**: Serverless container hosting
-- **Artifact Registry**: Private container image repository
-- **Service Accounts**: Secure identity and access management
-- **Cloud Build Triggers**: Automated CI/CD integration
-- **Domain Mapping**: Custom domain configuration (optional)
-
-### Deploy Infrastructure
-```bash
-cd terraform
-cp terraform.tfvars.example terraform.tfvars
-# Edit terraform.tfvars with your configuration
-terraform init
-terraform plan
-terraform apply
-```
-
-📖 **Detailed Instructions**: See [Terraform Guide](docs/terraform-guide.md) for infrastructure setup and management.
 
 ## 🔄 GitHub Webhook Setup
 
@@ -391,6 +345,10 @@ go test ./...
    - Check project permissions and enabled APIs
    - Review Cloud Run service logs in GCP Console
 
+6. **Font files not loading (404 errors)**
+   - Ensure fonts are copied in Dockerfile: `COPY --from=go-builder /app/public/font/ ./public/font/`
+   - Rebuild and redeploy the container image
+
 ## 💰 Cost Optimization
 
 GCP Cloud Run pricing is usage-based, making it very cost-effective:
@@ -407,9 +365,9 @@ GCP Cloud Run pricing is usage-based, making it very cost-effective:
 
 ## 📚 Documentation
 
+- **[Project Overview](docs/project-overview.md)**: Comprehensive project architecture and feature overview
 - **[GCP Deployment Guide](docs/gcp-deployment-guide.md)**: Complete GCP Cloud Run deployment instructions
-- **[Terraform Guide](docs/terraform-guide.md)**: Infrastructure as code setup and management
-- **[CI/CD Guide](docs/cicd-guide.md)**: GitHub Actions pipeline configuration
+- **[CI/CD Guide](docs/cicd-guide.md)**: CI/CD pipeline configuration and setup
 - **[GitHub Token Setup Guide](docs/github-token-setup-guide.md)**: Step-by-step guide to create and configure GitHub Personal Access Tokens
 - **[Webhook Setup Guide](docs/webhook-setup-guide.md)**: GitHub webhook configuration for automatic updates
 

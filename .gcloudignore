@@ -1,0 +1,42 @@
+# Ignore development files
+.git/
+.github/
+.idea/
+.vscode/
+
+# Ignore Node.js dependencies
+node_modules/
+
+# Ignore temporary files
+tmp/
+.tmp/
+*.tmp
+*.log
+
+# Ignore development artifacts
+.air.toml
+*.out
+coverage.txt
+
+# Ignore documentation (not needed for build)
+docs/
+README.md
+LICENSE.md
+
+# Ignore scripts (not needed for runtime)
+scripts/
+
+# Ignore hidden files
+.DS_Store
+.env*
+.gitignore
+.dockerignore
+
+# Keep only essential files for build:
+# - server/ (application code)
+# - internal/ (application code) 
+# - public/ (static assets)
+# - Dockerfile (build instructions)
+# - go.mod, go.sum (dependencies)
+# - package.json, package-lock.json (CSS build)
+# - cloudbuild.yaml (build configuration) 
