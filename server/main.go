@@ -95,9 +95,6 @@ func main() {
 	// Webhook for automatic content updates
 	e.POST("/webhook/github", app.WebhookHandler)
 
-	//e.GET("/contact", app.Contact)
-	//e.GET("/services", app.Services)
-
 	// Start the application
 	e.Logger.Fatal(e.Start(":8080"))
 }

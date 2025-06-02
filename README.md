@@ -1,6 +1,6 @@
 # jgn.dev
 
-A modern, high-performance blog built with Go, Templ templates, and Tailwind CSS. Features real-time search, GitHub-based content management, and automatic post updates via webhooks.
+A modern, high-performance blog built with Go, Templ templates, and Tailwind CSS. Features real-time search, GitHub-repo based content management, and automatic post updates via webhooks.
 
 You can give the live site a spin at <a href="https://jgn.dev" target="_blank">jgn.dev</a>
 
@@ -8,7 +8,10 @@ You can give the live site a spin at <a href="https://jgn.dev" target="_blank">j
 
 Designed and optimized for exceptional web performance:
 
-🏆 **100 Lighthouse Score** for Performance when deployed to GCP Cloud Run.
+🏆 **100 Lighthouse Score** in all categories when deployed to GCP Cloud Run Service.
+
+![lighthouse perf score](docs/lighthouse-perf-score.png)
+![lighthouse audit score](docs/lighthouse-audit-score.png)
 
 ## 🚀 Features
 
