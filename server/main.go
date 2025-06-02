@@ -16,6 +16,13 @@ func cacheMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		path := c.Request().URL.Path
 
+		// Only apply caching to static assets
+		if !strings.HasPrefix(path, "/public/") &&
+			path != "/favicon.ico" &&
+			path != "/robots.txt" {
+			return next(c)
+		}
+
 		// Determine cache duration based on file type
 		var maxAge time.Duration
 
@@ -68,16 +75,13 @@ func main() {
 		Level: 5,
 	}))
 
-	// Static assets with caching - apply cache middleware only to static routes
-	staticGroup := e.Group("/public")
-	staticGroup.Use(cacheMiddleware)
-	staticGroup.Static("", "public")
+	// Apply cache middleware to all requests (it will only set headers for static assets)
+	e.Use(cacheMiddleware)
 
-	// Individual static files with caching
-	faviconGroup := e.Group("")
-	faviconGroup.Use(cacheMiddleware)
-	faviconGroup.File("/favicon.ico", "public/img/favicon.ico")
-	faviconGroup.File("/robots.txt", "public/txt/robots.txt")
+	// Static assets bundling - back to original setup
+	e.Static("/public", "public")
+	e.File("/favicon.ico", "public/img/favicon.ico")
+	e.File("/robots.txt", "public/txt/robots.txt")
 
 	app := application.New()
 
@@ -90,6 +94,9 @@ func main() {
 
 	// Webhook for automatic content updates
 	e.POST("/webhook/github", app.WebhookHandler)
+
+	//e.GET("/contact", app.Contact)
+	//e.GET("/services", app.Services)
 
 	// Start the application
 	e.Logger.Fatal(e.Start(":8080"))
