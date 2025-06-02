@@ -1,16 +1,16 @@
 variable "project_id" {
-  description = "The GCP project ID"
+  description = "GCP Project ID"
   type        = string
 }
 
 variable "region" {
-  description = "The GCP region for resources"
+  description = "GCP region"
   type        = string
-  default     = "us-central1"
+  default     = "us-south1"
 }
 
 variable "app_name" {
-  description = "Name of the application"
+  description = "Application name"
   type        = string
   default     = "jgn-dev"
 }
@@ -25,7 +25,6 @@ variable "github_webhook_secret" {
   description = "Secret for GitHub webhook signature verification"
   type        = string
   sensitive   = true
-  default     = ""
 }
 
 variable "github_owner" {
@@ -43,7 +42,7 @@ variable "github_repo" {
 variable "custom_domain" {
   description = "Custom domain for the application (optional)"
   type        = string
-  default     = ""
+  default     = "jgn.dev"
 }
 
 variable "min_instances" {
@@ -55,7 +54,7 @@ variable "min_instances" {
 variable "max_instances" {
   description = "Maximum number of Cloud Run instances"
   type        = number
-  default     = 10
+  default     = 3
 }
 
 variable "cpu_limit" {

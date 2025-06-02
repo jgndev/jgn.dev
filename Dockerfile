@@ -40,7 +40,7 @@ RUN templ generate
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
     -ldflags='-w -s -extldflags "-static"' \
     -a -installsuffix cgo \
-    -o stratocraft-server ./server
+    -o jgndev ./server
 
 # ===== Final Stage =====
 FROM alpine:3.19
@@ -58,7 +58,7 @@ RUN addgroup -g 1001 -S appgroup && \
 WORKDIR /app
 
 # Copy the binary from builder stage
-COPY --from=go-builder /app/stratocraft-server .
+COPY --from=go-builder /app/jgndev .
 
 # Copy only essential static assets
 COPY --from=css-builder /app/public/css/site.css ./public/css/
@@ -69,7 +69,7 @@ COPY --from=go-builder /app/public/txt/robots.txt ./public/txt/
 
 # Set proper permissions in single layer
 RUN chown -R appuser:appgroup /app && \
-    chmod +x ./stratocraft-server
+    chmod +x ./jgndev
 
 # Switch to non-root user
 USER appuser
@@ -86,4 +86,4 @@ ENV GIN_MODE=release
 ENV PORT=8080
 
 # Run the application
-CMD ["./stratocraft-server"]
+CMD ["./jgndev"]

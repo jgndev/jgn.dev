@@ -1,6 +1,16 @@
-output "cloud_run_url" {
-  description = "URL of the deployed Cloud Run service"
+output "service_url" {
+  description = "Cloud Run service URL"
   value       = google_cloud_run_v2_service.app.uri
+}
+
+output "trigger_name" {
+  description = "Cloud Build trigger name"
+  value       = google_cloudbuild_trigger.main_trigger.name
+}
+
+output "repository_url" {
+  description = "Artifact Registry repository URL"
+  value       = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.repo.repository_id}"
 }
 
 output "cloud_run_service_name" {

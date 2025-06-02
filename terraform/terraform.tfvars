@@ -1,8 +1,8 @@
 # Required: Your GCP Project ID
-project_id = "your-gcp-project-id"
+project_id = "jgn-dev-454618"
 
 # Optional: GCP region (default: us-central1)
-region = "us-central1"
+region = "us-south1"
 
 # Optional: Application name (default: jgn-dev)
 app_name = "jgn-dev"
@@ -12,7 +12,7 @@ github_owner = "jgndev"
 github_repo  = "jgn.dev"
 
 # Optional: Custom Domain
-custom_domain = "jgn.dev"
+# custom_domain = "jgn.dev"
 
 # Resource Limits (optional - defaults shown)
 # min_instances = 0

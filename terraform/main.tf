@@ -15,63 +15,97 @@ provider "google" {
 }
 
 # Enable required APIs
-resource "google_project_service" "required_apis" {
+resource "google_project_service" "apis" {
   for_each = toset([
     "run.googleapis.com",
     "cloudbuild.googleapis.com",
     "artifactregistry.googleapis.com",
-    "iam.googleapis.com"
   ])
 
-  service = each.value
-
-  disable_dependent_services = false
-  disable_on_destroy        = false
+  service            = each.value
+  disable_on_destroy = false
 }
 
-# Create Artifact Registry repository for container images
-resource "google_artifact_registry_repository" "container_registry" {
+# Create Artifact Registry repository
+resource "google_artifact_registry_repository" "repo" {
   location      = var.region
   repository_id = "${var.app_name}-repo"
-  description   = "Container registry for ${var.app_name}"
+  description   = "Container repository for ${var.app_name}"
   format        = "DOCKER"
 
-  depends_on = [google_project_service.required_apis]
+  depends_on = [google_project_service.apis]
 }
 
-# Create service account for Cloud Run
-resource "google_service_account" "cloud_run_sa" {
-  account_id   = "${var.app_name}-run-sa"
-  display_name = "Cloud Run Service Account for ${var.app_name}"
-  description  = "Service account used by ${var.app_name} Cloud Run service"
-}
+# Create Cloud Build trigger
+resource "google_cloudbuild_trigger" "main_trigger" {
+  name        = "${var.app_name}-main-trigger"
+  description = "Deploy ${var.app_name} on push to main"
 
-# IAM binding for Cloud Run service account
-resource "google_project_iam_member" "cloud_run_invoker" {
-  project = var.project_id
-  role    = "roles/run.invoker"
-  member  = "serviceAccount:${google_service_account.cloud_run_sa.email}"
+  github {
+    owner = var.github_owner
+    name  = var.github_repo
+    push {
+      branch = "^main$"
+    }
+  }
+
+  build {
+    step {
+      name = "gcr.io/cloud-builders/docker"
+      args = [
+        "build",
+        "-t", "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.repo.repository_id}/${var.app_name}:$SHORT_SHA",
+        "-t", "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.repo.repository_id}/${var.app_name}:latest",
+        "."
+      ]
+    }
+
+    step {
+      name = "gcr.io/cloud-builders/docker"
+      args = [
+        "push", 
+        "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.repo.repository_id}/${var.app_name}:$SHORT_SHA"
+      ]
+    }
+
+    step {
+      name = "gcr.io/cloud-builders/docker"
+      args = [
+        "push", 
+        "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.repo.repository_id}/${var.app_name}:latest"
+      ]
+    }
+
+    step {
+      name = "gcr.io/cloud-builders/gcloud"
+      args = [
+        "run", "deploy", var.app_name,
+        "--image", "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.repo.repository_id}/${var.app_name}:$SHORT_SHA",
+        "--region", var.region,
+        "--allow-unauthenticated"
+      ]
+    }
+  }
+
+  depends_on = [google_project_service.apis]
 }
 
 # Create Cloud Run service
 resource "google_cloud_run_v2_service" "app" {
   name     = var.app_name
   location = var.region
-  ingress  = "INGRESS_TRAFFIC_ALL"
 
   template {
-    service_account = google_service_account.cloud_run_sa.email
-    
-    scaling {
-      min_instance_count = var.min_instances
-      max_instance_count = var.max_instances
-    }
-
     containers {
-      image = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.container_registry.repository_id}/${var.app_name}:latest"
+      image = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.repo.repository_id}/${var.app_name}:latest"
       
       ports {
         container_port = 8080
+      }
+
+      env {
+        name  = "PORT"
+        value = "8080"
       }
 
       env {
@@ -85,44 +119,8 @@ resource "google_cloud_run_v2_service" "app" {
       }
 
       env {
-        name  = "PORT"
-        value = "8080"
-      }
-
-      env {
         name  = "GIN_MODE"
         value = "release"
-      }
-
-      resources {
-        limits = {
-          cpu    = var.cpu_limit
-          memory = var.memory_limit
-        }
-        cpu_idle          = true
-        startup_cpu_boost = true
-      }
-
-      startup_probe {
-        http_get {
-          path = "/"
-          port = 8080
-        }
-        initial_delay_seconds = 10
-        timeout_seconds      = 5
-        period_seconds       = 30
-        failure_threshold    = 3
-      }
-
-      liveness_probe {
-        http_get {
-          path = "/"
-          port = 8080
-        }
-        initial_delay_seconds = 30
-        timeout_seconds      = 5
-        period_seconds       = 60
-        failure_threshold    = 3
       }
     }
   }
@@ -132,18 +130,18 @@ resource "google_cloud_run_v2_service" "app" {
     type    = "TRAFFIC_TARGET_ALLOCATION_TYPE_LATEST"
   }
 
-  depends_on = [google_project_service.required_apis]
+  depends_on = [google_project_service.apis]
 }
 
-# Make Cloud Run service publicly accessible
-resource "google_cloud_run_service_iam_member" "public_access" {
+# Allow public access
+resource "google_cloud_run_service_iam_member" "public" {
   service  = google_cloud_run_v2_service.app.name
   location = google_cloud_run_v2_service.app.location
   role     = "roles/run.invoker"
   member   = "allUsers"
 }
 
-# Create custom domain mapping (optional)
+# Custom domain mapping (if configured)
 resource "google_cloud_run_domain_mapping" "domain" {
   count = var.custom_domain != "" ? 1 : 0
 
@@ -159,63 +157,4 @@ resource "google_cloud_run_domain_mapping" "domain" {
   }
 
   depends_on = [google_cloud_run_v2_service.app]
-}
-
-# Create Cloud Build trigger for CI/CD
-resource "google_cloudbuild_trigger" "github_trigger" {
-  name        = "${var.app_name}-deploy-trigger"
-  description = "Trigger for deploying ${var.app_name} from GitHub"
-
-  github {
-    owner = var.github_owner
-    name  = var.github_repo
-    push {
-      branch = "^main$"
-    }
-  }
-
-  build {
-    step {
-      name = "gcr.io/cloud-builders/docker"
-      args = [
-        "build",
-        "-t", "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.container_registry.repository_id}/${var.app_name}:$SHORT_SHA",
-        "-t", "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.container_registry.repository_id}/${var.app_name}:latest",
-        "."
-      ]
-    }
-
-    step {
-      name = "gcr.io/cloud-builders/docker"
-      args = [
-        "push",
-        "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.container_registry.repository_id}/${var.app_name}:$SHORT_SHA"
-      ]
-    }
-
-    step {
-      name = "gcr.io/cloud-builders/docker"
-      args = [
-        "push",
-        "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.container_registry.repository_id}/${var.app_name}:latest"
-      ]
-    }
-
-    step {
-      name = "gcr.io/cloud-builders/gcloud"
-      args = [
-        "run", "deploy", var.app_name,
-        "--image", "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.container_registry.repository_id}/${var.app_name}:$SHORT_SHA",
-        "--region", var.region,
-        "--platform", "managed",
-        "--allow-unauthenticated"
-      ]
-    }
-
-    options {
-      logging = "CLOUD_LOGGING_ONLY"
-    }
-  }
-
-  depends_on = [google_project_service.required_apis]
 } 
