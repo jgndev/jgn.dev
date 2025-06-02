@@ -64,6 +64,7 @@ COPY --from=go-builder /app/jgndev .
 COPY --from=css-builder /app/public/css/site.css ./public/css/
 COPY --from=go-builder /app/public/css/tokyo-night-dark.css ./public/css/
 COPY --from=go-builder /app/public/js/ ./public/js/
+COPY --from=go-builder /app/public/font/ ./public/font/
 COPY --from=go-builder /app/public/img/favicon.ico ./public/img/
 COPY --from=go-builder /app/public/txt/robots.txt ./public/txt/
 
