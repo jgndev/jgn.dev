@@ -10,7 +10,7 @@ const (
 	// Generator is the metadata property for the site in the html header for SEO.
 	Generator string = "jgn.dev"
 	// PostRepoOwner should be set to the name of the GitHub account hosting the posts repo.
-	PostRepoOwner string = "stratocraft"
+	PostRepoOwner string = "jgndev"
 	// PostRepoName should be set to the name of the GitHub repo that has the posts in Markdown format.
 	PostRepoName string = "posts"
 )
