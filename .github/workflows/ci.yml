@@ -35,13 +35,27 @@ jobs:
     - name: Verify dependencies
       run: go mod verify
 
-    - name: Check code formatting
+    - name: Check go mod tidy
       run: |
-        if [ "$(gofmt -s -l . | wc -l)" -gt 0 ]; then
-          echo "Code is not formatted. Please run 'go fmt ./...'"
-          gofmt -s -l .
+        go mod tidy
+        if [ -n "$(git status --porcelain go.mod go.sum)" ]; then
+          echo "go.mod or go.sum needs tidying"
+          git diff go.mod go.sum
           exit 1
         fi
+
+    - name: Generate Templ files
+      run: |
+        go install github.com/a-h/templ/cmd/templ@latest
+        templ generate
+
+    - name: Install goimports
+      run: go install golang.org/x/tools/cmd/goimports@latest
+
+    - name: Format code and imports
+      run: |
+        go fmt ./...
+        goimports -w .
 
     - name: Run go vet
       run: go vet ./...
@@ -52,16 +66,17 @@ jobs:
     - name: Run staticcheck
       run: staticcheck ./...
 
+    - name: Install golangci-lint
+      run: go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+
+    - name: Run golangci-lint
+      run: golangci-lint run --timeout=5m
+
     - name: Install govulncheck
       run: go install golang.org/x/vuln/cmd/govulncheck@latest
 
     - name: Run vulnerability check
       run: govulncheck ./...
-
-    - name: Generate Templ files
-      run: |
-        go install github.com/a-h/templ/cmd/templ@latest
-        templ generate
 
     - name: Build application
       run: go build -v ./...
