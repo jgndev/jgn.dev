@@ -12,6 +12,7 @@ import (
 	"sync"
 )
 
+// ContentManager manages content storage and operations, providing synchronization and interaction with GitHub repositories.
 type ContentManager struct {
 	sync.RWMutex
 	posts       map[string]Post
@@ -21,7 +22,9 @@ type ContentManager struct {
 	githubToken string
 }
 
-func New(repoOwner, repoName string) *ContentManager {
+// NewContentManager initializes and returns a pointer to a new ContentManager instance for managing GitHub content.
+// It requires the GitHub repository owner and name as input and retrieves the GITHUB_TOKEN from the environment.
+func NewContentManager(repoOwner, repoName string) *ContentManager {
 	githubToken := os.Getenv("GITHUB_TOKEN")
 	if githubToken == "" {
 		log.Println("Warning: GITHUB_TOKEN environment variable not set. API requests will be rate limited.")
@@ -36,6 +39,8 @@ func New(repoOwner, repoName string) *ContentManager {
 	}
 }
 
+// listRepoContent retrieves the content of a GitHub repository for the provided path.
+// It supports retrieving directories or single files and returns an array of githubContent items.
 func (cm *ContentManager) listRepoContent(path string) ([]githubContent, error) {
 	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/contents/%s", cm.repoOwner, cm.repoName, path)
 
@@ -48,7 +53,7 @@ func (cm *ContentManager) listRepoContent(path string) ([]githubContent, error) 
 
 	req.Header.Set("Accept", "application/vnd.github.v3+json")
 
-	// Add authentication if token is available
+	// Add authentication if a token is available
 	if cm.githubToken != "" {
 		req.Header.Set("Authorization", "token "+cm.githubToken)
 	}
@@ -63,7 +68,7 @@ func (cm *ContentManager) listRepoContent(path string) ([]githubContent, error) 
 		return nil, fmt.Errorf("GitHub API returned status %d", resp.StatusCode)
 	}
 
-	// Try to decode as array first (directory listing)
+	// Try to decode as an array first (directory listing)
 	var contents []githubContent
 	if err := json.NewDecoder(resp.Body).Decode(&contents); err != nil {
 		// If that fails, it might be a single file
@@ -84,6 +89,8 @@ func (cm *ContentManager) listRepoContent(path string) ([]githubContent, error) 
 	return contents, nil
 }
 
+// fetchFileContent retrieves the content of a file from a GitHub repository by its path.
+// It decodes base64-encoded content if necessary and returns the file content or an error.
 func (cm *ContentManager) fetchFileContent(path string) (string, error) {
 	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/contents/%s", cm.repoOwner, cm.repoName, path)
 
@@ -94,7 +101,7 @@ func (cm *ContentManager) fetchFileContent(path string) (string, error) {
 
 	req.Header.Set("Accept", "application/vnd.github.v3+json")
 
-	// Add authentication if token is available
+	// Add authentication if a token is available
 	if cm.githubToken != "" {
 		req.Header.Set("Authorization", "token "+cm.githubToken)
 	}
@@ -126,6 +133,7 @@ func (cm *ContentManager) fetchFileContent(path string) (string, error) {
 	return result.Content, nil
 }
 
+// matchesAllTerms checks if all terms in the given list exist in the combined searchable fields of the provided post.
 func matchesAllTerms(post Post, terms []string) bool {
 	searchText := strings.ToLower(strings.Join([]string{
 		post.Title,
@@ -143,8 +151,11 @@ func matchesAllTerms(post Post, terms []string) bool {
 	return true
 }
 
+// RefreshContent updates the internal state by fetching and parsing markdown files from a GitHub repository.
+// It processes valid, published posts and skips ignored or non-markdown files.
+// The method locks the manager for atomic updates and logs errors if any issues occur during processing.
 func (cm *ContentManager) RefreshContent() error {
-	// List files in content directory
+	// List files in the content directory
 	files, err := cm.listRepoContent("")
 	if err != nil {
 		return fmt.Errorf("failed to list content: %v", err)
@@ -161,9 +172,9 @@ func (cm *ContentManager) RefreshContent() error {
 
 	log.Printf("Found %d files in repository", len(files))
 
-	// Process each markdown file
+	// Process each Markdown file
 	for _, file := range files {
-		// Skip if not a file or not a markdown file
+		// Skip if not a file or not a Markdown file
 		if file.Type != "file" || !strings.HasSuffix(file.Name, ".md") {
 			log.Printf("Skipping non-markdown file: %s (type: %s)", file.Name, file.Type)
 			continue
@@ -217,6 +228,7 @@ func (cm *ContentManager) RefreshContent() error {
 	return nil
 }
 
+// GetAll retrieves all posts, sorts them by date in descending order, and returns them as a slice. It is thread-safe.
 func (cm *ContentManager) GetAll() []Post {
 	cm.RLock()
 	defer cm.RUnlock()
@@ -233,6 +245,7 @@ func (cm *ContentManager) GetAll() []Post {
 	return posts
 }
 
+// GetByTag retrieves posts associated with a specific tag, sorted by date in descending order. It is thread-safe.
 func (cm *ContentManager) GetByTag(tag string) []Post {
 	cm.RLock()
 	defer cm.RUnlock()
@@ -255,6 +268,7 @@ func (cm *ContentManager) GetByTag(tag string) []Post {
 	return tagged
 }
 
+// GetRecent retrieves the most recent `n` posts sorted by date in descending order. Returns all posts if fewer than `n` exist.
 func (cm *ContentManager) GetRecent(n int) []Post {
 	posts := cm.GetAll()
 	if len(posts) < n {
@@ -264,6 +278,7 @@ func (cm *ContentManager) GetRecent(n int) []Post {
 	return posts[:n]
 }
 
+// GetOldest retrieves the oldest `n` posts sorted by date in ascending order. Returns all posts if fewer than `n` exist.
 func (cm *ContentManager) GetOldest(n int) []Post {
 	posts := cm.GetAll()
 	sort.Slice(posts, func(i, j int) bool {
@@ -277,6 +292,7 @@ func (cm *ContentManager) GetOldest(n int) []Post {
 	return posts[:n]
 }
 
+// Search filters posts by a given query string, returning all matches sorted by relevance and date in descending order.
 func (cm *ContentManager) Search(query string) []Post {
 	cm.RLock()
 	defer cm.RUnlock()
@@ -319,6 +335,7 @@ func (cm *ContentManager) Search(query string) []Post {
 	return results
 }
 
+// GetBySlug retrieves a post by its slug from the content manager's storage. Returns the post and a boolean indicating existence.
 func (cm *ContentManager) GetBySlug(slug string) (Post, bool) {
 	cm.RLock()
 	defer cm.RUnlock()

@@ -7,14 +7,16 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func (a *Application) CheatsheetDetail(c echo.Context) error {
+// CheatsheetDetail handles the /cheatsheets/:slug route.
+// It fetches a cheatsheet by slug and renders the detail page, or returns an error if not found.
+func (app *Application) CheatsheetDetail(c echo.Context) error {
 	slug := c.Param("slug")
 
 	if slug == "" {
 		return c.String(http.StatusBadRequest, "Cheatsheet slug is required")
 	}
 
-	cheatsheet, exists := a.CheatsheetManager.GetBySlug(slug)
+	cheatsheet, exists := app.CheatsheetManager.GetBySlug(slug)
 	if !exists {
 		return c.String(http.StatusNotFound, "Cheatsheet not found")
 	}

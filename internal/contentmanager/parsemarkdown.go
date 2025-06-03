@@ -14,6 +14,7 @@ import (
 	"time"
 )
 
+// parseMarkdown parses a Markdown string into a Post struct, extracting front matter and converting content to HTML.
 func parseMarkdown(content string) (Post, error) {
 	fm, body, err := parseFrontMatter([]byte(content))
 	if err != nil {
@@ -40,6 +41,8 @@ func parseMarkdown(content string) (Post, error) {
 	}, nil
 }
 
+// parseCheatsheetMarkdown parses a Markdown string into a Cheatsheet struct by extracting frontmatter and converting content to HTML.
+// Returns the parsed Cheatsheet or an error if parsing or conversion fails.
 func parseCheatsheetMarkdown(content string) (Cheatsheet, error) {
 	fm, body, err := parseCheatsheetFrontMatter([]byte(content))
 	if err != nil {
@@ -66,6 +69,8 @@ func parseCheatsheetMarkdown(content string) (Cheatsheet, error) {
 	}, nil
 }
 
+// parseFrontMatter parses the front matter and content from a Markdown file, returning the front matter, body, and any errors.
+// Front matter must be YAML and enclosed by `---` separators. If parsing fails, an error is returned.
 func parseFrontMatter(markdown []byte) (FrontMatter, string, error) {
 	parts := strings.SplitN(string(markdown), "---", 3)
 	if len(parts) < 3 {
@@ -94,6 +99,8 @@ func parseFrontMatter(markdown []byte) (FrontMatter, string, error) {
 	return fm, parts[2], nil
 }
 
+// parseCheatsheetFrontMatter extracts and parses the frontmatter YAML from cheatsheet Markdown content.
+// Returns the parsed frontmatter, the remaining Markdown content, and an error if parsing fails.
 func parseCheatsheetFrontMatter(markdown []byte) (CheatsheetFrontMatter, string, error) {
 	parts := strings.SplitN(string(markdown), "---", 3)
 	if len(parts) < 3 {
@@ -122,6 +129,8 @@ func parseCheatsheetFrontMatter(markdown []byte) (CheatsheetFrontMatter, string,
 	return fm, parts[2], nil
 }
 
+// markdownToHtml converts a Markdown input to HTML, using Goldmark with extensions like GFM, Linkify, and unsafe rendering.
+// Returns the converted HTML string or an error if the conversion process fails.
 func markdownToHtml(markdown []byte) (string, error) {
 	md := goldmark.New(
 		goldmark.WithExtensions(
