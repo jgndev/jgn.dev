@@ -12,6 +12,7 @@ import (
 	"sync"
 )
 
+// CheatsheetManager manages the retrieval, storage, and filtering of cheatsheets from a remote GitHub repository.
 type CheatsheetManager struct {
 	sync.RWMutex
 	cheatsheets map[string]Cheatsheet
@@ -21,6 +22,7 @@ type CheatsheetManager struct {
 	githubToken string
 }
 
+// NewCheatsheetManager initializes and returns a new instance of CheatsheetManager with the given repository owner and name.
 func NewCheatsheetManager(repoOwner, repoName string) *CheatsheetManager {
 	githubToken := os.Getenv("GITHUB_TOKEN")
 	if githubToken == "" {
@@ -36,6 +38,8 @@ func NewCheatsheetManager(repoOwner, repoName string) *CheatsheetManager {
 	}
 }
 
+// listRepoContent retrieves the content of a GitHub repository at a specified path using the GitHub API.
+// It handles both directory listings and single file retrieval, returning a slice of githubContent or an error.
 func (cm *CheatsheetManager) listRepoContent(path string) ([]githubContent, error) {
 	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/contents/%s", cm.repoOwner, cm.repoName, path)
 
@@ -48,7 +52,7 @@ func (cm *CheatsheetManager) listRepoContent(path string) ([]githubContent, erro
 
 	req.Header.Set("Accept", "application/vnd.github.v3+json")
 
-	// Add authentication if token is available
+	// Add authentication if a token is available
 	if cm.githubToken != "" {
 		req.Header.Set("Authorization", "token "+cm.githubToken)
 	}
@@ -63,7 +67,7 @@ func (cm *CheatsheetManager) listRepoContent(path string) ([]githubContent, erro
 		return nil, fmt.Errorf("GitHub API returned status %d", resp.StatusCode)
 	}
 
-	// Try to decode as array first (directory listing)
+	// Try to decode as an array first (directory listing)
 	var contents []githubContent
 	if err := json.NewDecoder(resp.Body).Decode(&contents); err != nil {
 		// If that fails, it might be a single file
@@ -84,6 +88,8 @@ func (cm *CheatsheetManager) listRepoContent(path string) ([]githubContent, erro
 	return contents, nil
 }
 
+// fetchFileContent retrieves the content of a file from a GitHub repository using the GitHub API.
+// It decodes the content if it is encoded in base64 and returns it as a string. Returns an error if the operation fails.
 func (cm *CheatsheetManager) fetchFileContent(path string) (string, error) {
 	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/contents/%s", cm.repoOwner, cm.repoName, path)
 
@@ -94,7 +100,7 @@ func (cm *CheatsheetManager) fetchFileContent(path string) (string, error) {
 
 	req.Header.Set("Accept", "application/vnd.github.v3+json")
 
-	// Add authentication if token is available
+	// Add authentication if a token is available
 	if cm.githubToken != "" {
 		req.Header.Set("Authorization", "token "+cm.githubToken)
 	}
@@ -126,6 +132,7 @@ func (cm *CheatsheetManager) fetchFileContent(path string) (string, error) {
 	return result.Content, nil
 }
 
+// matchesAllTermsCheatsheet checks if all the provided search terms are present in a Cheatsheet's combined text fields.
 func matchesAllTermsCheatsheet(cheatsheet Cheatsheet, terms []string) bool {
 	searchText := strings.ToLower(strings.Join([]string{
 		cheatsheet.Title,
@@ -143,8 +150,9 @@ func matchesAllTermsCheatsheet(cheatsheet Cheatsheet, terms []string) bool {
 	return true
 }
 
+// RefreshContent synchronizes the cheatsheet repository and updates the in-memory map with published Markdown files.
 func (cm *CheatsheetManager) RefreshContent() error {
-	// List files in content directory
+	// List files in the content directory
 	files, err := cm.listRepoContent("")
 	if err != nil {
 		return fmt.Errorf("failed to list cheatsheet content: %v", err)
@@ -161,9 +169,9 @@ func (cm *CheatsheetManager) RefreshContent() error {
 
 	log.Printf("Found %d files in cheatsheets repository", len(files))
 
-	// Process each markdown file
+	// Process each Markdown file
 	for _, file := range files {
-		// Skip if not a file or not a markdown file
+		// Skip if not a file or not a Markdown file
 		if file.Type != "file" || !strings.HasSuffix(file.Name, ".md") {
 			log.Printf("Skipping non-markdown file: %s (type: %s)", file.Name, file.Type)
 			continue
@@ -233,6 +241,7 @@ func (cm *CheatsheetManager) GetAll() []Cheatsheet {
 	return cheatsheets
 }
 
+// GetByTag retrieves all cheatsheets associated with the specified tag, sorted by date in descending order.
 func (cm *CheatsheetManager) GetByTag(tag string) []Cheatsheet {
 	cm.RLock()
 	defer cm.RUnlock()
@@ -255,6 +264,7 @@ func (cm *CheatsheetManager) GetByTag(tag string) []Cheatsheet {
 	return tagged
 }
 
+// GetRecent retrieves the most recent n cheatsheets, sorted by date in descending order. Returns all cheatsheets if n exceeds the total count.
 func (cm *CheatsheetManager) GetRecent(n int) []Cheatsheet {
 	cheatsheets := cm.GetAll()
 	if len(cheatsheets) < n {
@@ -264,6 +274,8 @@ func (cm *CheatsheetManager) GetRecent(n int) []Cheatsheet {
 	return cheatsheets[:n]
 }
 
+// Search performs a case-insensitive search across all cheatsheets, returning those that match the query terms.
+// The results are sorted by relevance, currently determined by the cheatsheet's date in descending order.
 func (cm *CheatsheetManager) Search(query string) []Cheatsheet {
 	cm.RLock()
 	defer cm.RUnlock()
@@ -306,6 +318,7 @@ func (cm *CheatsheetManager) Search(query string) []Cheatsheet {
 	return results
 }
 
+// GetBySlug retrieves a cheatsheet by its unique slug. Returns the Cheatsheet and a boolean indicating its existence.
 func (cm *CheatsheetManager) GetBySlug(slug string) (Cheatsheet, bool) {
 	cm.RLock()
 	defer cm.RUnlock()

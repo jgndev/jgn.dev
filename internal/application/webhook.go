@@ -14,7 +14,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// GitHubWebhookPayload represents the relevant parts of a GitHub push webhook
+// GitHubWebhookPayload represents the data structure of a payload received from a GitHub webhook event.
 type GitHubWebhookPayload struct {
 	Ref     string `json:"ref"`
 	Commits []struct {
@@ -28,9 +28,9 @@ type GitHubWebhookPayload struct {
 	} `json:"repository"`
 }
 
-// WebhookHandler handles GitHub webhook events
+// WebhookHandler handles incoming GitHub webhook requests, verifying the signature and processing relevant events.
 func (app *Application) WebhookHandler(c echo.Context) error {
-	// Get the webhook secret from environment
+	// Get the webhook secret from the environment
 	secret := os.Getenv("GITHUB_WEBHOOK_SECRET")
 	if secret == "" {
 		log.Printf("Webhook received but no GITHUB_WEBHOOK_SECRET configured")
@@ -74,7 +74,7 @@ func (app *Application) WebhookHandler(c echo.Context) error {
 		})
 	}
 
-	// Check if any markdown files were added or modified
+	// Check if any Markdown files were added or modified
 	hasMarkdownChanges := false
 	for _, commit := range payload.Commits {
 		for _, file := range append(commit.Added, commit.Modified...) {
@@ -111,13 +111,13 @@ func (app *Application) WebhookHandler(c echo.Context) error {
 	})
 }
 
-// verifyWebhookSignature verifies that the webhook request came from GitHub
+// verifyWebhookSignature validates a webhook payload signature against the expected HMAC-SHA256 signature.
 func verifyWebhookSignature(body []byte, signature, secret string) bool {
 	if signature == "" {
 		return false
 	}
 
-	// Remove "sha256=" prefix
+	// Remove the "sha256=" prefix
 	if !strings.HasPrefix(signature, "sha256=") {
 		return false
 	}

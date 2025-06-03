@@ -2,6 +2,7 @@ package contentmanager
 
 import "time"
 
+// Post represents a blog post with metadata and content information. It includes details like title, author, and tags.
 type Post struct {
 	ID          string    `yaml:"ID"`
 	Date        time.Time `yaml:"date"`

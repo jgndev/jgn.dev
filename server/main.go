@@ -95,6 +95,9 @@ func main() {
 	e.GET("/cheatsheets/:slug", app.CheatsheetDetail)
 	e.GET("/about", app.About)
 
+	// Sitemap
+	e.GET("/sitemap.xml", app.SitemapXML)
+
 	// Webhook for automatic content updates
 	e.POST("/webhook/github", app.WebhookHandler)
 

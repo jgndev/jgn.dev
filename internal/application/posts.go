@@ -5,9 +5,10 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func (a *Application) PostsList(c echo.Context) error {
+// PostsList handles the /posts route and renders a list of all posts, sorted by date in descending order.
+func (app *Application) PostsList(c echo.Context) error {
 	// Get all posts (already sorted by date, newest first)
-	posts := a.ContentManager.GetAll()
+	posts := app.ContentManager.GetAll()
 
 	return pages.Posts(posts).Render(c.Request().Context(), c.Response().Writer)
 }
