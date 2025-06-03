@@ -90,6 +90,9 @@ func main() {
 	e.GET("/posts", app.PostsList)
 	e.GET("/search", app.SearchPage)
 	e.GET("/posts/:slug", app.PostDetail)
+	e.GET("/cheatsheets", app.CheatsheetsList)
+	e.GET("/cheatsheets/search", app.CheatsheetSearchPage)
+	e.GET("/cheatsheets/:slug", app.CheatsheetDetail)
 	e.GET("/about", app.About)
 
 	// Webhook for automatic content updates
