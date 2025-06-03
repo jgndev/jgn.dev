@@ -1,0 +1,88 @@
+package pages
+
+import (
+	"github.com/jgndev/jgn.dev/internal/views/shared"
+	"github.com/jgndev/jgn.dev/internal/views/components"
+	"github.com/jgndev/jgn.dev/internal/contentmanager"
+	"fmt"
+)
+
+templ Cheatsheets(cheatsheets []contentmanager.Cheatsheet) {
+	@shared.Layout("Cheatsheets", "Browse all cheatsheets for quick reference on programming languages, tools, and technologies.") {
+		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+			<!-- Header Section -->
+			<header class="text-center mb-12">
+				<div class="flex items-center justify-center mb-4">
+					<a 
+						href="/" 
+						class="inline-flex items-center text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors mr-4"
+					>
+						<svg class="mr-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+						</svg>
+						Back to Home
+					</a>
+				</div>
+				<h1 class="text-4xl md:text-5xl font-bold text-zinc-900 dark:text-zinc-50 mb-4">
+					Cheatsheets
+				</h1>
+				<p class="text-xl text-zinc-600 dark:text-zinc-300 max-w-3xl mx-auto">
+					Quick reference guides for programming languages, tools, and technologies to boost your productivity.
+				</p>
+				if len(cheatsheets) > 0 {
+					<p class="text-sm text-zinc-500 dark:text-zinc-400 mt-4">
+						{ fmt.Sprintf("%d cheatsheets", len(cheatsheets)) } • Sorted by newest first
+					</p>
+				}
+			</header>
+
+			<!-- Search Section -->
+			<div class="max-w-2xl mx-auto mb-12">
+				<form method="GET" action="/cheatsheets/search" class="relative">
+					<input 
+						type="text" 
+						name="q"
+						placeholder="Search cheatsheets..."
+						class="w-full px-4 sm:px-6 py-3 sm:py-4 text-base sm:text-lg bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-zinc-900 dark:text-zinc-100 placeholder-zinc-500 dark:placeholder-zinc-400 shadow-sm pr-16 sm:pr-20"
+					/>
+					<button 
+						type="submit"
+						class="absolute right-2 top-1/2 transform -translate-y-1/2 px-3 sm:px-4 py-1.5 sm:py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-500 transition-colors flex items-center text-sm sm:text-base"
+					>
+						<svg class="w-4 h-4 sm:mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+						</svg>
+						<span class="hidden sm:inline">Search</span>
+					</button>
+				</form>
+			</div>
+
+			<!-- Cheatsheets Grid -->
+			if len(cheatsheets) > 0 {
+				@components.CheatsheetGrid(cheatsheets)
+			} else {
+				<!-- Empty State -->
+				<div class="text-center py-16">
+					<div class="text-zinc-400 dark:text-zinc-500 mb-6">
+						<svg class="w-20 h-20 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+						</svg>
+					</div>
+					<h2 class="text-2xl font-semibold text-zinc-900 dark:text-zinc-100 mb-4">No cheatsheets yet</h2>
+					<p class="text-zinc-600 dark:text-zinc-400 mb-8 max-w-md mx-auto">
+						Cheatsheets are being loaded from the GitHub repository. Check back soon for new content!
+					</p>
+					<a 
+						href="/" 
+						class="inline-flex items-center px-6 py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-500 transition-colors duration-200"
+					>
+						<svg class="mr-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+						</svg>
+						Back to Home
+					</a>
+				</div>
+			}
+		</div>
+	}
+} 

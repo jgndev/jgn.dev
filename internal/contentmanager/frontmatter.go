@@ -3,7 +3,18 @@ package contentmanager
 import "time"
 
 type FrontMatter struct {
-	ID        string    `yaml:"ID"`
+	ID        string    `yaml:"id"`
+	Date      time.Time `yaml:"date"`
+	Title     string    `yaml:"title"`
+	Author    string    `yaml:"author"`
+	Summary   string    `yaml:"summary"`
+	Slug      string    `yaml:"slug"`
+	Tags      []string  `yaml:"tags"`
+	Published bool      `yaml:"published"`
+}
+
+type CheatsheetFrontMatter struct {
+	ID        string    `yaml:"id"`
 	Date      time.Time `yaml:"date"`
 	Title     string    `yaml:"title"`
 	Author    string    `yaml:"author"`

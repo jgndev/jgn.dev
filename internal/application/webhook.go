@@ -130,4 +130,4 @@ func verifyWebhookSignature(body []byte, signature, secret string) bool {
 
 	// Compare signatures
 	return hmac.Equal([]byte(signature), []byte(expectedSignature))
-} 
+}

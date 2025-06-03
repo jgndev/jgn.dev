@@ -1,0 +1,82 @@
+package pages
+
+import (
+	"github.com/jgndev/jgn.dev/internal/views/shared"
+	"github.com/jgndev/jgn.dev/internal/contentmanager"
+)
+
+templ Cheatsheet(cheatsheet contentmanager.Cheatsheet) {
+	@shared.Layout(cheatsheet.Title, cheatsheet.Summary) {
+		<article class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+			<!-- Cheatsheet Header -->
+			<header class="mb-8">
+				<div class="flex items-center justify-between mb-4">
+					<time class="text-sm text-zinc-500 dark:text-zinc-400">
+						{ cheatsheet.Date.Format("January 2, 2006") }
+					</time>
+					<a 
+						href="/cheatsheets" 
+						class="inline-flex items-center text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors"
+					>
+						<svg class="mr-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+						</svg>
+						Back to Cheatsheets
+					</a>
+				</div>
+				
+				<h1 class="text-3xl md:text-4xl font-bold text-zinc-900 dark:text-zinc-100 mb-4 leading-tight">
+					{ cheatsheet.Title }
+				</h1>
+				
+				if cheatsheet.Summary != "" {
+					<p class="text-xl text-zinc-600 dark:text-zinc-300 mb-6 leading-relaxed">
+						{ cheatsheet.Summary }
+					</p>
+				}
+				
+				<div class="flex items-center justify-between flex-wrap gap-4">
+					<div class="flex gap-2 flex-wrap">
+						if len(cheatsheet.Tags) > 0 {
+							for _, tag := range cheatsheet.Tags {
+								<span class="inline-block px-3 py-1 text-sm bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 rounded-full">
+									{ tag }
+								</span>
+							}
+						}
+					</div>
+					if cheatsheet.Author != "" {
+						<span class="text-sm text-zinc-500 dark:text-zinc-400">
+							by { cheatsheet.Author }
+						</span>
+					}
+				</div>
+			</header>
+			
+			<!-- Cheatsheet Content -->
+			<div class="prose prose-lg dark:prose-invert max-w-none">
+				<div class="post-content">
+					@templ.Raw(cheatsheet.Content)
+				</div>
+			</div>
+			
+			<!-- Cheatsheet Footer -->
+			<footer class="mt-12 pt-8 border-t border-zinc-200 dark:border-zinc-700">
+				<div class="flex items-center justify-between">
+					<div class="text-sm text-zinc-500 dark:text-zinc-400">
+						Published on { cheatsheet.Date.Format("January 2, 2006") }
+					</div>
+					<a 
+						href="/cheatsheets" 
+						class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-500 transition-colors duration-200"
+					>
+						View More Cheatsheets
+						<svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+						</svg>
+					</a>
+				</div>
+			</footer>
+		</article>
+	}
+} 

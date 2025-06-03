@@ -13,4 +13,8 @@ const (
 	PostRepoOwner string = "jgndev"
 	// PostRepoName should be set to the name of the GitHub repo that has the posts in Markdown format.
 	PostRepoName string = "posts"
+	// CheatsheetRepoOwner should be set to the name of the GitHub account hosting the cheatsheets repo.
+	CheatsheetRepoOwner string = "jgndev"
+	// CheatsheetRepoName should be set to the name of the GitHub repo that has the cheatsheets in Markdown format.
+	CheatsheetRepoName string = "cheatsheets"
 )

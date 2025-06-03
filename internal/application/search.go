@@ -17,3 +17,15 @@ func (a *Application) SearchPage(c echo.Context) error {
 
 	return pages.SearchPage(query, results).Render(c.Request().Context(), c.Response().Writer)
 }
+
+func (a *Application) CheatsheetSearchPage(c echo.Context) error {
+	query := c.QueryParam("q")
+
+	var results []contentmanager.Cheatsheet
+
+	if query != "" {
+		results = a.CheatsheetManager.Search(query)
+	}
+
+	return pages.CheatsheetSearchPage(query, results).Render(c.Request().Context(), c.Response().Writer)
+}
