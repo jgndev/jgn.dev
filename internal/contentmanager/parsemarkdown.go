@@ -140,7 +140,7 @@ func markdownToHtml(markdown []byte) (string, error) {
 		return "", err
 	}
 
-	output := string(buf.Bytes())
+	output := buf.String()
 
 	// Replace target="_blank" for links
 	output = strings.ReplaceAll(output, `<a href=`, `<a target="_blank" href=`)
