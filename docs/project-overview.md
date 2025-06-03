@@ -1,21 +1,21 @@
 # jgn.dev Project Overview
 
-This document provides a comprehensive overview of the jgn.dev project - a modern, high-performance blog built with Go, Templ templates, and Tailwind CSS.
+This document provides a comprehensive overview of the jgn.dev project - a modern, high-performance blog and cheatsheet site built with Go, Templ templates, and Tailwind CSS.
 
 ## 🎯 Project Vision
 
-Create a lightning-fast, minimalist blog platform that achieves perfect Lighthouse scores while maintaining developer productivity and content management simplicity.
+Create a lightning-fast, minimalist blog and cheatsheet platform that achieves perfect Lighthouse scores while maintaining developer productivity and content management simplicity.
 
 ## 🏗️ Architecture Overview
 
 ### High-Level Architecture
 
 ```
-┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│   GitHub Posts  │    │     jgn.dev      │    │   GitHub        │
-│   Repository    │───▶│   Application    │◀───│   Webhook       │
-│   (Markdown)    │    │   (Go + Templ)   │    │   (Auto-refresh)│
-└─────────────────┘    └──────────────────┘    └─────────────────┘
+┌────────────────────┐    ┌──────────────────┐    ┌─────────────────┐
+│ GitHub Posts &     │    │     jgn.dev      │    │   GitHub        │
+│ Cheatsheets Repos  │───▶│   Application    │◀───│   Webhook       │
+│ (Markdown)         │    │   (Go + Templ)   │    │   (Auto-refresh)│
+└────────────────────┘    └──────────────────┘    └─────────────────┘
          │                       │                       │
          ▼                       ▼                       ▼
 ┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
@@ -31,7 +31,7 @@ Create a lightning-fast, minimalist blog platform that achieves perfect Lighthou
 - **Go 1.24**: Core application language
 - **Echo v4**: High-performance HTTP framework
 - **Templ**: Type-safe HTML template engine
-- **GitHub API**: Content management and retrieval
+- **GitHub API**: Content management and retrieval (posts and cheatsheets)
 
 **Frontend Technologies:**
 - **Tailwind CSS v4**: Utility-first CSS framework
@@ -48,14 +48,15 @@ Create a lightning-fast, minimalist blog platform that achieves perfect Lighthou
 ## 🚀 Key Features
 
 ### Content Management
-- **GitHub-Based CMS**: Posts stored as Markdown files in separate repository
+- **GitHub-Based CMS**: Posts and cheatsheets stored as Markdown files in separate repositories
 - **Webhook Integration**: Automatic content refresh on GitHub pushes
-- **Frontmatter Support**: YAML metadata for posts (title, date, tags, etc.)
+- **Frontmatter Support**: YAML metadata for posts and cheatsheets (title, date, author, tags, summary, etc.)
 - **Real-time Updates**: No server restarts required for content changes
 
 ### User Experience
 - **Lightning Fast**: Optimized for 100 Lighthouse Performance score
-- **Real-time Search**: HTMX-powered search with instant results
+- **Real-time Search**: HTMX-powered search with instant results for both posts and cheatsheets
+- **Cheatsheets Section**: Browse and search quick reference guides at `/cheatsheets`
 - **Mobile-First Design**: Responsive layout with mobile navigation
 - **Dark/Light Themes**: Enhanced dark mode with deeper colors
 - **Accessibility**: Full ARIA compliance and keyboard navigation
@@ -241,16 +242,30 @@ Centralized configuration for:
 ## 🔄 Content Workflow
 
 ### Publishing Process
-1. **Content Creation**: Write Markdown posts in GitHub repository
-2. **Automatic Processing**: Webhook triggers content refresh
+1. **Content Creation**: Write Markdown posts in the posts repo, or cheatsheets in the cheatsheets repo ([github.com/jgndev/cheatsheets](https://github.com/jgndev/cheatsheets))
+2. **Automatic Processing**: Webhook triggers content refresh for both posts and cheatsheets
 3. **Live Updates**: Site updates without manual deployment
-4. **Search Indexing**: Real-time search index updates
+4. **Search Indexing**: Real-time search index updates for both posts and cheatsheets
 
 ### Content Features
-- **Frontmatter Parsing**: YAML metadata extraction
-- **Tag System**: Categorization and filtering
+- **Frontmatter Parsing**: YAML metadata extraction for both posts and cheatsheets
+- **Tag System**: Categorization and filtering for both content types
 - **Date Handling**: RFC3339 timestamp parsing
-- **Slug Generation**: URL-friendly post identifiers
+- **Slug Generation**: URL-friendly post and cheatsheet identifiers
+
+### Cheatsheet Example Frontmatter
+```yaml
+---
+id: unique-cheatsheet-id
+title: "Go Slices Cheatsheet"
+date: 2024-01-20T00:00:00Z
+author: "Jeremy Novak"
+tags: ["go", "slices", "reference"]
+slug: go-slices
+published: true
+summary: "Quick reference for Go slices syntax and operations."
+---
+```
 
 ## 🚨 Monitoring and Maintenance
 

@@ -16,9 +16,9 @@ Designed and optimized for exceptional web performance:
 ## 🚀 Features
 
 - **Modern Go Stack**: Go 1.24 + Echo v4 + Templ templates + Tailwind CSS v4
-- **GitHub Content Management**: Posts stored as Markdown in GitHub repository
-- **Real-time Search**: HTMX-powered search with tag and title filtering
-- **Webhook Auto-Updates**: Automatically refreshes content when posts are added to GitHub
+- **GitHub Content Management**: Posts and Cheatsheets stored as Markdown in GitHub repositories
+- **Real-time Search**: HTMX-powered search with tag and title filtering for both posts and cheatsheets
+- **Webhook Auto-Updates**: Automatically refreshes content when posts or cheatsheets are added to GitHub
 - **Responsive Design**: Mobile-first design with dark/light mode support
 - **Syntax Highlighting**: Code blocks with Tokyo Night Dark theme (consistent across light/dark modes)
 - **SEO Optimized**: Structured data, meta tags, and semantic HTML
@@ -28,9 +28,9 @@ Designed and optimized for exceptional web performance:
 
 ```
 ┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│   GitHub Posts  │    │     jgn.dev      │    │   GitHub        │
-│   Repository    │───▶│   Application    │◀───│   Webhook       │
-│   (Markdown)    │    │   (Go + Templ)   │    │   (Auto-refresh)│
+│ GitHub Posts    │    │     jgn.dev      │    │   GitHub        │
+│ & Cheatsheets   │───▶│   Application    │◀───│   Webhook       │
+│ (Markdown)      │    │   (Go + Templ)   │    │   (Auto-refresh)│
 └─────────────────┘    └──────────────────┘    └─────────────────┘
          │                       │                       │
          ▼                       ▼                       ▼
@@ -46,7 +46,7 @@ Designed and optimized for exceptional web performance:
 **Backend:**
 - Go 1.24 with Echo v4 framework
 - Templ for type-safe HTML templates
-- GitHub API for content management
+- GitHub API for content management (posts and cheatsheets)
 - HTMX for dynamic interactions
 
 **Frontend:**
@@ -230,14 +230,17 @@ Enable automatic content updates when you add new blog posts:
 ## ✨ Key Features
 
 ### Content Management
-- **GitHub Integration**: Posts stored as Markdown files in a separate GitHub repository
+- **GitHub Integration**: Posts and Cheatsheets stored as Markdown files in separate GitHub repositories
 - **Automatic Refresh**: Webhook-triggered content updates without server restarts
-- **Frontmatter Support**: YAML frontmatter for post metadata (title, date, tags, etc.)
+- **Frontmatter Support**: YAML frontmatter for post and cheatsheet metadata (title, date, author, summary, tags, etc.)
 
 ### Search & Navigation
 - **Real-time Search**: HTMX-powered search across post titles and tags
 - **Posts Listing**: Paginated view of all posts, sorted by date
 - **Individual Post Pages**: Clean, readable post layout with syntax highlighting
+- **Cheatsheets Listing**: Paginated view of all cheatsheets, sorted by date
+- **Cheatsheets Search**: Search for cheatsheets by title or tag
+- **Individual Cheatsheet Pages**: Clean, readable cheatsheet layout with syntax highlighting
 - **Mobile Navigation**: Hamburger menu with smooth animations
 
 ### Performance & SEO
@@ -260,7 +263,7 @@ Enable automatic content updates when you add new blog posts:
 ### Site Configuration
 
 Edit `internal/site/site.go` to configure:
-- Post repository owner and name
+- Post and cheatsheet repository owners and names
 - Site metadata and branding
 - Navigation links
 
@@ -275,9 +278,11 @@ Edit `internal/site/site.go` to configure:
    id: unique-post-id
    title: "Your Post Title"
    date: 2024-01-15T00:00:00Z
+   author: "Jeremy Novak"
    tags: ["go", "web-development", "gcp"]
    slug: your-post-slug
    published: true
+   summary: "A short summary of the post."
    ---
    ```
 3. **Write your content** in Markdown
@@ -285,14 +290,58 @@ Edit `internal/site/site.go` to configure:
 
 💡 Check out the posts repository at [github.com/jgndev/posts](https://github.com/jgndev/posts) for examples.
 
+### Adding Cheatsheets
+
+1. **Create a Markdown file** in your cheatsheets repository ([github.com/jgndev/cheatsheets](https://github.com/jgndev/cheatsheets))
+2. **Add frontmatter**:
+   ```yaml
+   ---
+   id: unique-cheatsheet-id
+   title: "Go Slices Cheatsheet"
+   date: 2024-01-20T00:00:00Z
+   author: "Jeremy Novak"
+   tags: ["go", "slices", "reference"]
+   slug: go-slices
+   published: true
+   summary: "Quick reference for Go slices syntax and operations."
+   ---
+   ```
+3. **Write your cheatsheet content** in Markdown
+4. **Commit and push** - the site will automatically update via webhook  
+
+💡 See [github.com/jgndev/cheatsheets](https://github.com/jgndev/cheatsheets) for examples.
+
 ### Supported Frontmatter Fields
 
-- `id`: Unique identifier for the post
-- `title`: Post title (required)
+- `id`: Unique identifier for the post or cheatsheet
+- `title`: Title (required)
 - `date`: Publication date in RFC3339 format
+- `author`: Author name
+- `summary`: Short summary for cards and SEO
 - `tags`: Array of tags for categorization
 - `slug`: URL slug (auto-generated if not provided)
-- `published`: Boolean to control post visibility
+- `published`: Boolean to control visibility
+
+## 🔍 Search & Navigation
+
+- **Posts**: `/posts` (browse, search, and filter posts)
+- **Cheatsheets**: `/cheatsheets` (browse, search, and filter cheatsheets)
+- **Search**: `/search` (posts), `/cheatsheets/search` (cheatsheets)
+- **Individual Pages**: `/posts/:slug`, `/cheatsheets/:slug`
+
+## 🔄 Continuous Integration (CI)
+
+This project uses a comprehensive GitHub Actions workflow for every push and pull request:
+
+- **Formatting**: `go fmt` and `goimports` for code and import style
+- **Static Analysis**: `go vet`, `staticcheck`, and `golangci-lint` (includes ineffassign, misspell, errcheck, gosec, gocyclo, and more)
+- **Vulnerability Scanning**: `govulncheck` for dependency security
+- **Templ Generation**: Ensures all Templ files are generated before analysis
+- **Build**: Verifies the application builds
+- **Tests**: Runs all Go tests with race detection and coverage
+- **Coverage**: Uploads coverage to Codecov
+
+See `.github/workflows/ci.yml` for the full workflow.
 
 ## 🐳 Docker
 
