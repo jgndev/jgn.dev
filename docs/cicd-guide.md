@@ -1,6 +1,6 @@
 # CI/CD Pipeline Guide
 
-This guide covers setting up automated CI/CD pipeline for jgn.dev using GCP Cloud Build for seamless deployments to Cloud Run.
+This guide covers setting up automated CI/CD pipeline for jgn.dev using both GCP Cloud Build for deployments and GitHub Actions for code quality and security.
 
 ## 🎯 Overview
 
@@ -12,6 +12,41 @@ The CI/CD pipeline automatically builds and deploys your application when code i
 - ✅ **Cloud Run Deployment**: Automatic deployment with zero downtime
 - ✅ **Health Checks**: Built-in container health monitoring
 - ✅ **Rollback Support**: Easy rollback to previous versions
+- ✅ **Comprehensive CI**: GitHub Actions workflow for code quality, security, and testing on every branch and PR
+
+## 🚦 Continuous Integration with GitHub Actions
+
+A comprehensive GitHub Actions workflow runs on every push and pull request to any branch. It ensures code quality, security, and reliability before code is merged or deployed.
+
+**Workflow file:** `.github/workflows/ci.yml`
+
+### What the CI Workflow Checks
+
+- **Formatting**: Automatically formats code with `go fmt` and organizes imports with `goimports`.
+- **Static Analysis**:
+  - `go vet` for common mistakes
+  - `staticcheck` for advanced static analysis
+  - `golangci-lint` (meta-linter, includes ineffassign, misspell, errcheck, gosec, gocyclo, deadcode, goconst, and more)
+- **Vulnerability Scanning**: `govulncheck` scans for known vulnerabilities in dependencies
+- **Templ Generation**: Ensures all Templ files are generated before analysis
+- **Build**: Verifies the application builds successfully
+- **Tests**: Runs all Go tests with race detection and coverage
+- **Coverage**: Uploads coverage to Codecov for reporting
+
+### When Does It Run?
+- On every push to any branch
+- On every pull request to `main`
+
+### Example Output
+- If any check fails, the workflow fails and shows the error in the GitHub Actions tab
+- Formatting issues are auto-fixed (no need to fail the build for style)
+- Lint, vet, and security issues must be fixed before merging
+
+### How to Fix CI Failures
+- **Formatting**: Run `go fmt ./...` and `goimports -w .`
+- **Staticcheck/golangci-lint**: Read the error, fix the code, and commit
+- **Vulnerabilities**: Update dependencies or address the reported issue
+- **Build/Test**: Fix compilation or test failures
 
 ## 📋 Prerequisites
 
