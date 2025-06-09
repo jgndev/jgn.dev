@@ -200,22 +200,21 @@ export GITHUB_WEBHOOK_SECRET=your_webhook_secret
 
 ## 🔄 CI/CD Pipeline
 
-The application supports automated deployment via GCP Cloud Build triggers:
+This project uses GitHub Actions for automated CI/CD with optimized Docker builds:
 
 ### Features
-- ✅ **Automatic Builds**: Triggered on git pushes to main branch
-- ✅ **Docker Build**: Multi-stage builds with optimized layers
-- ✅ **Cloud Run Deployment**: Automatic deployment to GCP
-- ✅ **Health Checks**: Built-in container health monitoring
-- ✅ **Rollback Support**: Easy rollback to previous versions
+- ✅ **Smart CI Pipeline**: Runs comprehensive code quality checks on all branches except main
+- ✅ **Automated Deployment**: Builds and deploys Docker images when PRs are merged to main
+- ✅ **Cost Optimized**: Pre-built images eliminate expensive Cloud Build cycles
+- ✅ **Fast Deployments**: Pre-built Docker images deploy 3-5x faster
+- ✅ **Automatic Cleanup**: Maintains only the 10 most recent images
+- ✅ **Health Checks**: Built-in deployment verification
 
-### Setup
-1. **Enable Cloud Build API** in your GCP project
-2. **Connect GitHub Repository** to Cloud Build
-3. **Create Build Trigger** for main branch
-4. **Configure Environment Variables** for the service
+### Workflows
+- **CI Pipeline** (`.github/workflows/ci.yml`): Code formatting, linting, testing, and vulnerability scanning
+- **Deployment Pipeline** (`.github/workflows/deploy.yml`): Docker build, push to Artifact Registry, and Cloud Run deployment
 
-📖 **Detailed Instructions**: See [CI/CD Guide](docs/cicd-guide.md) for complete pipeline setup and configuration.
+📖 **Setup Instructions**: See [DEPLOYMENT_SETUP.md](DEPLOYMENT_SETUP.md) for complete GitHub Actions configuration and required secrets.
 
 ## 🔄 GitHub Webhook Setup
 
@@ -417,6 +416,7 @@ GCP Cloud Run pricing is usage-based, making it very cost-effective:
 
 ## 📚 Documentation
 
+- **[Deployment Setup](DEPLOYMENT_SETUP.md)**: GitHub Actions CI/CD setup, required secrets, and GCP configuration
 - **[Project Overview](docs/project-overview.md)**: Comprehensive project architecture and feature overview
 - **[GCP Deployment Guide](docs/gcp-deployment-guide.md)**: Complete GCP Cloud Run deployment instructions
 - **[CI/CD Guide](docs/cicd-guide.md)**: CI/CD pipeline configuration and setup

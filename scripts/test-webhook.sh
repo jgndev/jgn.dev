@@ -21,7 +21,7 @@ PAYLOAD='{
   ],
   "repository": {
     "name": "posts",
-    "full_name": "stratocraft/posts"
+    "full_name": "jgndev/posts"
   }
 }'
 

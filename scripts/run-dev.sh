@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Comprehensive Development Script for stratocraft.dev
+# Comprehensive Development Script for jgn.dev
 # Runs Tailwind CSS watch, Templ watch, and Air in parallel with proper cleanup
 
 set -e
@@ -225,7 +225,7 @@ stop_development() {
 
 # Function to start all development processes
 start_development() {
-    log "Starting stratocraft.dev development environment..."
+    log "Starting jgn.dev development environment..."
     
     check_prerequisites
     check_environment

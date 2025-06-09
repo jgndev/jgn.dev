@@ -1,6 +1,6 @@
 # GitHub Token Setup Guide
 
-This guide explains how to create and configure a GitHub Personal Access Token for stratocraft.dev to access your posts repository and avoid API rate limiting.
+This guide explains how to create and configure a GitHub Personal Access Token for jgn.dev to access your posts repository and avoid API rate limiting.
 
 ## Why Do You Need a GitHub Token?
 
@@ -24,7 +24,7 @@ Without authentication, GitHub limits API requests to **60 per hour**. With a Pe
 ### Step 2: Generate New Token
 
 1. **Click "Generate new token"** → **"Generate new token (classic)"**
-2. **Enter a descriptive note** like `stratocraft.dev blog application`
+2. **Enter a descriptive note** like `jgn.dev blog application`
 3. **Set expiration** (recommended: 90 days or longer for production)
 4. **Select the required scopes** (see permissions section below)
 
@@ -169,7 +169,7 @@ curl -H "Authorization: token $GITHUB_TOKEN" \
 
 ### Application Test
 
-Run the stratocraft.dev application and check logs for:
+Run the jgn.dev application and check logs for:
 
 ```
 ✅ Successfully authenticated with GitHub API
@@ -221,7 +221,7 @@ your-posts-repo/
 └── README.md
 ```
 
-## Integration with stratocraft.dev
+## Integration with jgn.dev
 
 ### Environment Variable Usage
 
@@ -271,5 +271,5 @@ If you encounter issues:
 
 1. **Check the troubleshooting section** above
 2. **Review GitHub's status page** for API issues
-3. **Open an issue** in the stratocraft.dev repository with error logs
+3. **Open an issue** in the jgn.dev repository with error logs
 4. **Include relevant error messages** but never include your actual token 

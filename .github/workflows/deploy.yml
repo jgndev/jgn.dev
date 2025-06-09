@@ -1,0 +1,109 @@
+name: Build and Deploy to Cloud Run
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  REGION: us-central1
+  SERVICE_NAME: jgn-dev
+  REPOSITORY: jgn-dev-repo
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Google Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+      with:
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+    - name: Configure Docker for Artifact Registry
+      run: gcloud auth configure-docker us-central1-docker.pkg.dev
+
+    - name: Generate build info
+      run: |
+        echo "COMMIT_SHA=${GITHUB_SHA}" >> $GITHUB_ENV
+        echo "BUILD_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> $GITHUB_ENV
+        echo "BUILD_VERSION=${GITHUB_SHA:0:7}" >> $GITHUB_ENV
+
+    - name: Build Docker image
+      run: |
+        docker build \
+          --build-arg BUILD_VERSION=${{ env.BUILD_VERSION }} \
+          --build-arg BUILD_TIME=${{ env.BUILD_TIME }} \
+          --build-arg COMMIT_SHA=${{ env.COMMIT_SHA }} \
+          -t us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:${{ env.COMMIT_SHA }} \
+          -t us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:latest \
+          .
+
+    - name: Push Docker images
+      run: |
+        docker push us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:${{ env.COMMIT_SHA }}
+        docker push us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:latest
+
+    - name: Deploy to Cloud Run
+      run: |
+        gcloud run deploy ${{ env.SERVICE_NAME }} \
+          --image us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:${{ env.COMMIT_SHA }} \
+          --region ${{ env.REGION }} \
+          --allow-unauthenticated \
+          --set-env-vars GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }},GITHUB_WEBHOOK_SECRET=${{ secrets.GITHUB_WEBHOOK_SECRET }} \
+          --cpu 1 \
+          --memory 512Mi \
+          --min-instances 0 \
+          --max-instances 10 \
+          --port 8080 \
+          --timeout 300 \
+          --quiet
+
+    - name: Verify deployment
+      run: |
+        # Get the service URL
+        SERVICE_URL=$(gcloud run services describe ${{ env.SERVICE_NAME }} \
+          --region ${{ env.REGION }} \
+          --format 'value(status.url)')
+        
+        echo "Service deployed at: $SERVICE_URL"
+        
+        # Health check with retry
+        for i in {1..5}; do
+          if curl -f -s "$SERVICE_URL/" > /dev/null; then
+            echo "✅ Deployment verification successful"
+            exit 0
+          else
+            echo "⏳ Attempt $i failed, retrying in 10 seconds..."
+            sleep 10
+          fi
+        done
+        
+        echo "❌ Deployment verification failed"
+        exit 1
+
+    - name: Clean up old images (optional)
+      if: success()
+      run: |
+        # Keep only the 10 most recent images to save storage costs
+        gcloud artifacts docker images list us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }} \
+          --sort-by=~CREATE_TIME \
+          --limit=999 \
+          --format="value(package)" | tail -n +11 | \
+        while read image; do
+          echo "Deleting old image: $image"
+          gcloud artifacts docker images delete "$image" --quiet || true
+        done 
