@@ -1,8 +1,6 @@
 name: CI
 
 on:
-  push:
-    branches-ignore: [ main ]
   pull_request:
     branches: [ main ]
 
@@ -41,10 +39,12 @@ jobs:
     - name: Verify dependencies
       run: go mod verify
 
-    - name: Generate Templ files
+    - name: Generate Templ files and format imports
       run: |
         go install github.com/a-h/templ/cmd/templ@${{ env.TEMPL_VERSION }}
+        go install golang.org/x/tools/cmd/goimports@latest
         templ generate
+        goimports -w .
 
     - name: Check mod tidiness
       run: |
@@ -66,7 +66,6 @@ jobs:
 
     - name: Check imports formatting
       run: |
-        go install golang.org/x/tools/cmd/goimports@latest
         if [ -n "$(goimports -l .)" ]; then
           echo "::error::Imports are not formatted. Please run 'goimports -w .'"
           echo "Files that need import formatting:"
@@ -98,14 +97,16 @@ jobs:
     - name: Download dependencies
       run: go mod download
 
-    - name: Generate Templ files
+    - name: Generate Templ files and format imports
       run: |
         go install github.com/a-h/templ/cmd/templ@${{ env.TEMPL_VERSION }}
+        go install golang.org/x/tools/cmd/goimports@latest
         templ generate
+        goimports -w .
 
     - name: Run staticcheck
       run: |
-        go install honnef.co/go/tools/cmd/staticcheck@v0.4.7
+        go install honnef.co/go/tools/cmd/staticcheck@latest
         staticcheck ./...
 
     - name: Run golangci-lint
@@ -135,10 +136,12 @@ jobs:
     - name: Download dependencies
       run: go mod download
 
-    - name: Generate Templ files
+    - name: Generate Templ files and format imports
       run: |
         go install github.com/a-h/templ/cmd/templ@${{ env.TEMPL_VERSION }}
+        go install golang.org/x/tools/cmd/goimports@latest
         templ generate
+        goimports -w .
 
     - name: Run govulncheck
       run: |
@@ -172,10 +175,12 @@ jobs:
     - name: Download dependencies
       run: go mod download
 
-    - name: Generate Templ files
+    - name: Generate Templ files and format imports
       run: |
         go install github.com/a-h/templ/cmd/templ@${{ env.TEMPL_VERSION }}
+        go install golang.org/x/tools/cmd/goimports@latest
         templ generate
+        goimports -w .
 
     - name: Build application
       run: go build -v ./...
