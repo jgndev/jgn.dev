@@ -195,8 +195,9 @@ jobs:
     - name: Update traffic allocation
       run: |
         echo "Allocating 100% traffic to new revision..."
+        # Use --to-tags since we're using tags in deployment
         gcloud run services update-traffic ${{ env.SERVICE_NAME }} \
-          --to-revisions="v${{ env.BUILD_VERSION }}=100" \
+          --to-tags="v${{ env.BUILD_VERSION }}=100" \
           --region=${{ env.REGION }} \
           --quiet
 
@@ -266,15 +267,16 @@ jobs:
       run: |
         echo "🔄 Attempting to rollback deployment..."
         
-        # Get the previous stable revision
+        # Get the previous stable revision name (not tag)
         PREVIOUS_REVISION=$(gcloud run revisions list \
           --service=${{ env.SERVICE_NAME }} \
           --region=${{ env.REGION }} \
           --limit=2 \
           --format="value(metadata.name)" | tail -n 1)
         
-        if [ -n "$PREVIOUS_REVISION" ] && [ "$PREVIOUS_REVISION" != "v${{ needs.deploy.outputs.build-version }}" ]; then
+        if [ -n "$PREVIOUS_REVISION" ] && [ "$PREVIOUS_REVISION" != "${{ env.SERVICE_NAME }}-${{ needs.deploy.outputs.build-version }}" ]; then
           echo "Rolling back to revision: $PREVIOUS_REVISION"
+          # Use --to-revisions with full revision name for rollback
           gcloud run services update-traffic ${{ env.SERVICE_NAME }} \
             --to-revisions="$PREVIOUS_REVISION=100" \
             --region=${{ env.REGION }} \
