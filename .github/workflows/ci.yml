@@ -28,7 +28,7 @@ jobs:
 
     - name: Generate Templ files
       run: |
-        go install github.com/a-h/templ/cmd/templ@latest
+        go install github.com/a-h/templ/cmd/templ@v0.3.898
         templ generate
 
     - name: Install goimports

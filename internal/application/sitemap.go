@@ -33,8 +33,8 @@ func (app *Application) SitemapXML(c echo.Context) error {
 	}
 
 	xml := `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-`
+	<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+	`
 	for _, u := range urls {
 		xml += "  <url>\n"
 		xml += "    <loc>" + u.Loc + "</loc>\n"
@@ -43,6 +43,10 @@ func (app *Application) SitemapXML(c echo.Context) error {
 	}
 	xml += "</urlset>"
 
-	c.Response().Header().Set("Content-Type", "application/xml")
-	return c.String(200, xml)
+	// Set headers before writing
+	c.Response().Header().Set("Content-Type", "application/xml; charset=UTF-8")
+	c.Response().Header().Set("Cache-Control", "public, max-age=3600")
+
+	// Use Blob instead of String
+	return c.Blob(200, "application/xml", []byte(xml))
 }
