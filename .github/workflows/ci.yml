@@ -41,6 +41,11 @@ jobs:
     - name: Verify dependencies
       run: go mod verify
 
+    - name: Generate Templ files
+      run: |
+        go install github.com/a-h/templ/cmd/templ@${{ env.TEMPL_VERSION }}
+        templ generate
+
     - name: Check mod tidiness
       run: |
         go mod tidy
@@ -49,11 +54,6 @@ jobs:
           git diff go.mod go.sum
           exit 1
         fi
-
-    - name: Generate Templ files
-      run: |
-        go install github.com/a-h/templ/cmd/templ@${{ env.TEMPL_VERSION }}
-        templ generate
 
     - name: Check if code is formatted
       run: |
@@ -104,10 +104,9 @@ jobs:
         templ generate
 
     - name: Run staticcheck
-      uses: dominikh/staticcheck-action@v1.3.1
-      with:
-        version: "2024.1.1"
-        install-go: false
+      run: |
+        go install honnef.co/go/tools/cmd/staticcheck@v0.4.7
+        staticcheck ./...
 
     - name: Run golangci-lint
       uses: golangci/golangci-lint-action@v6
@@ -136,6 +135,11 @@ jobs:
     - name: Download dependencies
       run: go mod download
 
+    - name: Generate Templ files
+      run: |
+        go install github.com/a-h/templ/cmd/templ@${{ env.TEMPL_VERSION }}
+        templ generate
+
     - name: Run govulncheck
       run: |
         go install golang.org/x/vuln/cmd/govulncheck@latest
@@ -152,7 +156,7 @@ jobs:
     
     strategy:
       matrix:
-        go-version: ['1.24.3', '1.23'] # Test against multiple Go versions
+        go-version: ['1.24.3'] # Removed 1.23 to reduce costs and complexity
       fail-fast: false
 
     steps:
