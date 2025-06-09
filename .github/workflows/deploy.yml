@@ -195,10 +195,24 @@ jobs:
     - name: Update traffic allocation
       run: |
         echo "Allocating 100% traffic to new revision..."
-        gcloud run services update-traffic ${{ env.SERVICE_NAME }} \
-          --to-revisions="v${{ env.BUILD_VERSION }}=100" \
+        
+        # Get the latest revision name (which should be our newly deployed revision)
+        LATEST_REVISION=$(gcloud run services describe ${{ env.SERVICE_NAME }} \
           --region=${{ env.REGION }} \
-          --quiet
+          --format="value(status.latestReadyRevisionName)")
+        
+        echo "Latest revision: $LATEST_REVISION"
+        
+        if [ -n "$LATEST_REVISION" ]; then
+          echo "Allocating 100% traffic to revision: $LATEST_REVISION"
+          gcloud run services update-traffic ${{ env.SERVICE_NAME }} \
+            --to-revisions="$LATEST_REVISION=100" \
+            --region=${{ env.REGION }} \
+            --quiet
+        else
+          echo "❌ Could not determine latest revision"
+          exit 1
+        fi
 
     - name: Clean up old container images
       if: success()
