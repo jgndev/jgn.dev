@@ -6,10 +6,25 @@ on:
   pull_request:
     branches: [ main ]
 
+# Cancel in-progress runs for the same workflow/branch combination
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  GO_VERSION: '1.24.3'
+  TEMPL_VERSION: 'v0.3.898'
+
 jobs:
-  validate-code:
+  # Job 1: Code Quality Checks (fast feedback)
+  quality:
+    name: Code Quality
     runs-on: ubuntu-latest
     
+    # Minimal permissions for security  
+    permissions:
+      contents: read
+      
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -17,7 +32,7 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
-        go-version: '1.24.3'
+        go-version: ${{ env.GO_VERSION }}
         cache: true
 
     - name: Download dependencies
@@ -26,64 +41,192 @@ jobs:
     - name: Verify dependencies
       run: go mod verify
 
+    - name: Check mod tidiness
+      run: |
+        go mod tidy
+        if [ -n "$(git status --porcelain go.mod go.sum)" ]; then
+          echo "::error::go.mod or go.sum is not tidy. Please run 'go mod tidy'"
+          git diff go.mod go.sum
+          exit 1
+        fi
+
     - name: Generate Templ files
       run: |
-        go install github.com/a-h/templ/cmd/templ@v0.3.898
+        go install github.com/a-h/templ/cmd/templ@${{ env.TEMPL_VERSION }}
         templ generate
 
-    - name: Install formatting and linting tools
-      run: |
-        go install golang.org/x/tools/cmd/goimports@latest
-        go install honnef.co/go/tools/cmd/staticcheck@latest
-        go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
-        go install golang.org/x/vuln/cmd/govulncheck@latest
-
-    - name: Format code and imports
-      run: |
-        go fmt ./...
-        goimports -w .
-        
     - name: Check if code is formatted
       run: |
         if [ -n "$(gofmt -l .)" ]; then
-          echo "Code is not formatted. Please run 'go fmt ./...' and 'goimports -w .'"
+          echo "::error::Code is not formatted. Please run 'go fmt ./...'"
+          echo "Files that need formatting:"
           gofmt -l .
+          exit 1
+        fi
+
+    - name: Check imports formatting
+      run: |
+        go install golang.org/x/tools/cmd/goimports@latest
+        if [ -n "$(goimports -l .)" ]; then
+          echo "::error::Imports are not formatted. Please run 'goimports -w .'"
+          echo "Files that need import formatting:"
+          goimports -l .
           exit 1
         fi
 
     - name: Run go vet
       run: go vet ./...
 
+  # Job 2: Static Analysis (parallel with quality)
+  static-analysis:
+    name: Static Analysis
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+      
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: ${{ env.GO_VERSION }}
+        cache: true
+
+    - name: Download dependencies
+      run: go mod download
+
+    - name: Generate Templ files
+      run: |
+        go install github.com/a-h/templ/cmd/templ@${{ env.TEMPL_VERSION }}
+        templ generate
+
     - name: Run staticcheck
-      run: staticcheck ./...
+      uses: dominikh/staticcheck-action@v1.3.1
+      with:
+        version: "2024.1.1"
+        install-go: false
 
     - name: Run golangci-lint
-      run: golangci-lint run --timeout=5m
+      uses: golangci/golangci-lint-action@v6
+      with:
+        version: latest
+        args: --timeout=5m --verbose
 
-    - name: Run vulnerability check
-      run: govulncheck ./...
+  # Job 3: Security Checks (parallel)
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+      
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: ${{ env.GO_VERSION }}
+        cache: true
+
+    - name: Download dependencies
+      run: go mod download
+
+    - name: Run govulncheck
+      run: |
+        go install golang.org/x/vuln/cmd/govulncheck@latest
+        govulncheck ./...
+
+  # Job 4: Build and Test (depends on quality checks)
+  build-and-test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    needs: [quality, static-analysis, security]
+    
+    permissions:
+      contents: read
+    
+    strategy:
+      matrix:
+        go-version: ['1.24.3', '1.23'] # Test against multiple Go versions
+      fail-fast: false
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: ${{ matrix.go-version }}
+        cache: true
+
+    - name: Download dependencies
+      run: go mod download
+
+    - name: Generate Templ files
+      run: |
+        go install github.com/a-h/templ/cmd/templ@${{ env.TEMPL_VERSION }}
+        templ generate
 
     - name: Build application
       run: go build -v ./...
 
     - name: Run tests with coverage
-      run: go test -v -race -coverprofile=coverage.out ./...
-
-    - name: Upload coverage to Codecov (optional)
-      if: success()
       run: |
-        if [ -f coverage.out ]; then
-          echo "Coverage file generated successfully"
-          # Uncomment next line if you want to upload to codecov
-          # bash <(curl -s https://codecov.io/bash)
+        go test -v -race -coverprofile=coverage.out -covermode=atomic ./...
+        go tool cover -html=coverage.out -o coverage.html
+
+    - name: Upload coverage reports
+      if: matrix.go-version == env.GO_VERSION # Only upload once
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-reports
+        path: |
+          coverage.out
+          coverage.html
+        retention-days: 7
+
+    - name: Check test coverage
+      if: matrix.go-version == env.GO_VERSION
+      run: |
+        COVERAGE=$(go tool cover -func=coverage.out | grep total | awk '{print $3}' | sed 's/%//')
+        echo "Coverage: $COVERAGE%"
+        if (( $(echo "$COVERAGE < 70" | bc -l) )); then
+          echo "::warning::Test coverage is below 70% ($COVERAGE%)"
         fi
 
-    - name: Check mod tidiness
-      run: |
-        go mod tidy
-        if [ -n "$(git status --porcelain go.mod go.sum)" ]; then
-          echo "go.mod or go.sum is not tidy. Please run 'go mod tidy'"
-          git diff go.mod go.sum
-          exit 1
-        fi
+  # Job 5: Docker Build Test (optional, only on significant changes)
+  docker-build-test:
+    name: Test Docker Build
+    runs-on: ubuntu-latest
+    needs: [build-and-test]
+    if: contains(github.event.head_commit.message, '[docker]') || github.event.pull_request.changed_files > 20
+    
+    permissions:
+      contents: read
+      
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Build Docker image (test only)
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: false
+        tags: jgn-dev:test
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        build-args: |
+          BUILD_VERSION=test
+          BUILD_TIME=${{ github.run_number }}
+          COMMIT_SHA=${{ github.sha }}
  

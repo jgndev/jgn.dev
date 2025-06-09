@@ -214,7 +214,7 @@ This project uses GitHub Actions for automated CI/CD with optimized Docker build
 - **CI Pipeline** (`.github/workflows/ci.yml`): Code formatting, linting, testing, and vulnerability scanning
 - **Deployment Pipeline** (`.github/workflows/deploy.yml`): Docker build, push to Artifact Registry, and Cloud Run deployment
 
-📖 **Setup Instructions**: See [DEPLOYMENT_SETUP.md](DEPLOYMENT_SETUP.md) for complete GitHub Actions configuration and required secrets.
+📖 **Setup Instructions**: See [DEPLOYMENT.md](DEPLOYMENT.md) for complete GitHub Actions configuration and required secrets.
 
 ## 🔄 GitHub Webhook Setup
 
@@ -416,7 +416,7 @@ GCP Cloud Run pricing is usage-based, making it very cost-effective:
 
 ## 📚 Documentation
 
-- **[Deployment Setup](DEPLOYMENT_SETUP.md)**: GitHub Actions CI/CD setup, required secrets, and GCP configuration
+- **[Deployment Setup](DEPLOYMENT.md)**: GitHub Actions CI/CD setup, required secrets, and GCP configuration
 - **[Project Overview](docs/project-overview.md)**: Comprehensive project architecture and feature overview
 - **[GCP Deployment Guide](docs/gcp-deployment-guide.md)**: Complete GCP Cloud Run deployment instructions
 - **[CI/CD Guide](docs/cicd-guide.md)**: CI/CD pipeline configuration and setup
