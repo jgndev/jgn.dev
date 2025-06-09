@@ -1,0 +1,292 @@
+name: Deploy to Cloud Run
+
+on:
+  push:
+    branches:
+      - main
+
+# Prevent concurrent deployments
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false # Don't cancel in-progress deployments
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  REGION: us-central1
+  SERVICE_NAME: jgn-dev
+  REPOSITORY: jgn-dev-repo
+  REGISTRY_URL: us-central1-docker.pkg.dev
+
+jobs:
+  deploy:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+    
+    # Minimal required permissions
+    permissions:
+      contents: read
+      id-token: write
+      actions: read
+
+    outputs:
+      image-url: ${{ steps.build-info.outputs.image-url }}
+      service-url: ${{ steps.deploy.outputs.service-url }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 # Needed for proper git info
+
+    - name: Generate build metadata
+      id: build-info
+      run: |
+        COMMIT_SHA="${GITHUB_SHA}"
+        BUILD_VERSION="${GITHUB_SHA:0:7}"
+        BUILD_TIME="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+        IMAGE_URL="${{ env.REGISTRY_URL }}/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:${COMMIT_SHA}"
+        
+        echo "commit-sha=${COMMIT_SHA}" >> $GITHUB_OUTPUT
+        echo "build-version=${BUILD_VERSION}" >> $GITHUB_OUTPUT
+        echo "build-time=${BUILD_TIME}" >> $GITHUB_OUTPUT
+        echo "image-url=${IMAGE_URL}" >> $GITHUB_OUTPUT
+        
+        # Also set as environment variables for subsequent steps
+        echo "COMMIT_SHA=${COMMIT_SHA}" >> $GITHUB_ENV
+        echo "BUILD_VERSION=${BUILD_VERSION}" >> $GITHUB_ENV
+        echo "BUILD_TIME=${BUILD_TIME}" >> $GITHUB_ENV
+        echo "IMAGE_URL=${IMAGE_URL}" >> $GITHUB_ENV
+
+    - name: Authenticate to Google Cloud
+      id: auth
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+      with:
+        project_id: ${{ env.PROJECT_ID }}
+
+    - name: Configure Docker authentication
+      run: gcloud auth configure-docker ${{ env.REGISTRY_URL }} --quiet
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: true
+        platforms: linux/amd64
+        tags: |
+          ${{ env.IMAGE_URL }}
+          ${{ env.REGISTRY_URL }}/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }}:latest
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        build-args: |
+          BUILD_VERSION=${{ env.BUILD_VERSION }}
+          BUILD_TIME=${{ env.BUILD_TIME }}
+          COMMIT_SHA=${{ env.COMMIT_SHA }}
+        labels: |
+          org.opencontainers.image.title=${{ env.SERVICE_NAME }}
+          org.opencontainers.image.description=jgn.dev blog application
+          org.opencontainers.image.url=https://jgn.dev
+          org.opencontainers.image.source=${{ github.repositoryUrl }}
+          org.opencontainers.image.version=${{ env.BUILD_VERSION }}
+          org.opencontainers.image.created=${{ env.BUILD_TIME }}
+          org.opencontainers.image.revision=${{ env.COMMIT_SHA }}
+
+    - name: Get current Cloud Run revision (for rollback)
+      id: current-revision
+      run: |
+        CURRENT_REVISION=$(gcloud run services describe ${{ env.SERVICE_NAME }} \
+          --region=${{ env.REGION }} \
+          --format="value(status.latestRevision)" 2>/dev/null || echo "none")
+        echo "revision=${CURRENT_REVISION}" >> $GITHUB_OUTPUT
+        echo "Current revision: ${CURRENT_REVISION}"
+
+    - name: Deploy to Cloud Run
+      id: deploy
+      run: |
+        echo "Deploying image: ${{ env.IMAGE_URL }}"
+        
+        # Deploy with explicit configuration
+        gcloud run deploy ${{ env.SERVICE_NAME }} \
+          --image=${{ env.IMAGE_URL }} \
+          --region=${{ env.REGION }} \
+          --platform=managed \
+          --allow-unauthenticated \
+          --port=8080 \
+          --cpu=1 \
+          --memory=512Mi \
+          --min-instances=0 \
+          --max-instances=10 \
+          --concurrency=80 \
+          --timeout=300 \
+          --execution-environment=gen2 \
+          --cpu-boost \
+          --session-affinity \
+          --set-env-vars="GITHUB_TOKEN=${{ secrets.GH_TOKEN }},GITHUB_WEBHOOK_SECRET=${{ secrets.WEBHOOK_SECRET }}" \
+          --revision-suffix="${{ env.BUILD_VERSION }}" \
+          --tag="v${{ env.BUILD_VERSION }}" \
+          --quiet
+        
+        # Get the service URL
+        SERVICE_URL=$(gcloud run services describe ${{ env.SERVICE_NAME }} \
+          --region=${{ env.REGION }} \
+          --format='value(status.url)')
+        
+        echo "service-url=${SERVICE_URL}" >> $GITHUB_OUTPUT
+        echo "Service deployed at: ${SERVICE_URL}"
+
+    - name: Wait for deployment to be ready
+      run: |
+        echo "Waiting for deployment to stabilize..."
+        sleep 30
+
+    - name: Comprehensive health check
+      id: health-check
+      run: |
+        SERVICE_URL="${{ steps.deploy.outputs.service-url }}"
+        
+        echo "Running comprehensive health checks..."
+        
+        # Test 1: Basic connectivity
+        echo "🔍 Testing basic connectivity..."
+        if ! curl -f -s --max-time 10 "${SERVICE_URL}/" > /dev/null; then
+          echo "❌ Basic connectivity test failed"
+          exit 1
+        fi
+        echo "✅ Basic connectivity test passed"
+        
+        # Test 2: Response content check
+        echo "🔍 Testing response content..."
+        RESPONSE=$(curl -s --max-time 10 "${SERVICE_URL}/")
+        if ! echo "$RESPONSE" | grep -q "jgn.dev"; then
+          echo "❌ Response content test failed"
+          echo "Response: $RESPONSE"
+          exit 1
+        fi
+        echo "✅ Response content test passed"
+        
+        # Test 3: Multiple requests (load test)
+        echo "🔍 Testing with multiple requests..."
+        for i in {1..5}; do
+          if ! curl -f -s --max-time 10 "${SERVICE_URL}/" > /dev/null; then
+            echo "❌ Load test failed on request $i"
+            exit 1
+          fi
+          sleep 1
+        done
+        echo "✅ Load test passed"
+        
+        # Test 4: API endpoints (if any)
+        echo "🔍 Testing sitemap endpoint..."
+        if ! curl -f -s --max-time 10 "${SERVICE_URL}/sitemap.xml" > /dev/null; then
+          echo "⚠️ Sitemap endpoint test failed (non-critical)"
+        else
+          echo "✅ Sitemap endpoint test passed"
+        fi
+        
+        echo "🎉 All health checks passed!"
+
+    - name: Update traffic allocation
+      run: |
+        echo "Allocating 100% traffic to new revision..."
+        gcloud run services update-traffic ${{ env.SERVICE_NAME }} \
+          --to-revisions="v${{ env.BUILD_VERSION }}=100" \
+          --region=${{ env.REGION }} \
+          --quiet
+
+    - name: Clean up old container images
+      if: success()
+      run: |
+        echo "Cleaning up old container images..."
+        
+        # Keep only the 10 most recent images
+        OLD_IMAGES=$(gcloud artifacts docker images list \
+          ${{ env.REGISTRY_URL }}/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE_NAME }} \
+          --sort-by=~CREATE_TIME \
+          --limit=999 \
+          --format="value(package)" | tail -n +11)
+        
+        if [ -n "$OLD_IMAGES" ]; then
+          echo "Deleting $(echo "$OLD_IMAGES" | wc -l) old images..."
+          echo "$OLD_IMAGES" | while read -r image; do
+            echo "Deleting: $image"
+            gcloud artifacts docker images delete "$image" --quiet || echo "Failed to delete $image"
+          done
+        else
+          echo "No old images to clean up"
+        fi
+
+    - name: Deployment summary
+      if: always()
+      run: |
+        echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+        echo "- **Service**: ${{ env.SERVICE_NAME }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Region**: ${{ env.REGION }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Image**: \`${{ env.IMAGE_URL }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "- **Service URL**: ${{ steps.deploy.outputs.service-url }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Build Version**: ${{ env.BUILD_VERSION }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Build Time**: ${{ env.BUILD_TIME }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Commit**: ${{ env.COMMIT_SHA }}" >> $GITHUB_STEP_SUMMARY
+        
+        if [ "${{ job.status }}" = "success" ]; then
+          echo "- **Status**: ✅ Deployment successful" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "- **Status**: ❌ Deployment failed" >> $GITHUB_STEP_SUMMARY
+        fi
+
+  # Rollback job in case of deployment failure
+  rollback:
+    name: Rollback on Failure
+    runs-on: ubuntu-latest
+    needs: [deploy]
+    if: failure() && needs.deploy.outputs.image-url != ''
+    
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+      with:
+        project_id: ${{ env.PROJECT_ID }}
+
+    - name: Rollback deployment
+      run: |
+        echo "🔄 Attempting to rollback deployment..."
+        
+        # Get the previous stable revision
+        PREVIOUS_REVISION=$(gcloud run revisions list \
+          --service=${{ env.SERVICE_NAME }} \
+          --region=${{ env.REGION }} \
+          --limit=2 \
+          --format="value(metadata.name)" | tail -n 1)
+        
+        if [ -n "$PREVIOUS_REVISION" ] && [ "$PREVIOUS_REVISION" != "v${{ needs.deploy.outputs.build-version }}" ]; then
+          echo "Rolling back to revision: $PREVIOUS_REVISION"
+          gcloud run services update-traffic ${{ env.SERVICE_NAME }} \
+            --to-revisions="$PREVIOUS_REVISION=100" \
+            --region=${{ env.REGION }} \
+            --quiet
+          echo "✅ Rollback completed"
+        else
+          echo "⚠️ No previous revision available for rollback"
+        fi
+
+    - name: Rollback summary
+      run: |
+        echo "## 🔄 Rollback Summary" >> $GITHUB_STEP_SUMMARY
+        echo "- **Reason**: Deployment failure detected" >> $GITHUB_STEP_SUMMARY
+        echo "- **Action**: Attempted automatic rollback" >> $GITHUB_STEP_SUMMARY
+        echo "- **Service**: ${{ env.SERVICE_NAME }}" >> $GITHUB_STEP_SUMMARY 
