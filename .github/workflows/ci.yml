@@ -48,10 +48,20 @@ jobs:
 
     - name: Check mod tidiness
       run: |
+        # Store original checksums
+        GO_MOD_BEFORE=$(md5sum go.mod 2>/dev/null || echo "")
+        GO_SUM_BEFORE=$(md5sum go.sum 2>/dev/null || echo "")
+        
         go mod tidy
-        if [ -n "$(git status --porcelain go.mod go.sum)" ]; then
+        
+        # Check if files changed
+        GO_MOD_AFTER=$(md5sum go.mod 2>/dev/null || echo "")
+        GO_SUM_AFTER=$(md5sum go.sum 2>/dev/null || echo "")
+        
+        if [ "$GO_MOD_BEFORE" != "$GO_MOD_AFTER" ] || [ "$GO_SUM_BEFORE" != "$GO_SUM_AFTER" ]; then
           echo "::error::go.mod or go.sum is not tidy. Please run 'go mod tidy'"
-          git diff go.mod go.sum
+          echo "Changes detected:"
+          git diff go.mod go.sum || true
           exit 1
         fi
 
