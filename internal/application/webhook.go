@@ -140,8 +140,6 @@ func (app *Application) WebhookHandler(c echo.Context) error {
 		} else {
 			log.Printf("Successfully refreshed cheatsheets during fallback")
 		}
-		
-		refreshed = true
 	}
 	
 	// Handle refresh errors
