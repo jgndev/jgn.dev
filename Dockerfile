@@ -18,7 +18,7 @@ COPY internal/ ./internal/
 RUN npx tailwindcss -i ./public/css/style.css -o ./public/css/site.css --minify
 
 # ===== Go Build Stage =====
-FROM golang:1.24-alpine AS go-builder
+FROM golang:1.24.4-alpine AS go-builder
 
 # Install templ CLI
 RUN go install github.com/a-h/templ/cmd/templ@v0.3.898
