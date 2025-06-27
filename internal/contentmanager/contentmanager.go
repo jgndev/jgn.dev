@@ -10,7 +10,27 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"time"
 )
+
+// retryWithBackoff executes a function with exponential backoff retry logic
+func retryWithBackoff(fn func() error, maxRetries int, baseDelay time.Duration) error {
+	var lastErr error
+	for attempt := 0; attempt <= maxRetries; attempt++ {
+		if err := fn(); err != nil {
+			lastErr = err
+			if attempt < maxRetries {
+				delay := baseDelay * time.Duration(1<<attempt) // exponential backoff: 1s, 2s, 4s
+				log.Printf("Attempt %d failed, retrying in %v: %v", attempt+1, delay, err)
+				time.Sleep(delay)
+				continue
+			}
+		} else {
+			return nil // success
+		}
+	}
+	return lastErr
+}
 
 // ContentManager manages content storage and operations, providing synchronization and interaction with GitHub repositories.
 type ContentManager struct {
@@ -42,95 +62,107 @@ func NewContentManager(repoOwner, repoName string) *ContentManager {
 // listRepoContent retrieves the content of a GitHub repository for the provided path.
 // It supports retrieving directories or single files and returns an array of githubContent items.
 func (cm *ContentManager) listRepoContent(path string) ([]githubContent, error) {
-	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/contents/%s", cm.repoOwner, cm.repoName, path)
-
-	log.Printf("fetching content from: %s", url)
-
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Set("Accept", "application/vnd.github.v3+json")
-
-	// Add authentication if a token is available
-	if cm.githubToken != "" {
-		req.Header.Set("Authorization", "token "+cm.githubToken)
-	}
-
-	resp, err := cm.client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("GitHub API returned status %d", resp.StatusCode)
-	}
-
-	// Try to decode as an array first (directory listing)
 	var contents []githubContent
-	if err := json.NewDecoder(resp.Body).Decode(&contents); err != nil {
-		// If that fails, it might be a single file
-		resp.Body.Close()
-		resp, err = cm.client.Do(req)
+	
+	err := retryWithBackoff(func() error {
+		url := fmt.Sprintf("https://api.github.com/repos/%s/%s/contents/%s", cm.repoOwner, cm.repoName, path)
+
+		log.Printf("fetching content from: %s", url)
+
+		req, err := http.NewRequest("GET", url, nil)
 		if err != nil {
-			return nil, err
+			return err
+		}
+
+		req.Header.Set("Accept", "application/vnd.github.v3+json")
+
+		// Add authentication if a token is available
+		if cm.githubToken != "" {
+			req.Header.Set("Authorization", "token "+cm.githubToken)
+		}
+
+		resp, err := cm.client.Do(req)
+		if err != nil {
+			return err
 		}
 		defer resp.Body.Close()
 
-		var singleContent githubContent
-		if err := json.NewDecoder(resp.Body).Decode(&singleContent); err != nil {
-			return nil, fmt.Errorf("failed to decode response as array or single file: %v", err)
+		if resp.StatusCode != http.StatusOK {
+			return fmt.Errorf("GitHub API returned status %d", resp.StatusCode)
 		}
-		return []githubContent{singleContent}, nil
-	}
 
-	return contents, nil
+		// Try to decode as an array first (directory listing)
+		if err := json.NewDecoder(resp.Body).Decode(&contents); err != nil {
+			// If that fails, it might be a single file
+			resp.Body.Close()
+			resp, err = cm.client.Do(req)
+			if err != nil {
+				return err
+			}
+			defer resp.Body.Close()
+
+			var singleContent githubContent
+			if err := json.NewDecoder(resp.Body).Decode(&singleContent); err != nil {
+				return fmt.Errorf("failed to decode response as array or single file: %v", err)
+			}
+			contents = []githubContent{singleContent}
+		}
+		
+		return nil
+	}, 3, time.Second)
+	
+	return contents, err
 }
 
 // fetchFileContent retrieves the content of a file from a GitHub repository by its path.
 // It decodes base64-encoded content if necessary and returns the file content or an error.
 func (cm *ContentManager) fetchFileContent(path string) (string, error) {
-	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/contents/%s", cm.repoOwner, cm.repoName, path)
+	var content string
+	
+	err := retryWithBackoff(func() error {
+		url := fmt.Sprintf("https://api.github.com/repos/%s/%s/contents/%s", cm.repoOwner, cm.repoName, path)
 
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return "", err
-	}
-
-	req.Header.Set("Accept", "application/vnd.github.v3+json")
-
-	// Add authentication if a token is available
-	if cm.githubToken != "" {
-		req.Header.Set("Authorization", "token "+cm.githubToken)
-	}
-
-	resp, err := cm.client.Do(req)
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
-
-	var result struct {
-		Content  string `json:"content"`
-		Encoding string `json:"encoding"`
-	}
-
-	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return "", err
-	}
-
-	if result.Encoding == "base64" {
-		content, err := base64.StdEncoding.DecodeString(result.Content)
+		req, err := http.NewRequest("GET", url, nil)
 		if err != nil {
-			return "", err
+			return err
 		}
 
-		return string(content), nil
-	}
+		req.Header.Set("Accept", "application/vnd.github.v3+json")
 
-	return result.Content, nil
+		// Add authentication if a token is available
+		if cm.githubToken != "" {
+			req.Header.Set("Authorization", "token "+cm.githubToken)
+		}
+
+		resp, err := cm.client.Do(req)
+		if err != nil {
+			return err
+		}
+		defer resp.Body.Close()
+
+		var result struct {
+			Content  string `json:"content"`
+			Encoding string `json:"encoding"`
+		}
+
+		if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
+			return err
+		}
+
+		if result.Encoding == "base64" {
+			decoded, err := base64.StdEncoding.DecodeString(result.Content)
+			if err != nil {
+				return err
+			}
+			content = string(decoded)
+		} else {
+			content = result.Content
+		}
+		
+		return nil
+	}, 3, time.Second)
+	
+	return content, err
 }
 
 // matchesAllTerms checks if all terms in the given list exist in the combined searchable fields of the provided post.
