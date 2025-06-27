@@ -10,7 +10,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  GO_VERSION: '1.24.3'
+  GO_VERSION: '1.24.4'
   TEMPL_VERSION: 'v0.3.898'
 
 jobs:
@@ -169,7 +169,7 @@ jobs:
     
     strategy:
       matrix:
-        go-version: ['1.24.3'] # Removed 1.23 to reduce costs and complexity
+        go-version: ['1.24.4'] # Removed 1.23 to reduce costs and complexity
       fail-fast: false
 
     steps:

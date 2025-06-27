@@ -10,6 +10,7 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"time"
 )
 
 // CheatsheetManager manages the retrieval, storage, and filtering of cheatsheets from a remote GitHub repository.
@@ -41,95 +42,107 @@ func NewCheatsheetManager(repoOwner, repoName string) *CheatsheetManager {
 // listRepoContent retrieves the content of a GitHub repository at a specified path using the GitHub API.
 // It handles both directory listings and single file retrieval, returning a slice of githubContent or an error.
 func (cm *CheatsheetManager) listRepoContent(path string) ([]githubContent, error) {
-	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/contents/%s", cm.repoOwner, cm.repoName, path)
-
-	log.Printf("fetching cheatsheet content from: %s", url)
-
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Set("Accept", "application/vnd.github.v3+json")
-
-	// Add authentication if a token is available
-	if cm.githubToken != "" {
-		req.Header.Set("Authorization", "token "+cm.githubToken)
-	}
-
-	resp, err := cm.client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("GitHub API returned status %d", resp.StatusCode)
-	}
-
-	// Try to decode as an array first (directory listing)
 	var contents []githubContent
-	if err := json.NewDecoder(resp.Body).Decode(&contents); err != nil {
-		// If that fails, it might be a single file
-		resp.Body.Close()
-		resp, err = cm.client.Do(req)
+	
+	err := retryWithBackoff(func() error {
+		url := fmt.Sprintf("https://api.github.com/repos/%s/%s/contents/%s", cm.repoOwner, cm.repoName, path)
+
+		log.Printf("fetching cheatsheet content from: %s", url)
+
+		req, err := http.NewRequest("GET", url, nil)
 		if err != nil {
-			return nil, err
+			return err
+		}
+
+		req.Header.Set("Accept", "application/vnd.github.v3+json")
+
+		// Add authentication if a token is available
+		if cm.githubToken != "" {
+			req.Header.Set("Authorization", "token "+cm.githubToken)
+		}
+
+		resp, err := cm.client.Do(req)
+		if err != nil {
+			return err
 		}
 		defer resp.Body.Close()
 
-		var singleContent githubContent
-		if err := json.NewDecoder(resp.Body).Decode(&singleContent); err != nil {
-			return nil, fmt.Errorf("failed to decode response as array or single file: %v", err)
+		if resp.StatusCode != http.StatusOK {
+			return fmt.Errorf("GitHub API returned status %d", resp.StatusCode)
 		}
-		return []githubContent{singleContent}, nil
-	}
 
-	return contents, nil
+		// Try to decode as an array first (directory listing)
+		if err := json.NewDecoder(resp.Body).Decode(&contents); err != nil {
+			// If that fails, it might be a single file
+			resp.Body.Close()
+			resp, err = cm.client.Do(req)
+			if err != nil {
+				return err
+			}
+			defer resp.Body.Close()
+
+			var singleContent githubContent
+			if err := json.NewDecoder(resp.Body).Decode(&singleContent); err != nil {
+				return fmt.Errorf("failed to decode response as array or single file: %v", err)
+			}
+			contents = []githubContent{singleContent}
+		}
+		
+		return nil
+	}, 3, time.Second)
+	
+	return contents, err
 }
 
 // fetchFileContent retrieves the content of a file from a GitHub repository using the GitHub API.
 // It decodes the content if it is encoded in base64 and returns it as a string. Returns an error if the operation fails.
 func (cm *CheatsheetManager) fetchFileContent(path string) (string, error) {
-	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/contents/%s", cm.repoOwner, cm.repoName, path)
+	var content string
+	
+	err := retryWithBackoff(func() error {
+		url := fmt.Sprintf("https://api.github.com/repos/%s/%s/contents/%s", cm.repoOwner, cm.repoName, path)
 
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return "", err
-	}
-
-	req.Header.Set("Accept", "application/vnd.github.v3+json")
-
-	// Add authentication if a token is available
-	if cm.githubToken != "" {
-		req.Header.Set("Authorization", "token "+cm.githubToken)
-	}
-
-	resp, err := cm.client.Do(req)
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
-
-	var result struct {
-		Content  string `json:"content"`
-		Encoding string `json:"encoding"`
-	}
-
-	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return "", err
-	}
-
-	if result.Encoding == "base64" {
-		content, err := base64.StdEncoding.DecodeString(result.Content)
+		req, err := http.NewRequest("GET", url, nil)
 		if err != nil {
-			return "", err
+			return err
 		}
 
-		return string(content), nil
-	}
+		req.Header.Set("Accept", "application/vnd.github.v3+json")
 
-	return result.Content, nil
+		// Add authentication if a token is available
+		if cm.githubToken != "" {
+			req.Header.Set("Authorization", "token "+cm.githubToken)
+		}
+
+		resp, err := cm.client.Do(req)
+		if err != nil {
+			return err
+		}
+		defer resp.Body.Close()
+
+		var result struct {
+			Content  string `json:"content"`
+			Encoding string `json:"encoding"`
+		}
+
+		if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
+			return err
+		}
+
+		if result.Encoding == "base64" {
+			decoded, err := base64.StdEncoding.DecodeString(result.Content)
+			if err != nil {
+				return err
+			}
+			content = string(decoded)
+		} else {
+			content = result.Content
+		}
+		
+		return nil
+	}, 3, time.Second)
+	
+	return content, err
 }
 
 // matchesAllTermsCheatsheet checks if all the provided search terms are present in a Cheatsheet's combined text fields.

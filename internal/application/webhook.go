@@ -11,6 +11,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/jgndev/jgn.dev/internal/site"
 	"github.com/labstack/echo/v4"
 )
 
@@ -96,18 +97,64 @@ func (app *Application) WebhookHandler(c echo.Context) error {
 		})
 	}
 
-	// Refresh content from GitHub
-	log.Printf("Refreshing content due to webhook from %s", payload.Repository.FullName)
-	if err := app.ContentManager.RefreshContent(); err != nil {
-		log.Printf("Failed to refresh content: %v", err)
+	// Determine which content manager to refresh based on repository
+	repoName := payload.Repository.Name
+	log.Printf("Refreshing content due to webhook from %s (repo: %s)", payload.Repository.FullName, repoName)
+	
+	// Import site package to access repository names
+	var refreshErr error
+	refreshed := false
+	
+	// Check if this is the posts repository
+	if repoName == site.PostRepoName {
+		log.Printf("Detected posts repository, refreshing ContentManager")
+		refreshErr = app.ContentManager.RefreshContent()
+		refreshed = true
+	}
+	
+	// Check if this is the cheatsheets repository
+	if repoName == site.CheatsheetRepoName {
+		log.Printf("Detected cheatsheets repository, refreshing CheatsheetManager")
+		refreshErr = app.CheatsheetManager.RefreshContent()
+		refreshed = true
+	}
+	
+	// If repository wasn't recognized, refresh both managers as fallback
+	if !refreshed {
+		log.Printf("WARNING: Unknown repository '%s', refreshing both managers as fallback", repoName)
+		
+		// Try to refresh posts first
+		if err := app.ContentManager.RefreshContent(); err != nil {
+			log.Printf("Failed to refresh posts during fallback: %v", err)
+			refreshErr = err
+		} else {
+			log.Printf("Successfully refreshed posts during fallback")
+		}
+		
+		// Try to refresh cheatsheets
+		if err := app.CheatsheetManager.RefreshContent(); err != nil {
+			log.Printf("Failed to refresh cheatsheets during fallback: %v", err)
+			if refreshErr == nil {
+				refreshErr = err
+			}
+		} else {
+			log.Printf("Successfully refreshed cheatsheets during fallback")
+		}
+	}
+	
+	// Handle refresh errors
+	if refreshErr != nil {
+		log.Printf("Failed to refresh content for repository %s: %v", repoName, refreshErr)
 		return c.JSON(http.StatusInternalServerError, map[string]string{
 			"error": "failed to refresh content",
+			"repository": repoName,
 		})
 	}
 
-	log.Printf("Successfully refreshed content from webhook")
+	log.Printf("Successfully refreshed content from webhook for repository: %s", repoName)
 	return c.JSON(http.StatusOK, map[string]string{
 		"message": "content refreshed successfully",
+		"repository": repoName,
 	})
 }
 

@@ -108,7 +108,9 @@
 package main
 
 import (
+	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -177,7 +179,30 @@ func cacheMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	}
 }
 
+// validateEnvironment checks critical environment variables and logs warnings
+func validateEnvironment() {
+	githubToken := os.Getenv("GITHUB_TOKEN")
+	if githubToken == "" {
+		log.Println("WARNING: GITHUB_TOKEN not set - GitHub API requests will be rate limited (60/hour vs 5000/hour)")
+		log.Println("         This may cause webhook failures during high traffic periods")
+		log.Println("         Set GITHUB_TOKEN environment variable with a GitHub personal access token")
+	} else {
+		log.Println("✓ GITHUB_TOKEN configured - GitHub API rate limit: 5000/hour")
+	}
+	
+	webhookSecret := os.Getenv("GITHUB_WEBHOOK_SECRET")
+	if webhookSecret == "" {
+		log.Println("WARNING: GITHUB_WEBHOOK_SECRET not set - webhook endpoint will reject all requests")
+		log.Println("         Set GITHUB_WEBHOOK_SECRET environment variable to enable webhook functionality")
+	} else {
+		log.Println("✓ GITHUB_WEBHOOK_SECRET configured - webhook endpoint secured")
+	}
+}
+
 func main() {
+	// Validate critical environment variables
+	validateEnvironment()
+	
 	e := echo.New()
 
 	// Configure middleware
