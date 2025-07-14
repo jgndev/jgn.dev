@@ -43,7 +43,7 @@ func NewCheatsheetManager(repoOwner, repoName string) *CheatsheetManager {
 // It handles both directory listings and single file retrieval, returning a slice of githubContent or an error.
 func (cm *CheatsheetManager) listRepoContent(path string) ([]githubContent, error) {
 	var contents []githubContent
-	
+
 	err := retryWithBackoff(func() error {
 		url := fmt.Sprintf("https://api.github.com/repos/%s/%s/contents/%s", cm.repoOwner, cm.repoName, path)
 
@@ -87,10 +87,10 @@ func (cm *CheatsheetManager) listRepoContent(path string) ([]githubContent, erro
 			}
 			contents = []githubContent{singleContent}
 		}
-		
+
 		return nil
 	}, 3, time.Second)
-	
+
 	return contents, err
 }
 
@@ -98,7 +98,7 @@ func (cm *CheatsheetManager) listRepoContent(path string) ([]githubContent, erro
 // It decodes the content if it is encoded in base64 and returns it as a string. Returns an error if the operation fails.
 func (cm *CheatsheetManager) fetchFileContent(path string) (string, error) {
 	var content string
-	
+
 	err := retryWithBackoff(func() error {
 		url := fmt.Sprintf("https://api.github.com/repos/%s/%s/contents/%s", cm.repoOwner, cm.repoName, path)
 
@@ -138,10 +138,10 @@ func (cm *CheatsheetManager) fetchFileContent(path string) (string, error) {
 		} else {
 			content = result.Content
 		}
-		
+
 		return nil
 	}, 3, time.Second)
-	
+
 	return content, err
 }
 
@@ -210,9 +210,6 @@ func (cm *CheatsheetManager) RefreshContent() error {
 			return fmt.Errorf("failed to parse %s: %w", file.Name, err)
 		}
 
-		log.Printf("Parsed cheatsheet: Title='%s', Slug='%s', Published=%v, Tags=%v",
-			cheatsheet.Title, cheatsheet.Slug, cheatsheet.Published, cheatsheet.Tags)
-
 		// Check for empty slug
 		if cheatsheet.Slug == "" {
 			log.Printf("WARNING: Cheatsheet '%s' has empty slug, skipping", cheatsheet.Title)
@@ -227,8 +224,6 @@ func (cm *CheatsheetManager) RefreshContent() error {
 
 		newCheatsheets[cheatsheet.Slug] = cheatsheet
 	}
-
-	log.Printf("Successfully processed %d cheatsheets", len(newCheatsheets))
 
 	// Update cheatsheets atomically
 	cm.Lock()

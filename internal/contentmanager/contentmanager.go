@@ -63,7 +63,7 @@ func NewContentManager(repoOwner, repoName string) *ContentManager {
 // It supports retrieving directories or single files and returns an array of githubContent items.
 func (cm *ContentManager) listRepoContent(path string) ([]githubContent, error) {
 	var contents []githubContent
-	
+
 	err := retryWithBackoff(func() error {
 		url := fmt.Sprintf("https://api.github.com/repos/%s/%s/contents/%s", cm.repoOwner, cm.repoName, path)
 
@@ -107,10 +107,10 @@ func (cm *ContentManager) listRepoContent(path string) ([]githubContent, error) 
 			}
 			contents = []githubContent{singleContent}
 		}
-		
+
 		return nil
 	}, 3, time.Second)
-	
+
 	return contents, err
 }
 
@@ -118,7 +118,7 @@ func (cm *ContentManager) listRepoContent(path string) ([]githubContent, error) 
 // It decodes base64-encoded content if necessary and returns the file content or an error.
 func (cm *ContentManager) fetchFileContent(path string) (string, error) {
 	var content string
-	
+
 	err := retryWithBackoff(func() error {
 		url := fmt.Sprintf("https://api.github.com/repos/%s/%s/contents/%s", cm.repoOwner, cm.repoName, path)
 
@@ -158,10 +158,10 @@ func (cm *ContentManager) fetchFileContent(path string) (string, error) {
 		} else {
 			content = result.Content
 		}
-		
+
 		return nil
 	}, 3, time.Second)
-	
+
 	return content, err
 }
 
@@ -232,9 +232,6 @@ func (cm *ContentManager) RefreshContent() error {
 			return fmt.Errorf("failed to parse %s: %w", file.Name, err)
 		}
 
-		log.Printf("Parsed post: Title='%s', Slug='%s', Published=%v, Tags=%v",
-			post.Title, post.Slug, post.Published, post.Tags)
-
 		// Check for empty slug
 		if post.Slug == "" {
 			log.Printf("WARNING: Post '%s' has empty slug, skipping", post.Title)
@@ -249,8 +246,6 @@ func (cm *ContentManager) RefreshContent() error {
 
 		newPosts[post.Slug] = post
 	}
-
-	log.Printf("Successfully processed %d posts", len(newPosts))
 
 	// Update posts atomically
 	cm.Lock()

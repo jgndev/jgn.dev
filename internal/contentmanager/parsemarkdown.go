@@ -78,8 +78,6 @@ func parseFrontMatter(markdown []byte) (FrontMatter, string, error) {
 		return FrontMatter{}, string(markdown), nil
 	}
 
-	log.Printf("Parsing frontmatter: %s", strings.TrimSpace(parts[1]))
-
 	v := viper.New()
 	v.SetConfigType("yaml")
 	if err := v.ReadConfig(bytes.NewBufferString(parts[1])); err != nil {
@@ -93,9 +91,6 @@ func parseFrontMatter(markdown []byte) (FrontMatter, string, error) {
 		return FrontMatter{}, "", err
 	}
 
-	log.Printf("Successfully parsed frontmatter: Title='%s', Slug='%s', Published=%v",
-		fm.Title, fm.Slug, fm.Published)
-
 	return fm, parts[2], nil
 }
 
@@ -107,8 +102,6 @@ func parseCheatsheetFrontMatter(markdown []byte) (CheatsheetFrontMatter, string,
 		log.Printf("No frontmatter found in cheatsheet markdown content (length: %d)", len(markdown))
 		return CheatsheetFrontMatter{}, string(markdown), nil
 	}
-
-	log.Printf("Parsing cheatsheet frontmatter: %s", strings.TrimSpace(parts[1]))
 
 	v := viper.New()
 	v.SetConfigType("yaml")
@@ -122,9 +115,6 @@ func parseCheatsheetFrontMatter(markdown []byte) (CheatsheetFrontMatter, string,
 		log.Printf("Failed to unmarshal cheatsheet frontmatter into struct: %v", err)
 		return CheatsheetFrontMatter{}, "", err
 	}
-
-	log.Printf("Successfully parsed cheatsheet frontmatter: Title='%s', Slug='%s', Published=%v",
-		fm.Title, fm.Slug, fm.Published)
 
 	return fm, parts[2], nil
 }
