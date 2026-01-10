@@ -8,7 +8,7 @@ import (
 )
 
 templ Cheatsheets(cheatsheets []contentmanager.Cheatsheet) {
-	@shared.Layout("Cheatsheets", "Browse all cheatsheets for quick reference on programming languages, tools, and technologies.") {
+	@shared.Layout("Cheat Sheets", "Browse all cheat sheets for quick reference on programming languages, tools, and technologies.") {
 		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
 			<!-- Header Section -->
 			<header class="text-center mb-12">
@@ -24,14 +24,14 @@ templ Cheatsheets(cheatsheets []contentmanager.Cheatsheet) {
 					</a>
 				</div>
 				<h1 class="text-4xl md:text-5xl font-bold text-zinc-900 dark:text-zinc-50 mb-4">
-					Cheatsheets
+					Cheat Sheets
 				</h1>
 				<p class="text-xl text-zinc-600 dark:text-zinc-300 max-w-3xl mx-auto">
 					Quick reference guides for programming languages, tools, and technologies to boost your productivity.
 				</p>
 				if len(cheatsheets) > 0 {
 					<p class="text-sm text-zinc-500 dark:text-zinc-400 mt-4">
-						{ fmt.Sprintf("%d cheatsheets", len(cheatsheets)) } • Sorted by newest first
+						{ fmt.Sprintf("%d cheat sheets", len(cheatsheets)) } • Sorted by newest first
 					</p>
 				}
 			</header>
@@ -42,7 +42,7 @@ templ Cheatsheets(cheatsheets []contentmanager.Cheatsheet) {
 					<input 
 						type="text" 
 						name="q"
-						placeholder="Search cheatsheets..."
+						placeholder="Search cheat sheets..."
 						class="w-full px-4 sm:px-6 py-3 sm:py-4 text-base sm:text-lg bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-zinc-900 dark:text-zinc-100 placeholder-zinc-500 dark:placeholder-zinc-400 shadow-sm pr-16 sm:pr-20"
 					/>
 					<button 
@@ -68,9 +68,9 @@ templ Cheatsheets(cheatsheets []contentmanager.Cheatsheet) {
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
 						</svg>
 					</div>
-					<h2 class="text-2xl font-semibold text-zinc-900 dark:text-zinc-100 mb-4">No cheatsheets yet</h2>
+					<h2 class="text-2xl font-semibold text-zinc-900 dark:text-zinc-100 mb-4">No cheat sheets yet</h2>
 					<p class="text-zinc-600 dark:text-zinc-400 mb-8 max-w-md mx-auto">
-						Cheatsheets are being loaded from the GitHub repository. Check back soon for new content!
+						Cheat sheets are being loaded from the GitHub repository. Check back soon for new content!
 					</p>
 					<a 
 						href="/" 
